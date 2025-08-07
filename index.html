@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Name — Academic Website</title>
+  <meta name="description" content="Personal academic website of Your Name" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css" />
+  <script defer src="assets/main.js"></script>
+</head>
+
+<body>
+  <!-- Sticky Navbar -->
+  <header id="site-header">
+    <nav class="nav">
+      <a class="brand" href="#home">Your Name</a>
+      <button id="menu-toggle" aria-label="Toggle navigation">☰</button>
+      <ul id="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#publications">Publications</a></li>
+        <li><a href="#cv">CV</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="home" class="section hero">
+      <div class="container">
+        <img class="avatar" src="assets/avatar.jpg" alt="Your portrait" />
+        <h1>Your Name</h1>
+        <p class="subtitle">Ph.D. Candidate, Department of X, University of Y</p>
+        <p>
+          Research areas: Topic A · Topic B · Topic C. Short bio goes here (2–3 sentences). Replace this with your info.
+        </p>
+        <div class="icons">
+          <a href="mailto:you@university.edu" aria-label="Email">✉️</a>
+          <a href="https://scholar.google.com/..." target="_blank" rel="noopener" aria-label="Google Scholar">G</a>
+          <a href="https://orcid.org/0000-0000-0000-0000" target="_blank" rel="noopener" aria-label="ORCID">ORCID</a>
+          <a href="https://www.linkedin.com/in/yourprofile" target="_blank" rel="noopener" aria-label="LinkedIn">in</a>
+          <a href="https://github.com/yourusername" target="_blank" rel="noopener" aria-label="GitHub">GH</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" class="section alt">
+      <div class="container">
+        <h2>Projects</h2>
+        <p class="section-lead">Selected research and software projects.</p>
+
+        <!-- Grid of project cards -->
+        <div class="syllabi-grid">
+          <!-- Card 1 -->
+          <a class="card" href="https://github.com/yourusername/project-1" target="_blank" rel="noopener">
+            <img src="assets/syllabus1.jpg" alt="Project 1 cover">
+            <span>
+              Project 1: Short Title<br>
+              <small>1–2 lines describing the goal, methods, or outcome. Replace with your details.</small>
+            </span>
+          </a>
+
+          <!-- Card 2 -->
+          <a class="card" href="https://yourprojectsite.example" target="_blank" rel="noopener">
+            <img src="assets/syllabus2.jpg" alt="Project 2 cover">
+            <span>
+              Project 2: Short Title<br>
+              <small>Brief description, dataset, or demo link.</small>
+            </span>
+          </a>
+
+          <!-- Card 3 -->
+          <a class="card" href="papers/working-paper.pdf" target="_blank" rel="noopener">
+            <img src="assets/syllabus1.jpg" alt="Project 3 cover">
+            <span>
+              Working Paper: Title<br>
+              <small>Coauthors, status (R&R/under review), and a one‑line summary.</small>
+            </span>
+          </a>
+        </div>
+
+        <!-- Optional scrollable detailed list -->
+        <div class="scroll-pane" style="margin-top:16px">
+          <article class="pane-content">
+            <h3>Dissertation: Title of Dissertation</h3>
+            <p>2–4 lines summary. Methods, data, case, core question. Replace with your text.</p>
+            <h4>Other Ongoing Projects</h4>
+            <ul class="flat-list">
+              <li>Project A — short note and link to code/data.</li>
+              <li>Project B — short note and link.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- PUBLICATIONS -->
+    <section id="publications" class="section">
+      <div class="container">
+        <h2>Publications</h2>
+        <div class="scroll-pane">
+          <ol class="pub-list">
+            <li>
+              Last, F., Last, S. (20XX). “Paper Title.” Journal Name, vol(issue): pages.
+              <a href="papers/paper1.pdf">PDF</a> ·
+              <a href="https://doi.org/DOI">DOI</a> ·
+              <a href="https://osf.io/...">OSF</a>
+            </li>
+            <li>
+              Last, F. (20XX). “Paper Title 2.” Conference Proceedings. <a href="#">PDF</a>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- CV -->
+    <section id="cv" class="section alt">
+      <div class="container">
+        <h2>CV</h2>
+        <p class="section-lead">
+          Download PDF: <a href="docs/cv.pdf" target="_blank" rel="noopener">Full CV</a> (updated: replace date).
+        </p>
+        <div class="embed-frame">
+          <iframe title="Embedded CV" src="docs/cv.html"></iframe>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© <span id="year"></span> Your Name · Department of X, University of Y</p>
+      <p>Built with HTML/CSS/JS and hosted on GitHub Pages.</p>
+    </div>
+  </footer>
+</body>
+</html>
