@@ -1,0 +1,156 @@
+:root {
+  --font: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --ink: rgba(0,0,0,.87);
+  --ink-soft: rgba(0,0,0,.87); /* Changed from #000000de for compatibility */
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --muted: #4a5568;
+  --border: #e5e7eb;
+  --link: #2196f3;
+  --chip-bg: #fff;
+  --chip-shadow: 0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003;
+  --nav-shadow: 0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003;
+  --card-shadow: 0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003;
+  --radius: 22px;
+  --container: 752px;
+}
+* { box-sizing: border-box }
+html { line-height: 1.5; -webkit-text-size-adjust: 100% }
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 16px; line-height: 24px;
+  color: var(--ink-soft);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+/* Containers and spacing */
+.container { max-width: var(--container); margin: 0 auto; padding: 0 24px }
+.ot-spacer-xs { height: 8px }
+.ot-spacer-sm { height: 12px }
+.ot-spacer-md { height: 24px }
+.ot-spacer-lg { height: 32px }
+.ot-spacer-xl { height: 64px }
+.ot-center { text-align: center }
+
+/* Header banner */
+.ot-header { position: relative; color: #fff }
+.ot-header--banner { background: #fff }
+.ot-banner-bg {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,.35) 60%, rgba(0,0,0,.45) 100%),
+    url("assets/banner.jpg") center/cover no-repeat;
+}
+/* Optional: if you don't have banner.jpg, remove the second background layer */
+
+.ot-container { position: relative; min-height: 50vh; padding-top: 64px; padding-bottom: 64px }
+.ot-header-top-spacer { height: 24px }
+
+/* Avatar */
+.ot-avatar { display: block; margin: 0 auto 24px; width: 200px; height: 200px }
+.ot-avatar-picture {
+  position: relative; width: 100%; height: 100%; border-radius: 50%;
+  border: 5px solid #fff; box-shadow: var(--chip-shadow); background: #ccc; overflow: hidden;
+}
+.ot-avatar-picture img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+}
+
+/* Title */
+.ot-title-wrap { text-align: center }
+.ot-title { margin: 0; font-weight: 700; font-size: 36px; line-height: 1.2; letter-spacing: -.02em }
+@media (min-width: 768px) { .ot-title { font-size: 40px } }
+@media (min-width: 992px) { .ot-title { font-size: 48px } }
+.ot-title a { text-decoration: none; color: #fff }
+.ot-subtitle {
+  margin-top: 6px; font-size: 18px; color: #fff;
+  text-shadow: 0 2px 4px rgba(0,0,0,.14), 0 4px 5px rgba(0,0,0,.12), 0 1px 10px rgba(0,0,0,.2);
+}
+
+/* Social icons (simple text placeholders) */
+.ot-social { list-style: none; margin: 16px 0 0; padding: 0; text-align: center }
+.ot-social li { display: inline-block; padding: 0 4px }
+.ot-social a {
+  display: flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: #fff; color: #000; text-decoration: none;
+  box-shadow: var(--chip-shadow); font-weight: 700;
+}
+
+/* Centered nav below header */
+.ot-nav {
+  display: flex; justify-content: center; position: sticky; top: 16px; margin-top: -20px; padding: 0 24px; z-index: 100;
+}
+.ot-navlinks {
+  display: flex; gap: 24px; background: #fff; border-radius: var(--radius);
+  box-shadow: var(--nav-shadow); padding: 0 12px;
+}
+.ot-navlink {
+  display: block; padding: 10px 0; line-height: 24px; font-size: 18px; color: #000; text-decoration: none;
+}
+.ot-navlink.is-active { font-weight: 700 }
+
+/* Main */
+.ot-main { min-height: 60vh; padding: 48px 0 }
+.ot-page-title { font-size: 28px; line-height: 1.2; letter-spacing: -.01em; margin: 0 }
+@media (min-width: 768px) { .ot-page-title { font-size: 32px; letter-spacing: -.02em } }
+@media (min-width: 992px) { .ot-page-title { font-size: 36px; letter-spacing: -.02em } }
+a { color: var(--link); text-decoration: none }
+a:hover { text-decoration: underline }
+
+/* Content blocks */
+.ot-content p { margin: 0 0 16px }
+.ot-fullwidth-img {
+  display: block; width: 100%; height: auto; border-radius: 8px; box-shadow: var(--card-shadow)
+}
+
+/* Chip-like button */
+.ot-chip {
+  display: inline-flex; padding: 0 20px; line-height: 40px; border-radius: 20px;
+  background: #fff; box-shadow: var(--chip-shadow); color: var(--ink); text-decoration: none;
+}
+
+/* Scrollable pane for lists */
+.ot-scroll-pane {
+  max-height: 420px; overflow: auto; padding: 16px;
+  border: 1px solid var(--border); border-radius: 8px; background: #fff; box-shadow: var(--card-shadow);
+}
+.ot-flat { list-style: none; margin: 0; padding: 0 }
+.ot-flat li { margin: 8px 0 }
+
+/* Publications */
+.ot-pubs { margin: 0; padding-left: 18px }
+.ot-pubs li { margin: 12px 0 }
+.ot-pubs .ot-links a { margin-left: 10px }
+
+/* Embedded frame (CV) */
+.ot-lead { color: #374151 }
+.ot-embed {
+  height: 480px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+  background: #fff; box-shadow: var(--card-shadow);
+}
+.ot-embed iframe { width: 100%; height: 100%; border: none; background: #fff }
+
+/* Projects grid */
+.ot-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;
+}
+.ot-card {
+  display: flex; flex-direction: column; text-decoration: none; color: inherit;
+  border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fff; box-shadow: var(--card-shadow);
+}
+.ot-card img { width: 100%; height: 150px; object-fit: cover }
+.ot-card-body { padding: 12px }
+.ot-card-title { font-weight: 700; margin-bottom: 4px }
+
+/* Share */
+.ot-share { border-top: 1px solid var(--border); padding-top: 16px }
+.ot-share-label { color: #6b7280; margin-bottom: 4px }
+.ot-share-links { list-style: none; padding: 0; margin: 0 }
+.ot-share-links li { display: inline-block; margin-right: 10px }
+
+/* Footer */
+.ot-footer { padding: 32px 0; border-top: 1px solid var(--border); background: #fff }
+.ot-copy { color: #4b5563 }

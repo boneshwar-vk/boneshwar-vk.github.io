@@ -1,62 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Your Name — CV</title>
-<link rel="stylesheet" href="../assets/cv.css">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your Name — CV</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/style.css" />
 </head>
+
 <body>
-  <div class="cv">
-    <header>
-      <h1>Your Name</h1>
-      <p>Department of X, University of Y · email@university.edu · City, Country</p>
-      <p><a href="../docs/cv.pdf" target="_blank" rel="noopener">Download PDF</a></p>
+    <header class="ot-header ot-header--banner">
+        <div class="ot-banner-bg"></div>
+        <div class="container ot-container">
+            <div class="ot-header-top-spacer"></div>
+
+            <div class="ot-avatar">
+                <div class="ot-avatar-picture">
+                    <img src="assets/avatar.jpg" alt="Your headshot">
+                </div>
+            </div>
+
+            <div class="ot-title-wrap">
+                <h1 class="ot-title"><a href="index.html">Your Name</a></h1>
+                <div class="ot-subtitle">Ph.D. Candidate - Department of X, University of Y</div>
+            </div>
+
+            <ul class="ot-social">
+                <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener">G</a></li>
+                <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener">ORCID</a></li>
+                <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener">in</a></li>
+                <li><a aria-label="GitHub" href="#" target="_blank" rel="noopener">GH</a></li>
+                <li><a aria-label="Email" href="mailto:you@university.edu">✉</a></li>
+            </ul>
+        </div>
+
+        <nav class="ot-nav">
+            <div class="ot-navlinks">
+                <a class="ot-navlink" href="index.html">Home</a>
+                <a class="ot-navlink" href="publications.html">Publications</a>
+                <a class="ot-navlink is-active" href="cv.html">CV</a>
+                <a class="ot-navlink" href="projects.html">Projects</a>
+            </div>
+        </nav>
     </header>
+    <main class="ot-main">
+        <div class="container ot-container">
+            <h1 class="ot-page-title">CV</h1>
+            <div class="ot-spacer-xs"></div>
+            <p class="ot-lead">Download PDF: <a href="docs/cv.pdf" target="_blank" rel="noopener">Full CV</a></p>
+            <div class="ot-spacer-sm"></div>
 
-    <section>
-      <h2>Education</h2>
-      <ul>
-        <li>Ph.D., Field, University, Year — Dissertation: “Title” (Advisor: …)</li>
-        <li>M.A., Field, University, Year</li>
-        <li>B.A., Field, University, Year</li>
-      </ul>
-    </section>
+            <!-- Scrollable embedded area, CV as HTML (preferred). You can switch to PDF by changing src. -->
+            <div class="ot-embed">
+                <iframe title="Embedded CV" src="docs/cv.html"></iframe>
+            </div>
 
-    <section>
-      <h2>Appointments</h2>
-      <ul>
-        <li>Year–Year — Title, Institution</li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Publications</h2>
-      <ol>
-        <li>Author (Year). Title. Journal, vol(issue): pages. DOI.</li>
-      </ol>
-    </section>
-
-    <section>
-      <h2>Teaching</h2>
-      <ul>
-        <li>Course Title (Term Year), Role, Level</li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Service</h2>
-      <ul>
-        <li>Referee: Journal A, Journal B</li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Skills</h2>
-      <ul>
-        <li>Methods/Software/Languages</li>
-      </ul>
-    </section>
+            <!-- Alternative: PDF directly (uncomment and comment the HTML iframe above)
+  <div class="ot-embed">
+    <iframe title="Embedded CV PDF" src="docs/cv.pdf#toolbar=0&navpanes=0&scrollbar=0"></iframe>
   </div>
+  -->
+        </div>
+    </main>
+    <footer class="ot-footer">
+        <div class="container ot-container ot-center">
+            <div class="ot-copy">© <span id="year"></span> Your Name</div>
+        </div>
+    </footer>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
 </body>
+
 </html>

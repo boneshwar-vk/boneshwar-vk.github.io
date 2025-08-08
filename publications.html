@@ -5,8 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Your Name</title>
-    <meta name="description" content="Hello! Short intro about you." />
+    <title>Your Name — Publications</title>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/style.css" />
@@ -16,10 +15,10 @@
     <header class="ot-header ot-header--banner">
         <div class="ot-banner-bg"></div>
         <div class="container ot-container">
-            text
+
             <div class="ot-header-top-spacer"></div>
 
-            <div class="ot-avatar" aria-hidden="true">
+            <div class="ot-avatar">
                 <div class="ot-avatar-picture">
                     <img src="assets/avatar.jpg" alt="Your headshot">
                 </div>
@@ -31,21 +30,18 @@
             </div>
 
             <ul class="ot-social">
-                <!-- Replace with your links or remove any -->
                 <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener">G</a></li>
                 <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener">ORCID</a></li>
                 <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener">in</a></li>
                 <li><a aria-label="GitHub" href="#" target="_blank" rel="noopener">GH</a></li>
                 <li><a aria-label="Email" href="mailto:you@university.edu">✉</a></li>
             </ul>
-
         </div>
 
-        <!-- Centered navigation directly under the header content -->
         <nav class="ot-nav">
             <div class="ot-navlinks">
-                <a class="ot-navlink is-active" href="index.html">Home</a>
-                <a class="ot-navlink" href="publications.html">Publications</a>
+                <a class="ot-navlink" href="index.html">Home</a>
+                <a class="ot-navlink is-active" href="publications.html">Publications</a>
                 <a class="ot-navlink" href="cv.html">CV</a>
                 <a class="ot-navlink" href="projects.html">Projects</a>
             </div>
@@ -53,31 +49,26 @@
     </header>
     <main class="ot-main">
         <div class="container ot-container">
-            <h1 class="ot-page-title">Home</h1>
+            <h1 class="ot-page-title">Publications</h1>
             <div class="ot-spacer-md"></div>
-            text
-            <div class="ot-content">
-                <p>Hello! Brief homepage text. Replace with your bio: research areas, interests, recent news, and highlights. Keep this concise.</p>
 
-                <div class="ot-spacer-lg"></div>
-
-                <img class="ot-fullwidth-img" src="assets/project1.jpg" alt="Featured image (optional)">
-
-                <div class="ot-spacer-lg"></div>
-
-                <a class="ot-chip" href="cv.html">View my CV</a>
-            </div>
-
-            <div class="ot-spacer-xl"></div>
-
-            <div class="ot-share">
-                <div class="ot-share-label">Share</div>
-                <ul class="ot-share-links">
-                    <li><a href="#" aria-label="Share to X">X</a></li>
-                    <li><a href="#" aria-label="Share to Facebook">Facebook</a></li>
-                    <li><a href="#" aria-label="Share to LinkedIn">LinkedIn</a></li>
-                    <li><a href="mailto:?subject=Check this site&amp;body=https://yourusername.github.io">Email</a></li>
-                </ul>
+            <div class="ot-scroll-pane">
+                <ol class="ot-pubs">
+                    <li>
+                        Last, F., Last, S. (20XX). “Paper Title.” Journal, vol(issue): pages.
+                        <span class="ot-links">
+                            <a href="docs/papers/paper1.pdf">PDF</a>
+                            <a href="#">DOI</a>
+                            <a href="#">OSF</a>
+                        </span>
+                    </li>
+                    <li>
+                        Last, F. (20XX). “Paper Title 2.” Conference Proceedings.
+                        <span class="ot-links">
+                            <a href="#">PDF</a>
+                        </span>
+                    </li>
+                </ol>
             </div>
         </div>
     </main>

@@ -5,8 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Your Name</title>
-    <meta name="description" content="Hello! Short intro about you." />
+    <title>Your Name — Projects</title>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/style.css" />
@@ -16,10 +15,9 @@
     <header class="ot-header ot-header--banner">
         <div class="ot-banner-bg"></div>
         <div class="container ot-container">
-            text
             <div class="ot-header-top-spacer"></div>
 
-            <div class="ot-avatar" aria-hidden="true">
+            <div class="ot-avatar">
                 <div class="ot-avatar-picture">
                     <img src="assets/avatar.jpg" alt="Your headshot">
                 </div>
@@ -31,52 +29,60 @@
             </div>
 
             <ul class="ot-social">
-                <!-- Replace with your links or remove any -->
                 <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener">G</a></li>
                 <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener">ORCID</a></li>
                 <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener">in</a></li>
                 <li><a aria-label="GitHub" href="#" target="_blank" rel="noopener">GH</a></li>
                 <li><a aria-label="Email" href="mailto:you@university.edu">✉</a></li>
             </ul>
-
         </div>
 
-        <!-- Centered navigation directly under the header content -->
         <nav class="ot-nav">
             <div class="ot-navlinks">
-                <a class="ot-navlink is-active" href="index.html">Home</a>
+                <a class="ot-navlink" href="index.html">Home</a>
                 <a class="ot-navlink" href="publications.html">Publications</a>
                 <a class="ot-navlink" href="cv.html">CV</a>
-                <a class="ot-navlink" href="projects.html">Projects</a>
+                <a class="ot-navlink is-active" href="projects.html">Projects</a>
             </div>
         </nav>
     </header>
     <main class="ot-main">
         <div class="container ot-container">
-            <h1 class="ot-page-title">Home</h1>
+            <h1 class="ot-page-title">Projects</h1>
             <div class="ot-spacer-md"></div>
-            text
-            <div class="ot-content">
-                <p>Hello! Brief homepage text. Replace with your bio: research areas, interests, recent news, and highlights. Keep this concise.</p>
+            <div class="ot-grid">
+                <a class="ot-card" href="#" target="_blank" rel="noopener">
+                    <img src="assets/project1.jpg" alt="Project 1">
+                    <div class="ot-card-body">
+                        <div class="ot-card-title">Project 1</div>
+                        <p>1–2 lines about the goal, data, or output.</p>
+                    </div>
+                </a>
 
-                <div class="ot-spacer-lg"></div>
+                <a class="ot-card" href="#" target="_blank" rel="noopener">
+                    <img src="assets/project2.jpg" alt="Project 2">
+                    <div class="ot-card-body">
+                        <div class="ot-card-title">Project 2</div>
+                        <p>Brief description or demo link.</p>
+                    </div>
+                </a>
 
-                <img class="ot-fullwidth-img" src="assets/project1.jpg" alt="Featured image (optional)">
-
-                <div class="ot-spacer-lg"></div>
-
-                <a class="ot-chip" href="cv.html">View my CV</a>
+                <a class="ot-card" href="#" target="_blank" rel="noopener">
+                    <img src="assets/project3.jpg" alt="Project 3">
+                    <div class="ot-card-body">
+                        <div class="ot-card-title">Working Paper</div>
+                        <p>Title, coauthors, status (R&R/under review).</p>
+                    </div>
+                </a>
             </div>
 
-            <div class="ot-spacer-xl"></div>
+            <div class="ot-spacer-lg"></div>
 
-            <div class="ot-share">
-                <div class="ot-share-label">Share</div>
-                <ul class="ot-share-links">
-                    <li><a href="#" aria-label="Share to X">X</a></li>
-                    <li><a href="#" aria-label="Share to Facebook">Facebook</a></li>
-                    <li><a href="#" aria-label="Share to LinkedIn">LinkedIn</a></li>
-                    <li><a href="mailto:?subject=Check this site&amp;body=https://yourusername.github.io">Email</a></li>
+            <div class="ot-scroll-pane">
+                <h3>Ongoing Work</h3>
+                <ul class="ot-flat">
+                    <li>Project A — short note and link.</li>
+                    <li>Project B — short note and link.</li>
                 </ul>
             </div>
         </div>
