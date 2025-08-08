@@ -6,86 +6,231 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Your Name</title>
-    <meta name="description" content="Hello! Short intro about you." />
+    <meta name="description" content="Deep Learning, medical image and brain tumor analysis, graph neural networks, and 3D‑aware synthetic image generation." />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/style.css" />
+    <style>
+        :root {
+            --container: 752px;
+            --border: #e5e7eb;
+            --shadow: 0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: #000000de;
+            background: #fff
+        }
+
+        .container {
+            max-width: var(--container);
+            margin: 0 auto;
+            padding: 0 24px
+        }
+
+        .header {
+            position: relative;
+            color: #fff;
+            background: #2f5369
+        }
+
+        .header-inner {
+            position: relative;
+            min-height: 50vh;
+            padding: 64px 24px
+        }
+
+        .avatar {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            border: 5px solid #fff;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            background: #ccc
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
+        }
+
+        .title-wrap {
+            text-align: center
+        }
+
+        .title-wrap h1 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 48px;
+            letter-spacing: -.02em
+        }
+
+        .subtitle {
+            margin-top: 6px;
+            font-size: 18px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, .14), 0 4px 5px rgba(0, 0, 0, .12), 0 1px 10px rgba(0, 0, 0, .2)
+        }
+
+        .social {
+            list-style: none;
+            margin: 16px 0 0;
+            padding: 0;
+            text-align: center
+        }
+
+        .social li {
+            display: inline-block;
+            padding: 0 4px
+        }
+
+        .social a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #fff;
+            color: #000;
+            text-decoration: none;
+            font-weight: 700;
+            box-shadow: var(--shadow)
+        }
+
+        .nav-wrap {
+            display: flex;
+            justify-content: center;
+            position: sticky;
+            top: 16px;
+            margin-top: -20px;
+            padding: 0 24px;
+            z-index: 100
+        }
+
+        .nav {
+            display: flex;
+            gap: 24px;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+            padding: 0 12px;
+            border: 1px solid var(--border)
+        }
+
+        .nav a {
+            display: block;
+            padding: 10px 0;
+            line-height: 24px;
+            font-size: 18px;
+            color: #000;
+            text-decoration: none
+        }
+
+        .nav a.active {
+            font-weight: 700
+        }
+
+        main {
+            min-height: 60vh;
+            padding: 48px 0
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 36px;
+            letter-spacing: -.02em
+        }
+
+        .lead {
+            margin: 18px 0 0
+        }
+
+        .chip {
+            display: inline-flex;
+            padding: 0 20px;
+            line-height: 40px;
+            border-radius: 20px;
+            background: #fff;
+            color: #000;
+            text-decoration: none;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border)
+        }
+
+        .sp-md {
+            height: 24px
+        }
+
+        .sp-lg {
+            height: 32px
+        }
+
+        .sp-xl {
+            height: 64px
+        }
+
+        footer {
+            padding: 32px 0;
+            border-top: 1px solid var(--border);
+            background: #fff;
+            text-align: center;
+            color: #4b5563
+        }
+
+        @media (max-width:540px) {
+            .title-wrap h1 {
+                font-size: 36px
+            }
+
+            .nav {
+                gap: 16px
+            }
+
+            .nav a {
+                font-size: 16px
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <header class="ot-header ot-header--banner">
-        <div class="ot-banner-bg"></div>
-        <div class="container ot-container">
-            text
-            <div class="ot-header-top-spacer"></div>
-
-            <div class="ot-avatar" aria-hidden="true">
-                <div class="ot-avatar-picture">
-                    <img src="assets/avatar.jpg" alt="Your headshot">
-                </div>
-            </div>
-
-            <div class="ot-title-wrap">
-                <h1 class="ot-title"><a href="index.html">Your Name</a></h1>
-                <div class="ot-subtitle">Ph.D. Candidate - Department of X, University of Y</div>
-            </div>
-
-            <ul class="ot-social">
-                <!-- Replace with your links or remove any -->
-                <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener">G</a></li>
-                <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener">ORCID</a></li>
-                <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener">in</a></li>
-                <li><a aria-label="GitHub" href="#" target="_blank" rel="noopener">GH</a></li>
-                <li><a aria-label="Email" href="mailto:you@university.edu">✉</a></li>
-            </ul>
-
-        </div>
-
-        <!-- Centered navigation directly under the header content -->
-        <nav class="ot-nav">
-            <div class="ot-navlinks">
-                <a class="ot-navlink is-active" href="index.html">Home</a>
-                <a class="ot-navlink" href="publications.html">Publications</a>
-                <a class="ot-navlink" href="cv.html">CV</a>
-                <a class="ot-navlink" href="projects.html">Projects</a>
-            </div>
-        </nav>
-    </header>
-    <main class="ot-main">
-        <div class="container ot-container">
-            <h1 class="ot-page-title">Home</h1>
-            <div class="ot-spacer-md"></div>
-            text
-            <div class="ot-content">
-                <p>Hello! Brief homepage text. Replace with your bio: research areas, interests, recent news, and highlights. Keep this concise.</p>
-
-                <div class="ot-spacer-lg"></div>
-
-                <img class="ot-fullwidth-img" src="assets/project1.jpg" alt="Featured image (optional)">
-
-                <div class="ot-spacer-lg"></div>
-
-                <a class="ot-chip" href="cv.html">View my CV</a>
-            </div>
-
-            <div class="ot-spacer-xl"></div>
-
-            <div class="ot-share">
-                <div class="ot-share-label">Share</div>
-                <ul class="ot-share-links">
-                    <li><a href="#" aria-label="Share to X">X</a></li>
-                    <li><a href="#" aria-label="Share to Facebook">Facebook</a></li>
-                    <li><a href="#" aria-label="Share to LinkedIn">LinkedIn</a></li>
-                    <li><a href="mailto:?subject=Check this site&amp;body=https://yourusername.github.io">Email</a></li>
+    <header class="header">
+        <div class="header-inner container">
+            <div class="avatar"><img src="assets/avatar.jpg" alt="Your headshot"></div>
+            <div class="title-wrap">
+                <h1><a href="index.html" style="color:#fff;text-decoration:none">Your Name</a></h1>
+                <div class="subtitle">B.S. and M.S., Biological Sciences — Department of Biotechnology, Bhupat &amp; Jyoti Mehta School of Biosciences, Indian Institute of Technology Madras</div>
+                <ul class="social">
+                    <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener">G</a></li>
+                    <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener">ORCID</a></li>
+                    <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener">in</a></li>
+                    <li><a aria-label="GitHub" href="#" target="_blank" rel="noopener">GH</a></li>
+                    <li><a aria-label="Email" href="mailto:you@university.edu">✉</a></li>
                 </ul>
             </div>
         </div>
-    </main>
-    <footer class="ot-footer">
-        <div class="container ot-container ot-center">
-            <div class="ot-copy">© <span id="year"></span> Your Name</div>
+        <div class="nav-wrap">
+            <nav class="nav" aria-label="Primary"> <a class="active" href="index.html">Home</a> <a href="publications.html">Publications</a> <a href="cv.html">CV</a> <a href="projects.html">Projects</a> </nav>
         </div>
-    </footer>
+    </header>
+    <main>
+        <div class="container">
+            <h1 class="page-title">Home</h1>
+            <div class="sp-md"></div>
+            <p class="lead">My primary research interests are Deep Learning, medical image and brain tumor analysis, biological systems‑based graph neural networks, and 3D‑aware photorealistic synthetic image generation. I work on theoretical machine learning, generative AI, and graph‑based models for healthcare and biomedical engineering.</p>
+            <div class="sp-lg"></div> <a class="chip" href="cv.html">View my CV</a>
+            <div class="sp-xl"></div>
+        </div>
+    </main>
+    <footer>© <span id="year"></span> Your Name</footer>
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
     </script>
