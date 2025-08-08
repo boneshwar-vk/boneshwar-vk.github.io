@@ -2,77 +2,363 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Your Name — CV</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/style.css" />
+  <meta charset="utf-8" />
+  <title>CV</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Favicon and Fonts (keep consistent with other pages if they exist there) -->
+  <link rel="icon" href="assets/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Base styles (replicate site-wide look and feel without removing major logic blocks) -->
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: #12172a;
+      --muted: #8b93a7;
+      --text: #e6e9f2;
+      --brand: #6ea8fe;
+      --border: #1e2540;
+      --accent: #1b2240;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", Helvetica, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+      background: radial-gradient(1000px 600px at 10% -10%, rgba(110, 168, 254, 0.12), transparent 60%),
+                  radial-gradient(800px 800px at 110% 10%, rgba(110, 168, 254, 0.08), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--brand);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header.site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 0 8px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: linear-gradient(180deg, rgba(11,15,25,0.9), rgba(11,15,25,0.65) 60%, rgba(11,15,25,0));
+      backdrop-filter: blur(8px);
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #1f2a48, #0e1424);
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .brand .name {
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    .brand .tagline {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    nav.site-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .nav-link {
+      padding: 8px 12px;
+      border-radius: 10px;
+      color: var(--text);
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .nav-link:hover {
+      background: var(--accent);
+      border-color: var(--border);
+      text-decoration: none;
+    }
+    .nav-link.active {
+      background: linear-gradient(180deg, #1b2444, #12172a);
+      border: 1px solid var(--border);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    main.page {
+      display: grid;
+      gap: 20px;
+      margin-top: 18px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, #11162a, #0d1224 45%, #0a0f1f);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow:
+        0 10px 30px rgba(0,0,0,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.03);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 18px 18px 0;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 18px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1.page-title {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 0.2px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .content {
+      padding: 18px;
+    }
+
+    /* Scrollable PDF viewer section */
+    .pdf-wrapper {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 10px;
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      background: radial-gradient(500px 200px at 100% -10%, rgba(110,168,254,0.08), transparent 60%);
+    }
+
+    .pdf-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .pdf-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+    }
+
+    .badge {
+      font-size: 11px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      background: #0c1326;
+      border-radius: 8px;
+      padding: 4px 8px;
+    }
+
+    .pdf-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, #172144, #121b39);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    /* The scrollable container around the embedded PDF */
+    .pdf-container {
+      height: 70vh; /* scrollable viewport height */
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #0b1124;
+      overflow: auto;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    /* Use object for better PDF handling; provide graceful fallback */
+    .pdf-object {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      background: #0b1124;
+    }
+
+    .fallback {
+      padding: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      border-top: 1px dashed var(--border);
+    }
+
+    footer.site-footer {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 24px 0 40px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      margin-top: 20px;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 720px) {
+      .container {
+        padding: 16px;
+      }
+      .pdf-container {
+        height: 60vh;
+      }
+      .title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <header class="ot-header ot-header--banner">
-        <div class="ot-banner-bg"></div>
-        <div class="container ot-container">
-            <div class="ot-header-top-spacer"></div>
-
-            <div class="ot-avatar">
-                <div class="ot-avatar-picture">
-                    <img src="assets/avatar.jpg" alt="Your headshot">
-                </div>
-            </div>
-
-            <div class="ot-title-wrap">
-                <h1 class="ot-title"><a href="index.html">Your Name</a></h1>
-                <div class="ot-subtitle">Ph.D. Candidate - Department of X, University of Y</div>
-            </div>
-
-            <ul class="ot-social">
-                <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener">G</a></li>
-                <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener">ORCID</a></li>
-                <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener">in</a></li>
-                <li><a aria-label="GitHub" href="#" target="_blank" rel="noopener">GH</a></li>
-                <li><a aria-label="Email" href="mailto:you@university.edu">✉</a></li>
-            </ul>
+  <div class="container">
+    <!-- Header: mirror structure from other pages -->
+    <header class="site-header">
+      <div class="brand">
+        <div class="brand-avatar">CV</div>
+        <div>
+          <div class="name">Your Name</div>
+          <div class="tagline">Researcher • ML • Vision • Health</div>
         </div>
-
-        <nav class="ot-nav">
-            <div class="ot-navlinks">
-                <a class="ot-navlink" href="index.html">Home</a>
-                <a class="ot-navlink" href="publications.html">Publications</a>
-                <a class="ot-navlink is-active" href="cv.html">CV</a>
-                <a class="ot-navlink" href="projects.html">Projects</a>
-            </div>
-        </nav>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link" href="projects.html">Projects</a>
+        <a class="nav-link" href="publications.html">Publications</a>
+        <a class="nav-link active" href="cv.html" aria-current="page">CV</a>
+      </nav>
     </header>
-    <main class="ot-main">
-        <div class="container ot-container">
-            <h1 class="ot-page-title">CV</h1>
-            <div class="ot-spacer-xs"></div>
-            <p class="ot-lead">Download PDF: <a href="docs/cv.pdf" target="_blank" rel="noopener">Full CV</a></p>
-            <div class="ot-spacer-sm"></div>
 
-            <!-- Scrollable embedded area, CV as HTML (preferred). You can switch to PDF by changing src. -->
-            <div class="ot-embed">
-                <iframe title="Embedded CV" src="docs/cv.html"></iframe>
+    <!-- Main page content -->
+    <main class="page" id="top">
+      <section class="card">
+        <div class="card-header">
+          <div class="title-row">
+            <h1 class="page-title">Curriculum Vitae</h1>
+            <div class="subtitle">Interactive, scrollable PDF viewer</div>
+          </div>
+        </div>
+
+        <div class="content">
+          <p class="subtitle">
+            This section renders the latest CV PDF directly from the assets folder inside a scrollable pane for quick viewing and reference[16].
+          </p>
+        </div>
+
+        <!-- Scrollable PDF section -->
+        <div class="pdf-wrapper">
+          <div class="pdf-header">
+            <div class="pdf-title">
+              <span>CV PDF</span>
+              <span class="badge">assets/cv.pdf</span>
             </div>
+            <div class="pdf-toolbar">
+              <!-- Open in new tab -->
+              <a class="btn" href="assets/cv.pdf" target="_blank" rel="noopener">Open</a>
+              <!-- Download link -->
+              <a class="btn" href="assets/cv.pdf" download>Download</a>
+            </div>
+          </div>
 
-            <!-- Alternative: PDF directly (uncomment and comment the HTML iframe above)
-  <div class="ot-embed">
-    <iframe title="Embedded CV PDF" src="docs/cv.pdf#toolbar=0&navpanes=0&scrollbar=0"></iframe>
-  </div>
-  -->
+          <!-- The container provides the scroll; the object fills it -->
+          <div class="pdf-container" id="pdfScrollContainer" aria-label="CV PDF Viewer">
+            <!-- Use PDF Open Parameters to hide default toolbar for a cleaner look where supported -->
+            <!-- Fallback text is inside the object tag for browsers without PDF rendering -->
+            <object
+              class="pdf-object"
+              data="assets/cv.pdf#toolbar=0&navpanes=0&scrollbar=1"
+              type="application/pdf">
+              <div class="fallback">
+                Unable to display embedded PDF. Use the Open or Download buttons above, or view the file directly:
+                <a href="assets/cv.pdf" target="_blank" rel="noopener">assets/cv.pdf</a>[8][9][7].
+              </div>
+            </object>
+          </div>
+
+          <div class="fallback">
+            Tip: If the embedded viewer does not appear, some browsers require a native or plugin PDF renderer; opening in a new tab will still work[8][9].
+          </div>
         </div>
+      </section>
     </main>
-    <footer class="ot-footer">
-        <div class="container ot-container ot-center">
-            <div class="ot-copy">© <span id="year"></span> Your Name</div>
-        </div>
+
+    <footer class="site-footer">
+      © <span id="year"></span> Your Name · All rights reserved
     </footer>
-    <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
-    </script>
+  </div>
+
+  <!-- Optional: Minimal JS for current year and simple scroll helpers (no major logic changes) -->
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Example scroll helpers if needed later; the container itself is naturally scrollable.
+    // document.getElementById('scrollDownBtn')?.addEventListener('click', () => {
+    //   document.getElementById('pdfScrollContainer').scrollBy({ top: 200, behavior: 'smooth' });
+    // });
+    // document.getElementById('scrollUpBtn')?.addEventListener('click', () => {
+    //   document.getElementById('pdfScrollContainer').scrollBy({ top: -200, behavior: 'smooth' });
+    // });
+  </script>
 </body>
 
 </html>
