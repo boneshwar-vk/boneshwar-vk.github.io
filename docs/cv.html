@@ -37,9 +37,6 @@
             padding: 0 24px
         }
 
-        text
-
-        /* Upper banner (kept blue, just slightly smaller) */
         .header {
             position: relative;
             color: #fff;
@@ -86,7 +83,6 @@
             text-shadow: 0 2px 4px rgba(0, 0, 0, .14), 0 4px 5px rgba(0, 0, 0, .12), 0 1px 10px rgba(0, 0, 0, .2)
         }
 
-        /* Social circles (slightly bigger; image icons fit inside) */
         .social {
             list-style: none;
             margin: 16px 0 0;
@@ -123,7 +119,6 @@
             display: block
         }
 
-        /* Centered nav under banner (unchanged skeleton, just nudged) */
         .nav-wrap {
             display: flex;
             justify-content: center;
@@ -173,7 +168,6 @@
             margin: 0 0 14px
         }
 
-        /* Scrollable CV viewer (PDF) */
         .cv-panel {
             height: 520px;
             max-height: 520px;
@@ -221,17 +215,14 @@
     </style>
 </head>
 
-<body> <!-- Banner/header (blue retained) -->
+<body>
     <header class="header">
         <div class="header-inner container">
             <div class="avatar"><img src="assets/avatar.jpg" alt="Your headshot"></div>
-            text
             <div class="title-wrap">
                 <h1><a href="index.html" style="color:#fff;text-decoration:none">Your Name</a></h1>
                 <div class="subtitle">B.S. and M.S., Biological Sciences — Department of Biotechnology, Bhupat &amp; Jyoti Mehta School of Biosciences, Indian Institute of Technology Madras</div>
-
                 <ul class="social">
-                    <!-- Replace href with your real profile URLs -->
                     <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener">G</a></li>
                     <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener"><img src="assets/orchid.jpeg" alt="ORCID icon"></a></li>
                     <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener"><img src="assets/LinkedIn.jpeg" alt="LinkedIn icon"></a></li>
@@ -240,27 +231,15 @@
                 </ul>
             </div>
         </div>
-
-        <!-- Centered toggle bar -->
         <div class="nav-wrap">
-            <nav class="nav" aria-label="Primary">
-                <a href="index.html">Home</a>
-                <a href="publications.html">Publications</a>
-                <a class="active" href="cv.html">CV</a>
-                <a href="projects.html">Projects</a>
-            </nav>
+            <nav class="nav" aria-label="Primary"> <a href="index.html">Home</a> <a href="publications.html">Publications</a> <a class="active" href="cv.html">CV</a> <a href="projects.html">Projects</a> </nav>
         </div>
     </header>
     <main>
         <div class="container">
             <h1 class="page-title">CV</h1>
-            <p class="lead"> Download PDF: <a href="docs/cv.pdf" target="_blank" rel="noopener">Open in new tab</a> </p>
-            text
-            <!-- Scrollable embedded PDF viewer -->
-            <div class="cv-panel" id="cv-viewer">
-                <!-- If your PDF lives at docs/cv.pdf (recommended path), this will load it -->
-                <iframe title="Embedded CV PDF" src="docs/cv.pdf#toolbar=0&navpanes=0"></iframe>
-            </div>
+            <p class="lead">Download PDF: <a href="docs/cv.pdf" target="_blank" rel="noopener">Open in new tab</a></p>
+            <div class="cv-panel" id="cv-viewer"> <iframe title="Embedded CV PDF" src="docs/cv.pdf#toolbar=0&navpanes=0"></iframe> </div>
         </div>
     </main>
     <footer>© <span id="year"></span> Your Name</footer>
