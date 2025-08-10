@@ -346,29 +346,55 @@
                         </span>
 
                             <!-- Abstract + direct PDF embed (no scrollable wrapper) -->
+                            <!-- Abstract + image-based PDF preview with zoom-on-click -->
                             <div class="abstract-block">
-                                <span class="abstract-toggle" onclick="(function(el){
-                                    var c=el.nextElementSibling;
-                                    c.classList.toggle('open');
-                                    el.textContent = c.classList.contains('open') ? 'Hide abstract' : 'Show abstract';
-                                })(this)">Show abstract</span>
+                            <span class="abstract-toggle" onclick="(function(el){
+                                var c = el.nextElementSibling;
+                                c.classList.toggle('open');
+                                el.textContent = c.classList.contains('open') ? 'Hide abstract' : 'Show abstract';
+                            })(this)">Show abstract</span>
 
-                                <div class="abstract-content">
-                                    <p class="abstract-heading">Abstract</p>
-                                    <p>
-                                        Single-cell RNA sequencing (scRNA-seq) enables fine-grained analysis of cellular processes but suffers from sparsity and noise. We present an inductive graph learning framework that constructs node embeddings from subgraphs, improving scalability while achieving strong imputation and clustering performance across multiple scRNA-seq datasets. The method demonstrates gains in Silhouette and ARI scores with reduced runtime and error, supporting downstream applications in trajectory inference and pathway analysis.
-                                    </p>
+                            <div class="abstract-content">
+                                <p class="abstract-heading">Abstract</p>
+                                <p>
+                                Single-cell RNA sequencing (scRNA-seq) enables fine-grained analysis of cellular processes but suffers from sparsity and noise. We present an inductive graph learning framework that constructs node embeddings from subgraphs, improving scalability while achieving strong imputation and clustering performance across multiple scRNA-seq datasets. The method demonstrates gains in Silhouette and ARI scores with reduced runtime and error, supporting downstream applications in trajectory inference and pathway analysis.
+                                </p>
 
-                                    <!-- Direct PDF embed with zoom and minimal UI -->
-                                    <div class="pub-pdf">
-                                        <!-- Fallback: replace iframe with <img> if PDF embedding fails -->
-                                        <iframe 
-                                            src="assets/image.pdf#page=1&zoom=5000&toolbar=0&navpanes=0&scrollbar=0" 
-                                            title="Paper PDF">
-                                        </iframe>
-                                        <div class="caption">Inductive GNN overview — image.pdf</div>
-                                    </div>
+                                <!-- Image container with zoom functionality -->
+                                <div id="image-container" style="overflow:hidden; width:800px; height:600px; border:1px solid #223049; border-radius:12px; background:#0c1118; position:relative; cursor:crosshair;">
+                                <img id="image" src="assets/image-page1@2x.png" alt="Publication page" style="transform-origin:top left; transition:transform 0.3s ease; position:absolute; top:0; left:0;">
                                 </div>
+                                <div class="caption">Zoomable image preview — click to zoom in/out</div>
+                            </div>
+                            </div>
+
+                            <script>
+                            const container = document.getElementById("image-container");
+                            const image = document.getElementById("image");
+
+                            let scale = 1;
+                            const zoomFactor = 2; // 2x zoom
+                            let offsetX = 0;
+                            let offsetY = 0;
+
+                            container.addEventListener("click", (event) => {
+                            const rect = container.getBoundingClientRect();
+                            const clickX = (event.clientX - rect.left - offsetX) / scale;
+                            const clickY = (event.clientY - rect.top - offsetY) / scale;
+
+                            if (scale === 1) {
+                                scale = zoomFactor;
+                                offsetX = container.clientWidth / 2 - clickX * scale;
+                                offsetY = container.clientHeight / 2 - clickY * scale;
+                            } else {
+                                scale = 1;
+                                offsetX = 0;
+                                offsetY = 0;
+                            }
+                            image.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+                            });
+                            </script>
+
                             </div>
 
                     </li>
