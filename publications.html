@@ -345,23 +345,32 @@
                             <a href="docs/paper.pdf" target="_blank" rel="noopener"><i>(PDF)</i></a>
                         </span>
 
-                        <!-- Abstract + direct PDF embed (no scrollable wrapper) -->
-                        <div class="abstract-block">
-                            <span class="abstract-toggle" onclick="(function(el){var c=el.nextElementSibling; c.classList.toggle('open'); el.textContent=c.classList.contains('open')?'Hide abstract':'Show abstract';})(this)">Show abstract</span>
-                            <div class="abstract-content">
-                                <p class="abstract-heading">Abstract</p>
-                                <p>
-                                    Single-cell RNA sequencing (scRNA-seq) enables fine-grained analysis of cellular processes but suffers from sparsity and noise. We present an inductive graph learning framework that constructs node embeddings from subgraphs, improving scalability while achieving strong imputation and clustering performance across multiple scRNA-seq datasets. The method demonstrates gains in Silhouette and ARI scores with reduced runtime and error, supporting downstream applications in trajectory inference and pathway analysis.
-                                </p>
+                            <!-- Abstract + direct PDF embed (no scrollable wrapper) -->
+                            <div class="abstract-block">
+                                <span class="abstract-toggle" onclick="(function(el){
+                                    var c=el.nextElementSibling;
+                                    c.classList.toggle('open');
+                                    el.textContent = c.classList.contains('open') ? 'Hide abstract' : 'Show abstract';
+                                })(this)">Show abstract</span>
 
-                                <!-- Direct PDF embed — update src to your file path -->
-                                <div class="pub-pdf">
-                                    <!-- If inline PDF doesn’t render in some browsers, provide an image fallback by replacing iframe with <img src="assets/figure.png"> -->
-                                    <iframe src="assets/image.pdf#toolbar=0&navpanes=0" title="Paper PDF"></iframe>
-                                    <div class="caption">Embedded PDF — image.pdf</div>
+                                <div class="abstract-content">
+                                    <p class="abstract-heading">Abstract</p>
+                                    <p>
+                                        Single-cell RNA sequencing (scRNA-seq) enables fine-grained analysis of cellular processes but suffers from sparsity and noise. We present an inductive graph learning framework that constructs node embeddings from subgraphs, improving scalability while achieving strong imputation and clustering performance across multiple scRNA-seq datasets. The method demonstrates gains in Silhouette and ARI scores with reduced runtime and error, supporting downstream applications in trajectory inference and pathway analysis.
+                                    </p>
+
+                                    <!-- Direct PDF embed with zoom and minimal UI -->
+                                    <div class="pub-pdf">
+                                        <!-- Fallback: replace iframe with <img> if PDF embedding fails -->
+                                        <iframe 
+                                            src="assets/image.pdf#page=1&zoom=150&toolbar=0&navpanes=0&scrollbar=0" 
+                                            title="Paper PDF">
+                                        </iframe>
+                                        <div class="caption">Embedded PDF — image.pdf</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+
                     </li>
                 </ol>
             </div>
