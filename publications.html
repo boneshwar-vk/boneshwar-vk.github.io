@@ -16,7 +16,7 @@
             --header-bg: #2f5369;
         }
 
-        text html {
+        text text html {
             scroll-behavior: smooth
         }
 
@@ -209,6 +209,64 @@
             text-decoration: underline
         }
 
+        /* Added minimal styles for abstract + image block */
+        .abstract-block {
+            margin-top: 10px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .abstract-toggle {
+            margin: 8px 0 10px;
+            display: inline-block;
+            font-size: 14px;
+            color: #1f6fd6;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .abstract-content {
+            display: none;
+            color: #1f2937;
+            line-height: 1.55;
+        }
+
+        .abstract-content.open {
+            display: block;
+        }
+
+        .abstract-heading {
+            font-weight: 700;
+            margin: 0 0 6px;
+        }
+
+        .pub-figure {
+            margin-top: 10px;
+            border: 1px dashed var(--border);
+            border-radius: 6px;
+            padding: 8px;
+            background: #ffffff;
+        }
+
+        .pub-figure iframe,
+        .pub-figure img {
+            width: 100%;
+            height: 320px;
+            display: block;
+            border: none;
+            object-fit: contain;
+            background: #fff;
+        }
+
+        .pub-figure .caption {
+            font-size: 13px;
+            color: #475569;
+            margin-top: 6px;
+            text-align: center;
+        }
+
         footer {
             padding: 24px 0;
             border-top: 1px solid var(--border);
@@ -238,6 +296,11 @@
             .social {
                 gap: 8px
             }
+
+            .pub-figure iframe,
+            .pub-figure img {
+                height: 240px;
+            }
         }
     </style>
 </head>
@@ -249,7 +312,7 @@
             <div class="title-wrap">
                 <h1><a href="index.html" style="color:#fff;text-decoration:none">Boneshwar V K</a></h1>
                 <div class="subtitle">B.S. and M.S., Biological Sciences — Department of Biotechnology, Bhupat &amp; Jyoti Mehta School of Biosciences, IIT Madras</div>
-                
+                text
                 <ul class="social">
                     <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
                     <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener"><img src="assets/orcid.png" alt="ORCID"></a></li>
@@ -274,32 +337,45 @@
         <div class="container">
             <h1 class="page-title">Publications</h1>
             <p class="lead">Selected publications and preprints. Links to PDFs, DOIs, and project materials where available.</p>
-            
+
             <div class="pubs-panel">
                 <ol>
                     <li>
-                        Author, A., Author, B. (20XX). “Paper Title.” Journal, vol(issue): pages.
+                        <i>Boneshwar, V. K., Deepesh Agarwal, Bala Natarajan, and Babji Srinivasan. "Inductive graph neural network framework for imputation of single-cell RNA sequencing data." Computers & Chemical Engineering 195 (2025): 109031
+                        </i>
                         <span class="links">
-                            <a href="#" target="_blank" rel="noopener">PDF</a>
-                            <a href="#" target="_blank" rel="noopener">DOI</a>
-                            <a href="#" target="_blank" rel="noopener">Project/Code</a>
+                            <a href="#" target="_blank" rel="noopener"> <i>(PDF)</i></a>
                         </span>
+
+                        <!-- Added: abstract + image block for this paper -->
+                        <div class="abstract-block">
+                            <span class="abstract-toggle" onclick="(function(el){var c=el.nextElementSibling; c.classList.toggle('open'); el.textContent=c.classList.contains('open')?'Hide abstract':'Show abstract';})(this)">Show abstract</span>
+                            <div class="abstract-content">
+                                <p class="abstract-heading">Abstract</p>
+                                <p>
+                                    Single-cell RNA sequencing (scRNA-seq) has transformed biological research, enabling detailed analysis of disease pathways, cellular differentiation, and immune responses at a cellular level. However, the noisy and sparse nature of scRNA-seq datasets often impedes accurate downstream analyses. Cell clustering and gene imputation serve as foundational tasks in harnessing scRNA-seq data for complex biological insights. While various graph-based methods have been developed to enhance imputation and clustering accuracy, traditional transductive models require entire graphs during training, limiting computational efficiency on large biological networks. This study introduces a novel inductive framework that efficiently learns relationships among graph nodes by utilizing subgraphs rather than full neighbor sets for node embedding generation, significantly reducing computational demands while maintaining robust performance. The proposed model achieves up to 60% improvement in Silhouette score, 14.9% in Adjusted Rand Index, 48% in runtime, and 4.5% in L 1 Median error over baseline models, validating the effectiveness of inductive graph learning. Evaluated on diverse scRNA-seq datasets—GSE75748 (progenitor cell types derived from human embryonic stem cells (hESCs)), GSE131928 (adult and pediatric IDH-wildtype glioblastomas (GBM)), and Goolam et al (blastomeres from early-stage Mus musculus (mouse) embryos collected at the 2-cell, 4-cell, 8-cell, 16-cell, and 32-cell stages of preimplantation development).—this framework demonstrates scalability and adaptability, offering a reliable approach for future applications in trajectory inference and gene pathway analysis.
+                                </p>
+
+                                <div class="pub-figure">
+                                    <!-- If you have a PDF preview page/image, replace the src below.
+                                     To embed a PDF page directly, you can also use an <iframe> with a PDF URL. -->
+                                    <!-- Example if you have a PDF preview image: <img src="assets/your_paper_preview.png" alt="Paper figure preview"> -->
+                                    <!-- Example embed of a PDF (first page preview depends on browser): -->
+                                    <iframe src="assets/image.pdf#toolbar=0&navpanes=0" title="Paper image placeholder (PDF)"></iframe>
+                                    <div class="caption">Image placeholder — image.pdf</div>
+                                </div>
+                            </div>
+                        </div>
                     </li>
-                    <li>
-                        Author, A., Author, B., Author, C. (20XX). “Another Example Title.” Conference Name, pp. xx–yy.
-                        <span class="links">
-                            <a href="#" target="_blank" rel="noopener">PDF</a>
-                            <a href="#" target="_blank" rel="noopener">DOI</a>
-                            <a href="#" target="_blank" rel="noopener">Poster</a>
-                        </span>
-                    </li>
-                    <li>
-                        Preprint: Author, A. (20XX). “Preprint Title.” arXiv:xxxx.xxxxx.
-                        <span class="links">
-                            <a href="#" target="_blank" rel="noopener">arXiv</a>
-                            <a href="#" target="_blank" rel="noopener">Code</a>
-                        </span>
-                    </li>
+                    <!-- Keep other items commented out if needed
+                <li>
+                    Preprint: Author, A. (20XX). “Preprint Title.” arXiv:xxxx.xxxxx.
+                    <span class="links">
+                        <a href="#" target="_blank" rel="noopener">arXiv</a>
+                        <a href="#" target="_blank" rel="noopener">Code</a>
+                    </span>
+                </li>
+                -->
                 </ol>
             </div>
         </div>
@@ -311,3 +387,121 @@
 </body>
 
 </html>
+
+
+<body> <!-- Blue upper section -->
+    <header class="header">
+        <div class="header-inner container">
+            <div class="avatar"><img src="assets/dp.jpeg" alt="Portrait of Boneshwar V K"></div>
+
+            <div class="title-wrap">
+                <h1><a href="index.html" style="color:#fff;text-decoration:none">Boneshwar V K</a></h1>
+                <div class="subtitle">B.S. and M.S., Biological Sciences — Department of Biotechnology, Bhupat &amp; Jyoti Mehta School of Biosciences, IIT Madras</div>
+
+                <ul class="social">
+                    <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
+                    <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener"><img src="assets/orchid.png" alt="ORCID"></a></li>
+                    <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn"></a></li>
+                    <li><a aria-label="GitHub" href="#" target="_blank" rel="noopener"><img src="assets/github.png" alt="GitHub"></a></li>
+                    <li><a aria-label="Email" href="mailto:boneshwar.vk20@gmail.com"><img src="assets/gmail.png" alt="Email"></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="nav-wrap">
+            <nav class="nav" aria-label="Primary">
+                <a href="index.html">Home</a>
+                <a href="publications.html">Publications</a>
+                <a href="cv.html">CV</a>
+                <a class="active" href="projects.html">Projects</a>
+            </nav>
+        </div>
+    </header> <!-- Projects content -->
+    <main>
+        <div class="container">
+            <h1 class="page-title">Projects</h1>
+            <p class="lead">Elongated, single-column project bars with title, timeline, one-line summary, and expandable details.</p>
+
+            <div class="projects">
+                <!-- Project: Language‑Agnostic Speaker Identification & Diarisation -->
+                <div class="project-bar" data-project-bar tabindex="0">
+                    <div class="project-top">
+                        <h3 class="project-title">Language‑Agnostic Speaker Identification & Diarisation; Transcription & Translation</h3>
+                        <div class="project-time">
+                            Jan 2024 – May 2024
+                            <span class="chevron" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                    <p class="project-desc">Multilingual speaker ID + diarisation with downstream transcription/translation using custom fine‑tuned models.</p>
+                    <div class="project-details">
+                        AI solution for robust speaker identification and diarisation across multiple languages and dialects, followed by accurate transcription and translation. Built with in‑house fine‑tuned models optimized for noisy, real‑world audio; adaptable to call centers, media archives, and meetings. Pipeline covers VAD, embeddings, clustering/diarisation, ASR, and NMT post‑processing.
+                    </div>
+                </div>
+
+                <!-- Project: MaskedAlign -->
+                <div class="project-bar" data-project-bar tabindex="0">
+                    <div class="project-top">
+                        <h3 class="project-title">MaskedAlign: Multiple Sequence Alignment using Transformer</h3>
+                        <div class="project-time">
+                            Jan 2024 – May 2024
+                            <span class="chevron" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                    <p class="project-desc">Masked transformer for MSA that improves alignment quality while reducing runtime overhead.</p>
+                    <div class="project-details">
+                        Developed a seq‑to‑seq masked transformer (inspired by Masked Trajectory Transformer and BetaAlign) to enhance MSA generalization. PyTorch implementation beat strong baselines and cut runtime by up to 13% via decoding refinements and efficient attention. Ablations on masking schedules and positional schemes.
+                    </div>
+                </div>
+
+                <!-- Project: Synthetic Medical and IR Image Generation -->
+                <div class="project-bar" data-project-bar tabindex="0">
+                    <div class="project-top">
+                        <h3 class="project-title">Synthetic Medical and IR Image Generation</h3>
+                        <div class="project-time">
+                            Nov 2023 – Mar 2024
+                            <span class="chevron" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                    <p class="project-desc">Diffusion + edge‑guided GAN pipelines for realistic medical/thermal IR imagery and better separability.</p>
+                    <div class="project-details">
+                        Industrial project (CVRDE, DRDO). Enhanced diffusion models with MixNMatch and latent controls for improved class separability/quality. Built RGB→Thermal IR translation using edge‑guided GANs to preserve boundaries and highlights. Improved downstream detection stability and reduced data collection needs.
+                    </div>
+                </div>
+
+                <!-- Project: Traffic Bot -->
+                <div class="project-bar" data-project-bar tabindex="0">
+                    <div class="project-top">
+                        <h3 class="project-title">Traffic Bot: Real‑time Violation Detection</h3>
+                        <div class="project-time">
+                            Jun 2022 – Feb 2023
+                            <span class="chevron" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                    <p class="project-desc">YOLOv5-based helmet, triple‑riding, and speeding detection on Jetson Nano over CCTV streams.</p>
+                    <div class="project-details">
+                        End‑to‑end deployment for multi‑class violation detection (F1 0.79) integrated with existing CCTV infrastructure. Achieved 89% accuracy in field tests. Optimized for low‑power devices with batching and stream handling for continuous inference.
+                    </div>
+                </div>
+            </div>
+
+            <div class="scroll" style="margin-top:16px">
+                <h3>Ongoing Work</h3>
+                <ul style="margin:0;padding-left:18px">
+                    <li>Dissertation: Title — 2–4 lines summary.</li>
+                    <li>Project A — short note and link.</li>
+                    <li>Project B — short note and link.</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+    <footer>© <span id="year"></span> Boneshwar V K</footer> <!-- Make sure main.js is loaded after the markup -->
+    <script src="assets/main.js"></script>
+    <noscript>
+        <style>
+            .project-details {
+                display: block !important
+            }
+        </style>
+    </noscript>
+    <script>
+        // Keep foot
