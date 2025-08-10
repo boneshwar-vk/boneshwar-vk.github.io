@@ -37,7 +37,7 @@
             padding: 0 24px
         }
 
-        /* Blue upper section — match index/cv/projects aspect (min-height and padding) */
+        /* Blue upper section — match index/cv/projects aspect */
         .header {
             position: relative;
             color: #fff;
@@ -84,7 +84,7 @@
             text-shadow: 0 2px 4px rgba(0, 0, 0, .14), 0 4px 5px rgba(0, 0, 0, .12), 0 1px 10px rgba(0, 0, 0, .2)
         }
 
-        /* Social icons — single straight row, same as other pages */
+        /* Social icons — single straight row */
         .social {
             list-style: none;
             margin: 12px 0 0;
@@ -127,7 +127,7 @@
             display: block
         }
 
-        /* Centered navigation — match other pages */
+        /* Centered navigation */
         .nav-wrap {
             display: flex;
             justify-content: center;
@@ -209,7 +209,7 @@
             text-decoration: underline
         }
 
-        /* Abstract + PDF block (minimal additions) */
+        /* Abstract block (no scroll wrapper around PDF) */
         .abstract-block {
             margin-top: 10px;
             padding: 12px;
@@ -242,7 +242,7 @@
             margin: 0 0 6px
         }
 
-        /* Direct PDF embed (not inside a scrollable wrapper) */
+        /* Direct PDF embed, full width, larger height (no internal scroll container) */
         .pub-pdf {
             margin-top: 12px;
             border: 1px dashed var(--border);
@@ -253,8 +253,8 @@
 
         .pub-pdf iframe {
             width: 100%;
-            height: 560px;
-            /* Taller so it’s readable without an internal scroller */
+            height: 800px;
+            /* Increased for readability */
             display: block;
             border: none;
             background: #fff;
@@ -299,8 +299,10 @@
             }
 
             .pub-pdf iframe {
-                height: 420px
+                height: 520px
             }
+
+            /* Taller on mobile than before */
         }
     </style>
 </head>
@@ -321,7 +323,6 @@
                 </ul>
             </div>
         </div>
-        text
         <div class="nav-wrap">
             <nav class="nav" aria-label="Primary">
                 <a href="index.html">Home</a>
@@ -332,12 +333,10 @@
             </nav>
         </div>
     </header>
-
     <main>
         <div class="container">
             <h1 class="page-title">Publications</h1>
             <p class="lead">Selected publications and preprints. Links to PDFs, DOIs, and project materials where available.</p>
-
             <div class="pubs-panel">
                 <ol>
                     <li>
@@ -346,7 +345,7 @@
                             <a href="docs/paper.pdf" target="_blank" rel="noopener"><i>(PDF)</i></a>
                         </span>
 
-                        <!-- Abstract + direct PDF embed (no internal scroll wrapper) -->
+                        <!-- Abstract + direct PDF embed (no scrollable wrapper) -->
                         <div class="abstract-block">
                             <span class="abstract-toggle" onclick="(function(el){var c=el.nextElementSibling; c.classList.toggle('open'); el.textContent=c.classList.contains('open')?'Hide abstract':'Show abstract';})(this)">Show abstract</span>
                             <div class="abstract-content">
@@ -355,12 +354,11 @@
                                     Single-cell RNA sequencing (scRNA-seq) enables fine-grained analysis of cellular processes but suffers from sparsity and noise. We present an inductive graph learning framework that constructs node embeddings from subgraphs, improving scalability while achieving strong imputation and clustering performance across multiple scRNA-seq datasets. The method demonstrates gains in Silhouette and ARI scores with reduced runtime and error, supporting downstream applications in trajectory inference and pathway analysis.
                                 </p>
 
-                                <!-- Direct PDF embed (replace docs/IMAGE.pdf with your asset) -->
+                                <!-- Direct PDF embed — update src to your file path -->
                                 <div class="pub-pdf">
-                                    <!-- Note: Some browsers may block inline PDF if no viewer is available.
-                                     If you need images instead, provide a PNG/JPG under assets/ and replace the iframe with an <img>. -->
-                                    <iframe src="assets/image.pdf#toolbar=0&navpanes=0" title="Paper figure placeholder (PDF)"></iframe>
-                                    <div class="caption">Image placeholder — image.pdf</div>
+                                    <!-- If inline PDF doesn’t render in some browsers, provide an image fallback by replacing iframe with <img src="assets/figure.png"> -->
+                                    <iframe src="assets/image.pdf#toolbar=0&navpanes=0" title="Paper PDF"></iframe>
+                                    <div class="caption">Embedded PDF — image.pdf</div>
                                 </div>
                             </div>
                         </div>
@@ -369,7 +367,6 @@
             </div>
         </div>
     </main>
-
     <footer>© <span id="year"></span> Boneshwar V K</footer>
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
