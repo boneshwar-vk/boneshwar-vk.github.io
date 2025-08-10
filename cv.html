@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -243,6 +243,280 @@
         </div>
     </main>
     <footer>© <span id="year"></span> Your Name</footer>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Boneshwar V K — CV</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet"> <!-- Further-reduced blue header only (subtle, not drastic). Everything else stays the same. -->
+    <style>
+        :root {
+            --container: 752px;
+            --border: #e5e7eb;
+            --shadow: 0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003;
+            --header-bg: #2f5369;
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: #000000de;
+            background: #fff
+        }
+
+        .container {
+            max-width: var(--container);
+            margin: 0 auto;
+            padding: 0 24px
+        }
+
+        /* BLUE UPPER SECTION — further reduced */
+        .header {
+            position: relative;
+            color: #fff;
+            background: var(--header-bg)
+        }
+
+        /* Reduced min-height and padding a bit more */
+        .header-inner {
+            position: relative;
+            min-height: 30vh;
+            padding: 22px 20px
+        }
+
+        /* Slightly smaller avatar and title for balance */
+        .avatar {
+            width: 144px;
+            height: 144px;
+            margin: 0 auto 10px;
+            border-radius: 50%;
+            border: 5px solid #fff;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            background: #ccc
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
+        }
+
+        .title-wrap {
+            text-align: center
+        }
+
+        .title-wrap h1 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 34px;
+            letter-spacing: -.02em
+        }
+
+        .subtitle {
+            margin-top: 4px;
+            font-size: 14.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, .14), 0 4px 5px rgba(0, 0, 0, .12), 0 1px 10px rgba(0, 0, 0, .2)
+        }
+
+        /* Social icon circles (unchanged visuals) */
+        .social {
+            list-style: none;
+            margin: 12px 0 0;
+            padding: 0;
+            text-align: center
+        }
+
+        .social li {
+            display: inline-block;
+            padding: 0 5px
+        }
+
+        .social a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #fff;
+            color: #000;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border)
+        }
+
+        .social a img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block
+        }
+
+        /* Centered toggle bar — tiny nudge to sit closer under shorter header */
+        .nav-wrap {
+            display: flex;
+            justify-content: center;
+            position: sticky;
+            top: 12px;
+            margin-top: -12px;
+            padding: 0 20px;
+            z-index: 100
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+            padding: 0 12px;
+            border: 1px solid var(--border)
+        }
+
+        .nav a {
+            display: block;
+            padding: 10px 0;
+            line-height: 24px;
+            font-size: 18px;
+            color: #000;
+            text-decoration: none
+        }
+
+        .nav a.active {
+            font-weight: 700
+        }
+
+        /* Main spacing slightly tightened */
+        main {
+            min-height: 60vh;
+            padding: 28px 0
+        }
+
+        .page-title {
+            margin: 0 0 8px;
+            font-size: 30px;
+            letter-spacing: -.02em
+        }
+
+        .lead {
+            color: #374151;
+            margin: 0 0 10px
+        }
+
+        /* Scrollable CV viewer */
+        .cv-panel {
+            height: 520px;
+            max-height: 520px;
+            overflow: auto;
+            padding: 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: var(--shadow)
+        }
+
+        .cv-panel iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block
+        }
+
+        footer {
+            padding: 24px 0;
+            border-top: 1px solid var(--border);
+            background: #fff;
+            text-align: center;
+            color: #4b5563
+        }
+
+        @media (max-width:540px) {
+            .title-wrap h1 {
+                font-size: 30px
+            }
+
+            .avatar {
+                width: 132px;
+                height: 132px
+            }
+
+            .nav {
+                gap: 14px
+            }
+
+            .nav a {
+                font-size: 16px
+            }
+        }
+    </style>
+</head>
+
+<body> <!-- Blue upper section (further reduced height) -->
+    <header class="header">
+        <div class="header-inner container"> <!-- Your photo path per your note -->
+            <div class="avatar"><img src="docs/dp.jpeg" alt="Portrait of Boneshwar V K"></div>
+            text
+            <div class="title-wrap">
+                <h1><a href="index.html" style="color:#fff;text-decoration:none">Boneshwar V K</a></h1>
+                <div class="subtitle">B.S. and M.S., Biological Sciences — Department of Biotechnology, Bhupat &amp; Jyoti Mehta School of Biosciences, IIT Madras</div>
+
+                <ul class="social">
+                    <!-- Replace href values with your actual profile links as needed -->
+                    <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener">G</a></li>
+                    <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener"><img src="assets/orchid.jpeg" alt="ORCID"></a></li>
+                    <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener"><img src="assets/LinkedIn.jpeg" alt="LinkedIn"></a></li>
+                    <li><a aria-label="GitHub" href="#" target="_blank" rel="noopener"><img src="assets/GitHub.jpeg" alt="GitHub"></a></li>
+                    <li><a aria-label="Email" href="mailto:boneshwar.vk20@gmail.com">✉</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Centered navigation -->
+        <div class="nav-wrap">
+            <nav class="nav" aria-label="Primary">
+                <a href="index.html">Home</a>
+                <a href="publications.html">Publications</a>
+                <a class="active" href="cv.html">CV</a>
+                <a href="projects.html">Projects</a>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <h1 class="page-title">CV</h1>
+            <p class="lead">Download PDF: <a href="docs/cv.pdf" target="_blank" rel="noopener">Open in new tab</a></p>
+            text
+            <div class="cv-panel" id="cv-viewer">
+                <iframe title="Embedded CV PDF" src="docs/cv.pdf#toolbar=0&navpanes=0"></iframe>
+            </div>
+        </div>
+    </main>
+    <footer>© <span id="year"></span> Boneshwar V K</footer>
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
     </script>
