@@ -16,12 +16,12 @@
             --header-bg: #2f5369;
         }
 
-        text * {
-            box-sizing: border-box
+        text html {
+            scroll-behavior: smooth
         }
 
-        html {
-            scroll-behavior: smooth
+        * {
+            box-sizing: border-box
         }
 
         body {
@@ -37,7 +37,7 @@
             padding: 0 24px
         }
 
-        /* Blue upper section (match cv.html and index.html) */
+        /* Blue upper section — match index/cv/projects aspect (min-height and padding) */
         .header {
             position: relative;
             color: #fff;
@@ -84,7 +84,7 @@
             text-shadow: 0 2px 4px rgba(0, 0, 0, .14), 0 4px 5px rgba(0, 0, 0, .12), 0 1px 10px rgba(0, 0, 0, .2)
         }
 
-        /* Social circles — single straight row (same as cv/index) */
+        /* Social icons — single straight row, same as other pages */
         .social {
             list-style: none;
             margin: 12px 0 0;
@@ -127,7 +127,7 @@
             display: block
         }
 
-        /* Centered toggle bar */
+        /* Centered navigation — match other pages */
         .nav-wrap {
             display: flex;
             justify-content: center;
@@ -154,7 +154,7 @@
             line-height: 24px;
             font-size: 16px;
             color: #000;
-            text-decoration: none;
+            text-decoration: none
         }
 
         .nav a.active {
@@ -178,7 +178,7 @@
             margin: 0 0 12px
         }
 
-        /* Publications list block (scrollable list, distinct from CV's PDF panel) */
+        /* Publications list panel (kept as scrollable list, matching style language) */
         .pubs-panel {
             max-height: 520px;
             overflow: auto;
@@ -242,47 +242,24 @@
     </style>
 </head>
 
-<body> <!-- Blue upper section -->
+<body>
     <header class="header">
-        <div class="header-inner container"> <!-- Match image path and text to cv/index -->
+        <div class="header-inner container">
             <div class="avatar"><img src="assets/dp.jpeg" alt="Portrait of Boneshwar V K"></div>
-
             <div class="title-wrap">
                 <h1><a href="index.html" style="color:#fff;text-decoration:none">Boneshwar V K</a></h1>
                 <div class="subtitle">B.S. and M.S., Biological Sciences — Department of Biotechnology, Bhupat &amp; Jyoti Mehta School of Biosciences, IIT Madras</div>
-
-                <!-- Social icons (images, straight line) -->
+                text
                 <ul class="social">
-                    <li>
-                        <a aria-label="Google Scholar" href="#" target="_blank" rel="noopener">
-                            <img src="assets/google_scholar.png" alt="Google Scholar">
-                        </a>
-                    </li>
-                    <li>
-                        <a aria-label="ORCID" href="#" target="_blank" rel="noopener">
-                            <img src="assets/orchid.png" alt="ORCID">
-                        </a>
-                    </li>
-                    <li>
-                        <a aria-label="LinkedIn" href="#" target="_blank" rel="noopener">
-                            <img src="assets/linkedin.png" alt="LinkedIn">
-                        </a>
-                    </li>
-                    <li>
-                        <a aria-label="GitHub" href="#" target="_blank" rel="noopener">
-                            <img src="assets/github.png" alt="GitHub">
-                        </a>
-                    </li>
-                    <li>
-                        <a aria-label="Email" href="mailto:boneshwar.vk20@gmail.com">
-                            <img src="assets/gmail.png" alt="Email">
-                        </a>
-                    </li>
+                    <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
+                    <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener"><img src="assets/orchid.png" alt="ORCID"></a></li>
+                    <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn"></a></li>
+                    <li><a aria-label="GitHub" href="#" target="_blank" rel="noopener"><img src="assets/github.png" alt="GitHub"></a></li>
+                    <li><a aria-label="Email" href="mailto:boneshwar.vk20@gmail.com"><img src="assets/gmail.png" alt="Email"></a></li>
                 </ul>
             </div>
         </div>
 
-        <!-- Centered navigation -->
         <div class="nav-wrap">
             <nav class="nav" aria-label="Primary">
                 <a href="index.html">Home</a>
@@ -291,12 +268,12 @@
                 <a href="projects.html">Projects</a>
             </nav>
         </div>
-    </header> <!-- Publications content below the toggle -->
+    </header>
     <main>
         <div class="container">
             <h1 class="page-title">Publications</h1>
             <p class="lead">Selected publications and preprints. Links to PDFs, DOIs, and project materials where available.</p>
-
+            text
             <div class="pubs-panel">
                 <ol>
                     <li>
