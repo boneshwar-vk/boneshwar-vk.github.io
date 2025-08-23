@@ -1,125 +1,229 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="utf-8" /> <meta http-equiv="X-UA-Compatible" content="IE=edge" /> <meta name="viewport" content="width=device-width, initial-scale=1" /> <title>Boneshwar V K — Home</title> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet"> <style> :root { --container: 752px; --border: #e5e7eb; --shadow: 0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003; --header-bg: #2f5369; }
-html { scroll-behavior: smooth }
-* { box-sizing: border-box }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Boneshwar V K — Home</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --container: 752px; --border: #e5e7eb; --shadow: 0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003; --header-bg: #2f5369; }
+    html { scroll-behavior: smooth }
+    * { box-sizing: border-box }
 
-body {
-  margin: 0;
-  font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #000000de;
-  background: #fff
-}
+    body {
+      margin: 0;
+      font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: #000000de;
+      background: #fff
+    }
 
-.container { max-width: var(--container); margin: 0 auto; padding: 0 24px }
+    .container { max-width: var(--container); margin: 0 auto; padding: 0 24px }
 
-/* Blue upper section (identical to cv.html sizing/look) */
-.header { position: relative; color: #fff; background: var(--header-bg) }
+    /* Blue upper section (identical to cv.html sizing/look) */
+    .header { position: relative; color: #fff; background: var(--header-bg) }
 
-.header-inner { position: relative; min-height: 30vh; padding: 22px 20px }
+    .header-inner { position: relative; min-height: 30vh; padding: 22px 20px }
 
-.avatar {
-  width: 144px; height: 144px; margin: 0 auto 10px; border-radius: 50%;
-  border: 5px solid #fff; box-shadow: var(--shadow); overflow: hidden; background: #ccc
-}
-.avatar img { width: 100%; height: 100%; object-fit: cover }
+    .avatar {
+      width: 144px; height: 144px; margin: 0 auto 10px; border-radius: 50%;
+      border: 5px solid #fff; box-shadow: var(--shadow); overflow: hidden; background: #ccc
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover }
 
-.title-wrap { text-align: center }
-.title-wrap h1 { margin: 0; font-weight: 700; font-size: 34px; letter-spacing: -.02em }
-.subtitle {
-  margin-top: 4px; font-size: 14.5px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, .14), 0 4px 5px rgba(0, 0, 0, .12), 0 1px 10px rgba(0, 0, 0, .2)
-}
+    .title-wrap { text-align: center }
+    .title-wrap h1 { margin: 0; font-weight: 700; font-size: 34px; letter-spacing: -.02em }
+    .subtitle {
+      margin-top: 4px; font-size: 14.5px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, .14), 0 4px 5px rgba(0, 0, 0, .12), 0 1px 10px rgba(0, 0, 0, .2)
+    }
 
-/* Social circles — aligned perfectly in one straight horizontal line (same as cv.html) */
-.social {
-  list-style: none; margin: 12px 0 0; padding: 0;
-  display: flex; justify-content: center; align-items: center; gap: 10px; line-height: 0;
-}
-.social li { margin: 0; padding: 0; display: flex }
-.social a {
-  display: flex; align-items: center; justify-content: center;
-  width: 48px; height: 48px; border-radius: 50%;
-  background: #fff; color: #000; text-decoration: none; font-weight: 700; font-size: 13px;
-  box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--border); flex: 0 0 auto;
-}
-.social a img { width: 100%; height: 100%; object-fit: cover; display: block }
+    /* Social circles — aligned perfectly in one straight horizontal line (same as cv.html) */
+    .social {
+      list-style: none; margin: 12px 0 0; padding: 0;
+      display: flex; justify-content: center; align-items: center; gap: 10px; line-height: 0;
+    }
+    .social li { margin: 0; padding: 0; display: flex }
+    .social a {
+      display: flex; align-items: center; justify-content: center;
+      width: 48px; height: 48px; border-radius: 50%;
+      background: #fff; color: #000; text-decoration: none; font-weight: 700; font-size: 13px;
+      box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--border); flex: 0 0 auto;
+    }
+    .social a img { width: 100%; height: 100%; object-fit: cover; display: block }
 
-/* Centered toggle bar (same as cv.html) */
-.nav-wrap {
-  display: flex; justify-content: center; position: sticky; top: 12px;
-  margin-top: -12px; padding: 0 20px; z-index: 100
-}
-.nav {
-  display: flex; gap: 14px; background: #fff; border-radius: 22px;
-  box-shadow: var(--shadow); padding: 0 12px; border: 1px solid var(--border)
-}
-.nav a {
-  display: block; padding: 10px 0; line-height: 24px; font-size: 16px;
-  color: #000; text-decoration: none
-}
-.nav a.active { font-weight: 700 }
+    /* Centered toggle bar (same as cv.html) */
+    .nav-wrap {
+      display: flex; justify-content: center; position: sticky; top: 12px;
+      margin-top: -12px; padding: 0 20px; z-index: 100
+    }
+    .nav {
+      display: flex; gap: 14px; background: #fff; border-radius: 22px;
+      box-shadow: var(--shadow); padding: 0 12px; border: 1px solid var(--border)
+    }
+    .nav a {
+      display: block; padding: 10px 0; line-height: 24px; font-size: 16px;
+      color: #000; text-decoration: none
+    }
+    .nav a.active { font-weight: 700 }
 
-/* Main (no scrollable panel on Home) */
-main { min-height: 60vh; padding: 28px 0 }
-.page-title { margin: 0 0 8px; font-size: 30px; letter-spacing: -.02em }
-.lead { color: #374151; margin: 0 0 10px }
-.content p { margin: 0 0 12px }
+    /* Main (no scrollable panel on Home) */
+    main { min-height: 60vh; padding: 28px 0 }
+    .page-title { margin: 0 0 8px; font-size: 30px; letter-spacing: -.02em }
+    .lead { color: #374151; margin: 0 0 10px }
+    .content p { margin: 0 0 12px }
 
-footer {
-  padding: 24px 0; border-top: 1px solid var(--border);
-  background: #fff; text-align: center; color: #4b5563
-}
+    /* --- Additions: section title + side-image content card --- */
+    .section-title {
+      margin: 22px 0 10px;
+      font-size: 22px;
+      letter-spacing: -.01em;
+    }
+    .info-section{
+      display:flex; gap:16px; align-items:center;
+      border:1px solid var(--border); border-radius:12px; background:#fff; box-shadow:var(--shadow);
+      padding:16px;
+    }
+    .info-text{ flex:1 1 auto; color:#1f2937; line-height:1.55 }
+    .info-text p{ margin:0 0 10px }
+    .info-text ul{ margin:8px 0 0; padding-left:18px }
+    .info-image{ flex:0 0 220px }
+    .info-image img{
+      width:100%; height:auto; display:block; border-radius:10px; border:1px solid var(--border)
+    }
 
-@media (max-width:540px) {
-  .title-wrap h1 { font-size: 30px }
-  .avatar { width: 132px; height: 132px }
-  .nav { gap: 12px }
-  .nav a { font-size: 16px }
-  .social { gap: 8px }
-}
-</style> </head> <body> <!-- Blue upper section (same as cv.html) --> <header class="header"> <div class="header-inner container"> <!-- Same photo path as you used in cv.html --> <div class="avatar"><img src="assets/dp.jpeg" alt="Portrait of Boneshwar V K"></div>
-  <div class="title-wrap">
-    <h1><a href="index.html" style="color:#fff;text-decoration:none">Boneshwar V K</a></h1>
-    <div class="subtitle">B.S. and M.S., Biological Sciences — Department of Biotechnology, Bhupat &amp; Jyoti Mehta School of Biosciences, IIT Madras</div>
+    footer {
+      padding: 24px 0; border-top: 1px solid var(--border);
+      background: #fff; text-align: center; color: #4b5563
+    }
 
-    <!-- Social icons (same images and order as cv.html) -->
-    <ul class="social">
-      <li>
-        <a aria-label="Google Scholar" href="#" target="_blank" rel="noopener">
-          <img src="assets/google_scholar.png" alt="Google Scholar">
-        </a>
-      </li>
-      <li>
-        <a aria-label="ORCID" href="#" target="_blank" rel="noopener">
-          <img src="assets/orcid.png" alt="ORCID">
-        </a>
-      </li>
-      <li>
-        <a aria-label="LinkedIn" href="#" target="_blank" rel="noopener">
-          <img src="assets/linkedin.png" alt="LinkedIn">
-        </a>
-      </li>
-      <li>
-        <a aria-label="GitHub" href="#" target="_blank" rel="noopener">
-          <img src="assets/github.png" alt="GitHub">
-        </a>
-      </li>
-      <li>
-        <a aria-label="Email" href="mailto:boneshwar.vk20@gmail.com">
-          <img src="assets/gmail.png" alt="Email">
-        </a>
-      </li>
-    </ul>
-  </div>
-</div>
+    @media (max-width:540px) {
+      .title-wrap h1 { font-size: 30px }
+      .avatar { width: 132px; height: 132px }
+      .nav { gap: 12px }
+      .nav a { font-size: 16px }
+      .social { gap: 8px }
 
-<!-- Centered navigation (active = Home) -->
-<div class="nav-wrap">
-  <nav class="nav" aria-label="Primary">
-    <a class="active" href="index.html">Home</a>
-    <a href="publications.html">Publications</a>
-    <a href="cv.html">CV</a>
-    <a href="projects.html">Projects</a>
-    <a href="experience.html">Experiences</a>
-  </nav>
-</div>
-</header> <!-- Below the toggle: simple home description (no scrollable CV panel here) --> <main> <div class="container"> <h1 class="page-title">Home</h1> <p class="lead">Welcome! I’m Boneshwar V K.</p> <div class="content"> <p> My primary research interests include Deep Learning, medical image and brain tumor analysis, biological systems‑based graph neural networks, and 3D‑aware photorealistic synthetic image generation. </p> <p> I also work on theoretical machine learning, generative AI, and graph‑based models applied to healthcare and biomedical engineering. </p> </div> </div> </main> <footer>© <span id="year"></span> Boneshwar V K</footer> <script> document.getElementById('year').textContent = new Date().getFullYear(); </script> </body> </html>
+      /* Stack text above image on small screens */
+      .info-section{ flex-direction:column; align-items:stretch }
+      .info-image{ flex:0 0 auto }
+    }
+  </style>
+</head>
+<body>
+  <!-- Blue upper section (same as cv.html) -->
+  <header class="header">
+    <div class="header-inner container">
+      <!-- Same photo path as you used in cv.html -->
+      <div class="avatar"><img src="assets/dp.jpeg" alt="Portrait of Boneshwar V K"></div>
+      <div class="title-wrap">
+        <h1><a href="index.html" style="color:#fff;text-decoration:none">Boneshwar V K</a></h1>
+        <div class="subtitle">B.S. and M.S., Biological Sciences — Department of Biotechnology, Bhupat &amp; Jyoti Mehta School of Biosciences, IIT Madras</div>
+
+        <!-- Social icons (same images and order as cv.html) -->
+        <ul class="social">
+          <li>
+            <a aria-label="Google Scholar" href="#" target="_blank" rel="noopener">
+              <img src="assets/google_scholar.png" alt="Google Scholar">
+            </a>
+          </li>
+          <li>
+            <a aria-label="ORCID" href="#" target="_blank" rel="noopener">
+              <img src="assets/orcid.png" alt="ORCID">
+            </a>
+          </li>
+          <li>
+            <a aria-label="LinkedIn" href="#" target="_blank" rel="noopener">
+              <img src="assets/linkedin.png" alt="LinkedIn">
+            </a>
+          </li>
+          <li>
+            <a aria-label="GitHub" href="#" target="_blank" rel="noopener">
+              <img src="assets/github.png" alt="GitHub">
+            </a>
+          </li>
+          <li>
+            <a aria-label="Email" href="mailto:boneshwar.vk20@gmail.com">
+              <img src="assets/gmail.png" alt="Email">
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Centered navigation (active = Home) -->
+    <div class="nav-wrap">
+      <nav class="nav" aria-label="Primary">
+        <a class="active" href="index.html">Home</a>
+        <a href="publications.html">Publications</a>
+        <a href="cv.html">CV</a>
+        <a href="projects.html">Projects</a>
+        <a href="experience.html">Experiences</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Below the toggle: simple home description (no scrollable CV panel here) -->
+  <main>
+    <div class="container">
+      <h1 class="page-title">Home</h1>
+      <p class="lead">Welcome! I’m Boneshwar V K.</p>
+      <div class="content">
+        <p>
+          My primary research interests include Deep Learning, medical image and brain tumor analysis, biological systems-based graph neural networks, and 3D-aware photorealistic synthetic image generation.
+        </p>
+        <p>
+          I also work on theoretical machine learning, generative AI, and graph-based models applied to healthcare and biomedical engineering.
+        </p>
+      </div>
+
+      <!-- NEW SECTIONS (stacked, each with a side image) -->
+
+      <h2 id="education" class="section-title">Education</h2>
+      <section class="info-section" aria-labelledby="education">
+        <div class="info-text">
+          <p><strong>IIT Madras</strong> — B.S. &amp; M.S., Biological Sciences.</p>
+          <ul>
+            <li>Focus: bioinformatics, graph neural networks, generative modeling.</li>
+            <li>Highlights: thesis work on inductive GNN frameworks for scRNA-seq.</li>
+          </ul>
+        </div>
+        <div class="info-image">
+          <img src="assets/IITM_Logo.png" alt="Education photo">
+        </div>
+      </section>
+
+      <h2 id="skills" class="section-title">Skills</h2>
+      <section class="info-section" aria-labelledby="skills">
+        <div class="info-text">
+          <ul>
+            <li><strong>ML/DL:</strong> PyTorch, GNNs, diffusion, VAEs, transformers</li>
+            <li><strong>Data:</strong> Python, Pandas, NumPy, visualization</li>
+            <li><strong>Systems:</strong> Linux, Git, basic deployment</li>
+          </ul>
+        </div>
+        <div class="info-image">
+          <img src="assets/Deep_Learning.jpeg" alt="Skills illustration">
+        </div>
+      </section>
+
+      <h2 id="hobbies" class="section-title">Hobbies</h2>
+      <section class="info-section" aria-labelledby="hobbies">
+        <div class="info-text">
+          <p>Reading about systems theory, tinkering with edge devices, building small CV/ASR demos, and mentoring peers.</p>
+        </div>
+        <div class="info-image">
+          <img src="assets/cricket.jpeg" alt="Hobbies photo">
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>© <span id="year"></span> Boneshwar V K</footer>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
