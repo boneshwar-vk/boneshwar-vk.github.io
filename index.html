@@ -22,15 +22,12 @@
     .container { max-width: var(--container); margin: 0 auto; padding: 0 24px }
 
     /* Blue upper section (identical to cv.html sizing/look) */
-    /* CHANGED: use background image instead of solid blue */
+    /* CHANGED: use background image (relative web path) instead of solid blue */
     .header {
       position: relative;
       color: #fff;
-      background-color: var(--header-bg); /* fallback */
-      background-image: url("/Users/bonesh/Files/Website/assets/image_replacing_bluebackground.png");
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+      /* one-line shorthand to avoid later background resets */
+      background: var(--header-bg) url("assets/image_replacing_bluebackground.png") center / cover no-repeat;
     }
 
     .header-inner { position: relative; min-height: 30vh; padding: 22px 20px }
