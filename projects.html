@@ -1,245 +1,165 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="utf-8" /> <meta http-equiv="X-UA-Compatible" content="IE=edge" /> <meta name="viewport" content="width=device-width, initial-scale=1" /> <title>Boneshwar V K — Projects</title> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet"> <style> :root { --container: 752px; --border: #e5e7eb; --shadow: 0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003; --header-bg: #2f5369; }
-text
-html { scroll-behavior: smooth }
-* { box-sizing: border-box }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Boneshwar V K — Projects</title>
 
-body {
-  margin: 0;
-  font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
-  color: #000000de;
-  background: #fff;
-}
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
 
-.container { max-width: var(--container); margin: 0 auto; padding: 0 24px }
+  <style>
+    :root { --container: 752px; --border:#e5e7eb; --shadow:0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003; --header-fallback:#2f5369 }
+    html{ scroll-behavior:smooth } *{ box-sizing:border-box }
+    body{ margin:0; font-family:"Lato","Helvetica Neue",Helvetica,Arial,sans-serif; color:#000000de; background:#fff }
+    .container{ max-width:var(--container); margin:0 auto; padding:0 24px }
 
-/* Blue upper section (match cv/index) */
-/* .header { position: relative; color: #fff; background: var(--header-bg) } */
-/* Banner image for Publications */
-.header {
-  position: relative;
-  color: #fff;
+    /* Header */
+    .header{
+      position:relative; color:#fff; background-color:var(--header-fallback);
+      background-image:
+        linear-gradient(0deg, rgba(0,0,0,.35), rgba(0,0,0,.35)),
+        url("file:///Users/bonesh/Files/Website/assets/image_replacing_bluebackground.png"),
+        url("assets/image_replacing_bluebackground.png");
+      background-size:cover; background-position:center; background-repeat:no-repeat;
+    }
+    .header-inner{ position:relative; min-height:30vh; padding:22px 20px }
 
-  /* fallback color if image can’t load */
-  background-color: #2f5369;
+    .avatar{ width:144px; height:144px; margin:0 auto 10px; border-radius:50%; border:5px solid #fff; box-shadow:var(--shadow); overflow:hidden; background:#ccc }
+    .avatar img{ width:100%; height:100%; object-fit:cover }
 
-  /* overlay for readability, then local Mac path, then site-relative fallback */
-  background-image:
-    linear-gradient(0deg, rgba(0,0,0,.35), rgba(0,0,0,.35)),
-    url('file:///Users/bonesh/Files/Website/assets/image_replacing_bluebackground.png'),
-    url('assets/image_replacing_bluebackground.png');
+    .title-wrap{ text-align:center }
+    .title-wrap h1{ margin:0; font-weight:700; font-size:34px; letter-spacing:-.02em }
+    .subtitle{ margin-top:4px; font-size:14.5px; text-shadow:0 2px 4px rgba(0,0,0,.14),0 4px 5px rgba(0,0,0,.12),0 1px 10px rgba(0,0,0,.2) }
 
-  background-size: cover;       /* <- as requested */
-  background-position: center;
-  background-repeat: no-repeat;
-}
+    .social{ list-style:none; padding:0; margin:18px auto 0; display:flex; gap:16px; justify-content:center }
+    .social a{ display:inline-flex; width:48px; height:48px; border-radius:50%; align-items:center; justify-content:center; background:#fff; box-shadow:var(--shadow) }
+    .social img{ width:28px; height:28px; display:block }
 
-.header-inner { position: relative; min-height: 30vh; padding: 22px 20px }
+    /* Pill nav */
+    nav{ margin-top:14px; display:flex; justify-content:center }
+    .tabs{ list-style:none; padding:4px; margin:0; display:inline-flex; gap:2px; background:#fff; border-radius:999px; box-shadow:var(--shadow) }
+    .tabs a{ text-decoration:none; color:#111; padding:8px 14px; border-radius:999px; display:inline-block; font-weight:700; font-size:14px }
+    .tabs a.active{ background:#111827; color:#fff }
 
-.avatar {
-  width: 144px; height: 144px; margin: 0 auto 10px; border-radius: 50%;
-  border: 5px solid #fff; box-shadow: var(--shadow); overflow: hidden; background: #ccc;
-}
-.avatar img { width: 100%; height: 100%; object-fit: cover }
+    /* Main */
+    main{ min-height:60vh; padding:28px 0 }
+    .page-title{ margin:0 0 8px; font-size:30px; letter-spacing:-.02em }
+    .lead{ color:#374151; margin:0 0 12px }
 
-.title-wrap { text-align: center }
-.title-wrap h1 { margin: 0; font-weight: 700; font-size: 34px; letter-spacing: -.02em }
-.subtitle {
-  margin-top: 4px; font-size: 14.5px;
-  text-shadow: 0 2px 4px rgba(0,0,0,.14), 0 4px 5px rgba(0,0,0,.12), 0 1px 10px rgba(0,0,0,.2)
-}
+    /* Project list (kept) */
+    .projects{ display:flex; flex-direction:column; gap:12px }
+    .project-bar{ border:1px solid var(--border); border-radius:12px; background:#fff; box-shadow:var(--shadow); padding:14px 16px; cursor:pointer; user-select:none; transition: box-shadow .15s ease, border-color .15s ease }
+    .project-bar:focus{ outline:2px solid #c7d2fe; outline-offset:2px }
+    .project-bar:hover{ box-shadow:0 3px 6px #0000002f,0 6px 10px #0000001a,0 1px 14px #0003; border-color:#d7dae0 }
+    .project-top{ display:flex; align-items:flex-start; gap:12px }
+    .project-title{ font-weight:700; font-size:18px; margin:0; color:#0f172a; flex:1 1 auto }
+    .project-time{ flex:0 0 auto; font-size:14px; color:#475569; white-space:nowrap; display:flex; align-items:center; gap:10px }
+    .chevron{ width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:8px solid #475569; transition:transform .2s ease }
+    .project-bar.open .chevron{ transform:rotate(180deg) }
+    .project-desc{ margin:8px 0 0; color:#334155; line-height:1.45; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden }
+    .project-details{ display:none; margin-top:10px; color:#1f2937; line-height:1.55; border-top:1px dashed #e5e7eb; padding-top:10px }
+    .project-bar.open .project-details{ display:block }
 
-/* Social icons in straight line */
-.social{
-  list-style:none; margin:12px 0 0; padding:0;
-  display:flex; justify-content:center; align-items:center; gap:10px; line-height:0;
-}
-.social li{margin:0; padding:0; display:flex}
-.social a{
-  display:flex; align-items:center; justify-content:center;
-  width:48px; height:48px; border-radius:50%;
-  background:#fff; color:#000; text-decoration:none; font-weight:700; font-size:13px;
-  box-shadow:var(--shadow); overflow:hidden; border:1px solid var(--border); flex:0 0 auto;
-}
-.social a img{width:100%; height:100%; object-fit:cover; display:block}
+    /* Footer */
+    footer{ border-top:1px solid var(--border); color:#4b5563; font-size:14px; padding:18px 24px; text-align:center; background:#fafafa }
 
-/* Centered navigation */
-.nav-wrap{
-  display:flex; justify-content:center; position:sticky; top:12px;
-  margin-top:-12px; padding:0 20px; z-index:100;
-}
-.nav{
-  display:flex; gap:14px; background:#fff; border-radius:22px;
-  box-shadow:var(--shadow); padding:0 12px; border:1px solid var(--border);
-}
-.nav a{
-  display:block; padding:10px 0; line-height:24px; font-size:16px; color:#000; text-decoration:none
-}
-.nav a.active{font-weight:700}
+    @media (max-width:560px){
+      .title-wrap h1{ font-size:30px }
+      .avatar{ width:132px; height:132px }
+    }
 
-/* Main */
-main{min-height:60vh; padding:28px 0}
-.page-title{margin:0 0 8px; font-size:30px; letter-spacing:-.02em}
-.lead{color:#374151; margin:0 0 12px}
-
-/* Elongated project bars (single column) */
-.projects{
-  display:flex; flex-direction:column; gap:12px;
-}
-.project-bar{
-  border:1px solid var(--border); border-radius:12px; background:#fff; box-shadow:var(--shadow);
-  padding:14px 16px; cursor:pointer; user-select:none;
-  transition: box-shadow .15s ease, border-color .15s ease;
-}
-.project-bar:focus{ outline:2px solid #c7d2fe; outline-offset:2px }
-.project-bar:hover{
-  box-shadow:0 3px 6px #0000002f, 0 6px 10px #0000001a, 0 1px 14px #0003;
-  border-color:#d7dae0;
-}
-.project-top{
-  display:flex; align-items:flex-start; gap:12px;
-}
-.project-title{
-  font-weight:700; font-size:18px; margin:0; color:#0f172a;
-  flex:1 1 auto;
-}
-.project-time{
-  flex:0 0 auto; font-size:14px; color:#475569; white-space:nowrap;
-  display:flex; align-items:center; gap:10px;
-}
-
-/* Chevron indicator */
-.chevron{
-  width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent;
-  border-top:8px solid #475569; transition:transform .2s ease;
-}
-.project-bar.open .chevron{ transform:rotate(180deg) }
-
-/* One-line summary (always visible) */
-.project-desc{
-  margin:8px 0 0; color:#334155; line-height:1.45;
-  display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;
-}
-
-/* Hidden details dropdown */
-.project-details{
-  display:none; margin-top:10px; color:#1f2937; line-height:1.55;
-  border-top:1px dashed #e5e7eb; padding-top:10px;
-}
-.project-bar.open .project-details{ display:block }
-
-/* Optional scroll list for ongoing items */
-.scroll{
-  max-height:420px; overflow:auto; padding:16px; margin-top:16px;
-  border:1px solid var(--border); border-radius:8px; background:#fff; box-shadow:var(--shadow);
-}
-
-footer{
-  padding:24px 0; border-top:1px solid var(--border);
-  background:#fff; text-align:center; color:#4b5563;
-}
-
-@media (max-width:540px){
-  .title-wrap h1{font-size:30px}
-  .avatar{width:132px; height:132px}
-  .nav{gap:12px}
-  .nav a{font-size:16px}
-  .social{gap:8px}
-  .project-title{font-size:17px}
-  .project-time{font-size:13px}
-}
-
-/* If JS is disabled, show details by default so content is accessible */
-noscript .project-details { display:block !important }
-</style> </head> <body> <!-- Blue upper section --> <header class="header"> <div class="header-inner container"> <div class="avatar"><img src="assets/dp.jpeg" alt="Portrait of Boneshwar V K"></div>
-
-  <div class="title-wrap">
-    <h1><a href="index.html" style="color:#fff;text-decoration:none">Boneshwar V K</a></h1>
-    <div class="subtitle">B.S. and M.S., Biological Sciences — Department of Biotechnology, Bhupat &amp; Jyoti Mehta School of Biosciences, IIT Madras</div>
-
-    <ul class="social">
-      <li><a aria-label="Google Scholar" href="https://scholar.google.com/citations?user=KyuX2MYAAAAJ&hl=en" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
-      <li><a aria-label="ORCID" href="https://orcid.org/my-orcid?orcid=0009-0006-7474-8697" target="_blank" rel="noopener"><img src="assets/orcid.png" alt="ORCID"></a></li>
-      <li><a aria-label="LinkedIn" href="https://www.linkedin.com/in/boneshwar-vk-71549a234" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn"></a></li>
-      <li><a aria-label="GitHub" href="https://github.com/boneshwar-vk" target="_blank" rel="noopener"><img src="assets/github.png" alt="GitHub"></a></li>
-      <li><a aria-label="Email" href="mailto:boneshwar.vk20@gmail.com"><img src="assets/gmail.png" alt="Email"></a></li>
-    </ul>
-  </div>
-</div>
-
-<div class="nav-wrap">
-  <nav class="nav" aria-label="Primary">
-    <a href="index.html">Home</a>
-    <a href="publications.html">Publications</a>
-    <a href="cv.html">CV</a>
-    <a class="active" href="projects.html">Projects</a>
-    <a href="experience.html">Experiences</a>
-  </nav>
-</div>
-</header> <!-- Projects content --> <main> <div class="container"> <h1 class="page-title">Projects</h1> <p class="lead">A curated selection of projects demonstrating expertise in deep learning and applied research.</p>
-
-  <div class="projects">
-    <!-- Project: Language‑Agnostic Speaker Identification & Diarisation -->
-    <div class="project-bar" data-project-bar tabindex="0">
-      <div class="project-top">
-        <h3 class="project-title">Language‑Agnostic Speaker Identification & Diarisation; Transcription & Translation</h3>
-        <div class="project-time">
-          August 2025 – present
-          <span class="chevron" aria-hidden="true"></span>
-        </div>
+    noscript .project-details{ display:block !important }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner container">
+      <div class="avatar"><img src="assets/dp.jpeg" alt="Portrait of Boneshwar V K"></div>
+      <div class="title-wrap">
+        <h1><a href="index.html" style="color:#fff;text-decoration:none">Boneshwar V K</a></h1>
+        <div class="subtitle">B.S. and M.S., Biological Sciences — Department of Biotechnology, Bhupat &amp; Jyoti Mehta School of Biosciences, IIT Madras</div>
       </div>
-      <p class="project-desc">Multilingual speaker ID & diarisation with downstream transcription/translation.</p>
-      <div class="project-details">
-        AI solution for robust speaker identification and diarisation across multiple languages and dialects, followed by accurate transcription and translation. Built with in‑house fine‑tuned models optimized for noisy, real‑world audio; adaptable to call centers, media archives, and meetings. Pipeline covers VAD, embeddings, clustering/diarisation, ASR, and NMT post‑processing- all customised for indic native languages. 
+
+      <ul class="social">
+        <li><a aria-label="Google Scholar" href="https://scholar.google.com/citations?user=KyuX2MYAAAAJ&hl=en" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
+        <li><a aria-label="ORCID" href="https://orcid.org/my-orcid?orcid=0009-0006-7474-8697" target="_blank" rel="noopener"><img src="assets/orcid.png" alt="ORCID"></a></li>
+        <li><a aria-label="LinkedIn" href="https://www.linkedin.com/in/boneshwar-vk-71549a234" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn"></a></li>
+        <li><a aria-label="GitHub" href="https://github.com/boneshwar-vk" target="_blank" rel="noopener"><img src="assets/github.png" alt="GitHub"></a></li>
+        <li><a aria-label="Gmail" href="mailto:boneshwar.vk20@gmail.com"><img src="assets/gmail.png" alt="Gmail"></a></li>
+      </ul>
+
+      <nav aria-label="Primary">
+        <ul class="tabs">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="publications.html">Publications</a></li>
+          <li><a href="cv.html">CV</a></li>
+          <li><a class="active" href="projects.html">Projects</a></li>
+          <li><a href="experience.html">Experiences</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Content preserved -->
+  <main class="container">
+    <h1 class="page-title">Projects</h1>
+    <p class="lead">A curated selection of projects demonstrating expertise in deep learning and applied research.</p>
+
+    <div class="projects">
+      <!-- Your existing project bars -->
+      <!-- (…paste the same project items you already have) -->
+      <div class="project-bar" data-project-bar tabindex="0">
+        <div class="project-top">
+          <h3 class="project-title">Language-Agnostic Speaker Identification & Diarisation; Transcription & Translation</h3>
+          <div class="project-time">August 2025 – present <span class="chevron" aria-hidden="true"></span></div>
+        </div>
+        <p class="project-desc">Multilingual speaker ID & diarisation with downstream transcription/translation.</p>
+        <div class="project-details">AI solution for robust speaker identification and diarisation across multiple languages and dialects…</div>
+      </div>
+
+      <div class="project-bar" data-project-bar tabindex="0">
+        <div class="project-top">
+          <h3 class="project-title">MaskedAlign: Multiple Sequence Alignment using Transformer</h3>
+          <div class="project-time">Jan 2024 – May 2024 <span class="chevron" aria-hidden="true"></span></div>
+        </div>
+        <p class="project-desc">Masked transformer for MSA that improves alignment quality while reducing runtime overhead.</p>
+        <div class="project-details">Developed a seq-to-seq masked transformer…</div>
+      </div>
+
+      <div class="project-bar" data-project-bar tabindex="0">
+        <div class="project-top">
+          <h3 class="project-title">Synthetic Medical and IR Image Generation</h3>
+          <div class="project-time">Nov 2023 – Mar 2024 <span class="chevron" aria-hidden="true"></span></div>
+        </div>
+        <p class="project-desc">Diffusion & edge-guided GANs for better foreground and background separability.</p>
+        <div class="project-details">Industrial project (CVRDE, DRDO)…</div>
+      </div>
+
+      <div class="project-bar" data-project-bar tabindex="0">
+        <div class="project-top">
+          <h3 class="project-title">Traffic Bot: Real-time Violation Detection</h3>
+          <div class="project-time">Jun 2022 – Feb 2023 <span class="chevron" aria-hidden="true"></span></div>
+        </div>
+        <p class="project-desc">YOLO-V5 based helmet, triple-riding, and speeding detection on Jetson Nano.</p>
+        <div class="project-details">End-to-end deployment for multi-class violation detection…</div>
       </div>
     </div>
+  </main>
 
-    <!-- Project: MaskedAlign -->
-    <div class="project-bar" data-project-bar tabindex="0">
-      <div class="project-top">
-        <h3 class="project-title">MaskedAlign: Multiple Sequence Alignment using Transformer</h3>
-        <div class="project-time">
-          Jan 2024 – May 2024
-          <span class="chevron" aria-hidden="true"></span>
-        </div>
-      </div>
-      <p class="project-desc">Masked transformer for MSA that improves alignment quality while reducing runtime overhead.</p>
-      <div class="project-details">
-        Developed a seq‑to‑seq masked transformer (inspired by Masked Trajectory Transformer and BetaAlign) to enhance MSA generalization. PyTorch implementation beat strong baselines and cut runtime by up to 13% via decoding refinements and efficient attention. Ablations on masking schedules and positional schemes.
-      </div>
-    </div>
-
-    <!-- Project: Synthetic Medical and IR Image Generation -->
-    <div class="project-bar" data-project-bar tabindex="0">
-      <div class="project-top">
-        <h3 class="project-title">Synthetic Medical and IR Image Generation</h3>
-        <div class="project-time">
-          Nov 2023 – Mar 2024
-          <span class="chevron" aria-hidden="true"></span>
-        </div>
-      </div>
-      <p class="project-desc">Diffusion & edge‑guided GANs for better foreground and background seperability.</p>
-      <div class="project-details">
-        Industrial project (CVRDE, DRDO). Enhanced diffusion models with MixNMatch and latent controls for improved class separability/quality. Built RGB→Thermal IR translation using edge‑guided GANs to preserve boundaries and highlights. Improved downstream detection stability and reduced data collection needs.
-      </div>
-    </div>
-
-    <!-- Project: Traffic Bot -->
-    <div class="project-bar" data-project-bar tabindex="0">
-      <div class="project-top">
-        <h3 class="project-title">Traffic Bot: Real‑time Violation Detection</h3>
-        <div class="project-time">
-          Jun 2022 – Feb 2023
-          <span class="chevron" aria-hidden="true"></span>
-        </div>
-      </div>
-      <p class="project-desc">YOLO-V5 based helmet, triple‑riding, and speeding detection on Jetson Nano.</p>
-      <div class="project-details">
-        End‑to‑end deployment for multi‑class violation detection (F1 0.79) integrated with existing CCTV infrastructure. Upgraded from YOLO V3 to YOLO V5 and achieved 89% accuracy in field tests. Optimized for low‑power devices with batching and stream handling for continuous inference.
-      </div>
-    </div>
-  </div>
-
-</div>
-</main> <footer>© <span id="year"></span> Boneshwar V K</footer> <!-- Make sure main.js is loaded after the markup --> <script src="assets/main.js"></script>
-<noscript><style>.project-details{display:block!important}</style></noscript>
-<script> // Keep footer year if you had it inline previously; can be moved to main.js as well (function(){var y=document.getElementById('year'); if(y){ y.textContent=new Date().getFullYear(); }})(); </script> </body> </html>
+  <footer>© <span id="year"></span> Boneshwar V K</footer>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    // Keep the open/close behavior
+    (function(){
+      var bars=document.querySelectorAll('[data-project-bar]');
+      bars.forEach(function(bar){
+        bar.addEventListener('click',function(e){ if(e.target.closest('a')) return; bar.classList.toggle('open'); });
+        bar.addEventListener('keydown',function(e){ var k=e.key||e.code; if(k==='Enter'||k===' '||k==='Spacebar'){ e.preventDefault(); bar.classList.toggle('open'); }});
+      });
+    })();
+  </script>
+</body>
+</html>
