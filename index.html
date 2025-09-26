@@ -26,10 +26,20 @@
     .header {
       position: relative;
       color: #fff;
-      /* one-line shorthand to avoid later background resets */
-      background: var(--header-bg);
-      background-image: url("/Users/bonesh/Files/Website/assets/image_replacing_bluebackground.png");
 
+      /* fallback color in case the image can’t load */
+      background-color: #2f5369;
+
+      /* overlay first for text contrast, then the image
+        - prefers a per-page CSS variable if present
+        - otherwise falls back to the relative assets path */
+      background-image:
+        linear-gradient(0deg, rgba(0,0,0,.35), rgba(0,0,0,.35)),
+        var(--header-bg-image, url("assets/image_replacing_bluebackground.png"));
+
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
 
     .header-inner { position: relative; min-height: 30vh; padding: 22px 20px }
@@ -121,7 +131,8 @@
 </head>
 <body>
   <!-- Blue upper section (same as cv.html) -->
-  <header class="header">
+  <header class="header"
+        style="--header-bg-image: url('file:///Users/bonesh/Files/Website/assets/image_replacing_bluebackground.png');">
     <div class="header-inner container">
       <!-- Same photo path as you used in cv.html -->
       <div class="avatar"><img src="assets/dp.jpeg" alt="Portrait of Boneshwar V K"></div>
