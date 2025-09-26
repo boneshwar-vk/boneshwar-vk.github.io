@@ -38,11 +38,25 @@
         }
 
         /* Blue upper section (reduced size per your last version) */
+        /* Banner image for Publications */
         .header {
-            position: relative;
-            color: #fff;
-            background: var(--header-bg)
+        position: relative;
+        color: #fff;
+
+        /* fallback color if image can’t load */
+        background-color: #2f5369;
+
+        /* overlay for readability, then local Mac path, then site-relative fallback */
+        background-image:
+            linear-gradient(0deg, rgba(0,0,0,.35), rgba(0,0,0,.35)),
+            url('file:///Users/bonesh/Files/Website/assets/image_replacing_bluebackground.png'),
+            url('assets/image_replacing_bluebackground.png');
+
+        background-size: cover;       /* <- as requested */
+        background-position: center;
+        background-repeat: no-repeat;
         }
+
 
         .header-inner {
             position: relative;
