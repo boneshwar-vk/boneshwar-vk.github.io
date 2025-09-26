@@ -11,7 +11,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
-    :root { --container: 752px; --border:#e5e7eb; --shadow:0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003; --header-fallback:#2f5369 }
+    :root { 
+      --container: 752px; 
+      --border:#e5e7eb; 
+      --shadow:0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003; 
+      --header-fallback:#2f5369;
+      --header-height: 55vh;      /* NEW */
+      --header-bottom-gap: 16px;  /* NEW */
+    }
     html{ scroll-behavior:smooth } *{ box-sizing:border-box }
     body{ margin:0; font-family:"Lato","Helvetica Neue",Helvetica,Arial,sans-serif; color:#000000de; background:#fff }
     .container{ max-width:var(--container); margin:0 auto; padding:0 24px }
@@ -24,8 +31,9 @@
         url("file:///Users/bonesh/Files/Website/assets/image_replacing_bluebackground.png"),
         url("assets/image_replacing_bluebackground.png");
       background-size:cover; background-position:center; background-repeat:no-repeat;
+      margin-bottom: var(--header-bottom-gap); /* NEW */
     }
-    .header-inner{ position:relative; min-height:30vh; padding:22px 20px }
+    .header-inner{ position:relative; min-height: var(--header-height); padding:22px 20px }
 
     .avatar{ width:144px; height:144px; margin:0 auto 10px; border-radius:50%; border:5px solid #fff; box-shadow:var(--shadow); overflow:hidden; background:#ccc }
     .avatar img{ width:100%; height:100%; object-fit:cover }
@@ -49,7 +57,6 @@
     .page-title{ margin:0 0 8px; font-size:30px; letter-spacing:-.02em }
     .lead{ color:#374151; margin:0 0 12px }
 
-    /* Project list (kept) */
     .projects{ display:flex; flex-direction:column; gap:12px }
     .project-bar{ border:1px solid var(--border); border-radius:12px; background:#fff; box-shadow:var(--shadow); padding:14px 16px; cursor:pointer; user-select:none; transition: box-shadow .15s ease, border-color .15s ease }
     .project-bar:focus{ outline:2px solid #c7d2fe; outline-offset:2px }
@@ -63,14 +70,13 @@
     .project-details{ display:none; margin-top:10px; color:#1f2937; line-height:1.55; border-top:1px dashed #e5e7eb; padding-top:10px }
     .project-bar.open .project-details{ display:block }
 
-    /* Footer */
     footer{ border-top:1px solid var(--border); color:#4b5563; font-size:14px; padding:18px 24px; text-align:center; background:#fafafa }
 
     @media (max-width:560px){
+      :root { --header-height: 50vh; }
       .title-wrap h1{ font-size:30px }
       .avatar{ width:132px; height:132px }
     }
-
     noscript .project-details{ display:block !important }
   </style>
 </head>
@@ -84,11 +90,11 @@
       </div>
 
       <ul class="social">
-        <li><a aria-label="Google Scholar" href="https://scholar.google.com/citations?user=KyuX2MYAAAAJ&hl=en" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
-        <li><a aria-label="ORCID" href="https://orcid.org/my-orcid?orcid=0009-0006-7474-8697" target="_blank" rel="noopener"><img src="assets/orcid.png" alt="ORCID"></a></li>
-        <li><a aria-label="LinkedIn" href="https://www.linkedin.com/in/boneshwar-vk-71549a234" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn"></a></li>
-        <li><a aria-label="GitHub" href="https://github.com/boneshwar-vk" target="_blank" rel="noopener"><img src="assets/github.png" alt="GitHub"></a></li>
-        <li><a aria-label="Gmail" href="mailto:boneshwar.vk20@gmail.com"><img src="assets/gmail.png" alt="Gmail"></a></li>
+        <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
+        <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener"><img src="assets/orcid.png" alt="ORCID"></a></li>
+        <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn"></a></li>
+        <li><a aria-label="GitHub" href="#" target="_blank" rel="noopener"><img src="assets/github.png" alt="GitHub"></a></li>
+        <li><a aria-label="Gmail" href="mailto:someone@example.com"><img src="assets/gmail.png" alt="Gmail"></a></li>
       </ul>
 
       <nav aria-label="Primary">
@@ -103,20 +109,17 @@
     </div>
   </header>
 
-  <!-- Content preserved -->
   <main class="container">
     <h1 class="page-title">Projects</h1>
     <p class="lead">A curated selection of projects demonstrating expertise in deep learning and applied research.</p>
 
     <div class="projects">
-      <!-- Your existing project bars -->
-      <!-- (…paste the same project items you already have) -->
       <div class="project-bar" data-project-bar tabindex="0">
         <div class="project-top">
-          <h3 class="project-title">Language-Agnostic Speaker Identification & Diarisation; Transcription & Translation</h3>
+          <h3 class="project-title">Language-Agnostic Speaker Identification &amp; Diarisation; Transcription &amp; Translation</h3>
           <div class="project-time">August 2025 – present <span class="chevron" aria-hidden="true"></span></div>
         </div>
-        <p class="project-desc">Multilingual speaker ID & diarisation with downstream transcription/translation.</p>
+        <p class="project-desc">Multilingual speaker ID &amp; diarisation with downstream transcription/translation.</p>
         <div class="project-details">AI solution for robust speaker identification and diarisation across multiple languages and dialects…</div>
       </div>
 
@@ -134,7 +137,7 @@
           <h3 class="project-title">Synthetic Medical and IR Image Generation</h3>
           <div class="project-time">Nov 2023 – Mar 2024 <span class="chevron" aria-hidden="true"></span></div>
         </div>
-        <p class="project-desc">Diffusion & edge-guided GANs for better foreground and background separability.</p>
+        <p class="project-desc">Diffusion &amp; edge-guided GANs for better foreground and background separability.</p>
         <div class="project-details">Industrial project (CVRDE, DRDO)…</div>
       </div>
 
@@ -152,7 +155,6 @@
   <footer>© <span id="year"></span> Boneshwar V K</footer>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
-    // Keep the open/close behavior
     (function(){
       var bars=document.querySelectorAll('[data-project-bar]');
       bars.forEach(function(bar){

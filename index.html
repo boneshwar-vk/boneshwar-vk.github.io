@@ -15,7 +15,10 @@
       --container: 752px;
       --border: #e5e7eb;
       --shadow: 0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003;
-      --header-fallback: #2f5369; /* used only if images fail */
+      --header-fallback: #2f5369;  /* used only if images fail */
+      /* NEW controls */
+      --header-height: 55vh;       /* banner height ~55% viewport */
+      --header-bottom-gap: 16px;   /* space below banner */
     }
     html { scroll-behavior: smooth }
     * { box-sizing: border-box }
@@ -28,12 +31,7 @@
     }
     .container { max-width: var(--container); margin: 0 auto; padding: 0 24px }
 
-    /* ===== Header (banner) =====
-       Image layers:
-       1) subtle dark overlay for legibility
-       2) absolute Mac path so local files opened from Finder work
-       3) site-relative fallback for deployed site
-    */
+    /* ===== Header (banner) ===== */
     .header {
       position: relative;
       color: #fff;
@@ -45,8 +43,9 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+      margin-bottom: var(--header-bottom-gap); /* NEW small gap to content */
     }
-    .header-inner { position: relative; min-height: 30vh; padding: 22px 20px }
+    .header-inner { position: relative; min-height: var(--header-height); padding: 22px 20px }
 
     .avatar {
       width: 144px; height: 144px; margin: 0 auto 10px; border-radius: 50%;
@@ -104,6 +103,7 @@
 
     /* Small screens */
     @media (max-width: 560px) {
+      :root { --header-height: 50vh; } /* optional smaller banner on phones */
       .title-wrap h1 { font-size: 28px }
       .social a { width: 44px; height: 44px }
       .social img { width: 24px; height: 24px }
@@ -115,9 +115,7 @@
   <header class="header">
     <div class="header-inner container">
       <div class="avatar">
-        <!-- Replace with your headshot path if different -->
-        <img src="assets/dp.jpeg" alt="Portrait of Boneshwar V K"
-        style="width:100%;height:100%;object-fit:cover;border-radius:50%">
+        <img src="assets/dp.jpeg" alt="Portrait of Boneshwar V K" style="width:100%;height:100%;object-fit:cover;border-radius:50%">
       </div>
 
       <div class="title-wrap">
@@ -127,7 +125,6 @@
         </div>
       </div>
 
-      <!-- Social icons -->
       <ul class="social">
         <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
         <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener"><img src="assets/orcid.png" alt="ORCID"></a></li>
@@ -136,7 +133,6 @@
         <li><a aria-label="Gmail" href="mailto:someone@example.com"><img src="assets/gmail.png" alt="Gmail"></a></li>
       </ul>
 
-      <!-- Nav pills (example) -->
       <nav aria-label="Primary">
         <ul class="tabs">
           <li><a class="active" href="index.html">Home</a></li>
@@ -185,7 +181,6 @@
 
   <footer>© <span id="year"></span> Boneshwar V K</footer>
   <script>
-    // Set current year in footer
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>

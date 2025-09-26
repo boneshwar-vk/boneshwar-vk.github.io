@@ -11,7 +11,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
-    :root { --container: 752px; --border:#e5e7eb; --shadow:0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003; --header-fallback:#2f5369 }
+    :root { 
+      --container: 752px; 
+      --border:#e5e7eb; 
+      --shadow:0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003; 
+      --header-fallback:#2f5369;
+      --header-height: 55vh;      /* NEW */
+      --header-bottom-gap: 16px;  /* NEW */
+    }
     html{ scroll-behavior:smooth } *{ box-sizing:border-box }
     body{ margin:0; font-family:"Lato","Helvetica Neue",Helvetica,Arial,sans-serif; color:#000000de; background:#fff }
     .container{ max-width:var(--container); margin:0 auto; padding:0 24px }
@@ -24,8 +31,9 @@
         url("file:///Users/bonesh/Files/Website/assets/image_replacing_bluebackground.png"),
         url("assets/image_replacing_bluebackground.png");
       background-size:cover; background-position:center; background-repeat:no-repeat;
+      margin-bottom: var(--header-bottom-gap); /* NEW */
     }
-    .header-inner{ position:relative; min-height:30vh; padding:22px 20px }
+    .header-inner{ position:relative; min-height: var(--header-height); padding:22px 20px }
 
     .avatar{ width:144px; height:144px; margin:0 auto 10px; border-radius:50%; border:5px solid #fff; box-shadow:var(--shadow); overflow:hidden; background:#ccc }
     .avatar img{ width:100%; height:100%; object-fit:cover }
@@ -49,7 +57,6 @@
     .page-title{ margin:0 0 8px; font-size:30px; letter-spacing:-.02em }
     .lead{ color:#374151; margin:0 0 12px }
 
-    /* Bars (kept) */
     .projects{ display:flex; flex-direction:column; gap:12px }
     .project-bar{ border:1px solid var(--border); border-radius:12px; background:#fff; box-shadow:var(--shadow); padding:18px; cursor:pointer; user-select:none; transition: box-shadow .15s ease, border-color .15s ease }
     .project-bar:hover{ box-shadow:0 3px 6px #0000002f, 0 6px 10px #0000001a, 0 1px 14px #0003; border-color:#d7dae0 }
@@ -62,14 +69,13 @@
     .project-details{ display:none; margin-top:12px; color:#1f2937; line-height:1.55; border-top:1px dashed #e5e7eb; padding-top:12px }
     .project-bar.open .project-details{ display:block }
 
-    /* Footer */
     footer{ border-top:1px solid var(--border); color:#4b5563; font-size:14px; padding:18px 24px; text-align:center; background:#fafafa }
 
     @media (max-width:560px){
+      :root { --header-height: 50vh; }
       .title-wrap h1{ font-size:30px }
       .avatar{ width:132px; height:132px }
     }
-
     noscript .project-details{ display:block !important }
   </style>
 </head>
@@ -83,11 +89,11 @@
       </div>
 
       <ul class="social">
-        <li><a aria-label="Google Scholar" href="https://scholar.google.com/citations?user=KyuX2MYAAAAJ&hl=en" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
-        <li><a aria-label="ORCID" href="https://orcid.org/my-orcid?orcid=0009-0006-7474-8697" target="_blank" rel="noopener"><img src="assets/orcid.png" alt="ORCID"></a></li>
-        <li><a aria-label="LinkedIn" href="https://www.linkedin.com/in/boneshwar-vk-71549a234" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn"></a></li>
-        <li><a aria-label="GitHub" href="https://github.com/boneshwar-vk" target="_blank" rel="noopener"><img src="assets/github.png" alt="GitHub"></a></li>
-        <li><a aria-label="Gmail" href="mailto:boneshwar.vk20@gmail.com"><img src="assets/gmail.png" alt="Gmail"></a></li>
+        <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
+        <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener"><img src="assets/orcid.png" alt="ORCID"></a></li>
+        <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn"></a></li>
+        <li><a aria-label="GitHub" href="#" target="_blank" rel="noopener"><img src="assets/github.png" alt="GitHub"></a></li>
+        <li><a aria-label="Gmail" href="mailto:someone@example.com"><img src="assets/gmail.png" alt="Gmail"></a></li>
       </ul>
 
       <nav aria-label="Primary">
@@ -102,7 +108,6 @@
     </div>
   </header>
 
-  <!-- Content preserved -->
   <main class="container">
     <h1 class="page-title">Experiences</h1>
     <p class="lead">Experiences and academic pursuits shaping my research journey in the generative AI space.</p>
@@ -114,7 +119,7 @@
           <h3 class="project-title">Project Member — CRIS Lab, Columbia University</h3>
           <div class="project-time">April 2025 – present <span class="chevron" aria-hidden="true"></span></div>
         </div>
-        <p class="project-desc">Integrating MeSH knowledge graphs with LLMs and used TDA to ground biological concepts.</p>
+        <p class="project-desc">Integrating MeSH knowledge graphs with LLMs and using TDA to ground biological concepts.</p>
         <div class="project-details">Implementing a heuristic framework that incorporates hierarchical MeSH knowledge…</div>
       </div>
 
