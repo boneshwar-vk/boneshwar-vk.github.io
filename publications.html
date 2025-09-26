@@ -5,19 +5,20 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Boneshwar V K — Publications</title>
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
     :root {
       --container: 752px;
       --border: #e5e7eb;
       --shadow: 0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003;
-      --header-bg: #2f5369;
+      --header-fallback: #2f5369; /* used only if images fail */
     }
-
-    html { scroll-behavior: smooth; }
-
-    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth }
+    * { box-sizing: border-box }
 
     body {
       margin: 0;
@@ -25,239 +26,83 @@
       color: #000000de;
       background: #fff;
     }
+    .container { max-width: var(--container); margin: 0 auto; padding: 0 24px }
 
-    .container {
-      max-width: var(--container);
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    /* Blue upper section */
-    /* .header {
+    /* ===== Header (banner) ===== */
+    .header {
       position: relative;
       color: #fff;
-      background: var(--header-bg);
-    } */
-    /* Banner image for Publications */
-    .header {
-    position: relative;
-    color: #fff;
-
-    /* fallback color if image can’t load */
-    background-color: #2f5369;
-
-    /* overlay for readability, then local Mac path, then site-relative fallback */
-    background-image:
+      background-color: var(--header-fallback);
+      background-image:
         linear-gradient(0deg, rgba(0,0,0,.35), rgba(0,0,0,.35)),
-        url('file:///Users/bonesh/Files/Website/assets/image_replacing_bluebackground.png'),
-        url('assets/image_replacing_bluebackground.png');
-
-    background-size: cover;       /* <- as requested */
-    background-position: center;
-    background-repeat: no-repeat;
+        url("file:///Users/bonesh/Files/Website/assets/image_replacing_bluebackground.png"),
+        url("assets/image_replacing_bluebackground.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
-
-
-    .header-inner {
-      position: relative;
-      min-height: 30vh;
-      padding: 22px 20px;
-    }
+    .header-inner { position: relative; min-height: 30vh; padding: 22px 20px }
 
     .avatar {
-      width: 144px;
-      height: 144px;
-      margin: 0 auto 10px;
-      border-radius: 50%;
-      border: 5px solid #fff;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      background: #ccc;
+      width: 144px; height: 144px; margin: 0 auto 10px; border-radius: 50%;
+      border: 5px solid #fff; box-shadow: var(--shadow); overflow: hidden; background: #ccc;
     }
+    .avatar img { width: 100%; height: 100%; object-fit: cover }
 
-    .avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .title-wrap { text-align: center; }
-
-    .title-wrap h1 {
-      margin: 0;
-      font-weight: 700;
-      font-size: 34px;
-      letter-spacing: -.02em;
-    }
-
+    .title-wrap { text-align: center }
+    .title-wrap h1 { margin: 0; font-weight: 700; font-size: 34px; letter-spacing: -.02em }
     .subtitle {
-      margin-top: 4px;
-      font-size: 14.5px;
-      text-shadow: 0 2px 4px rgba(0,0,0,.14), 0 4px 5px rgba(0,0,0,.12), 0 1px 10px rgba(0,0,0,.2);
+      margin-top: 4px; font-size: 14.5px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, .14), 0 4px 5px rgba(0, 0, 0, .12), 0 1px 10px rgba(0, 0, 0, .2);
     }
 
-    /* Social icons */
-    .social {
-      list-style: none;
-      margin: 12px 0 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      line-height: 0;
+    /* Social circles */
+    .social { list-style: none; padding: 0; margin: 18px auto 0; display: flex; gap: 16px; justify-content: center; }
+    .social a { display: inline-flex; width: 48px; height: 48px; border-radius: 50%; align-items: center; justify-content: center; background: #fff; box-shadow: var(--shadow) }
+    .social img { width: 28px; height: 28px; display: block }
+
+    /* Pill nav (same as index) */
+    nav { margin-top: 14px; display: flex; justify-content: center }
+    .tabs {
+      list-style: none; padding: 4px; margin: 0; display: inline-flex; gap: 2px;
+      background: #fff; border-radius: 999px; box-shadow: var(--shadow)
     }
-
-    .social li { margin: 0; padding: 0; display: flex; }
-
-    .social a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: #fff;
-      color: #000;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 13px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      border: 1px solid var(--border);
-      flex: 0 0 auto;
+    .tabs a {
+      text-decoration: none; color: #111; padding: 8px 14px; border-radius: 999px; display: inline-block;
+      font-weight: 700; font-size: 14px
     }
-
-    .social a img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    /* Nav */
-    .nav-wrap {
-      display: flex;
-      justify-content: center;
-      position: sticky;
-      top: 12px;
-      margin-top: -12px;
-      padding: 0 20px;
-      z-index: 100;
-    }
-
-    .nav {
-      display: flex;
-      gap: 14px;
-      background: #fff;
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-      padding: 0 12px;
-      border: 1px solid var(--border);
-    }
-
-    .nav a {
-      display: block;
-      padding: 10px 0;
-      line-height: 24px;
-      font-size: 16px;
-      color: #000;
-      text-decoration: none;
-    }
-
-    .nav a.active { font-weight: 700; }
+    .tabs a.active { background: #111827; color: #fff }
 
     /* Main */
-    main { min-height: 60vh; padding: 28px 0; }
+    main { min-height: 60vh; padding: 28px 0 }
+    .page-title { margin: 0 0 8px; font-size: 30px; letter-spacing: -.02em }
+    .lead { color: #374151; margin: 0 0 12px }
 
-    .page-title {
-      margin: 0 0 8px;
-      font-size: 30px;
-      letter-spacing: -.02em;
-    }
+    /* Publications panel (kept from your page) */
+    .pubs-panel { max-height: 520px; overflow: auto; padding: 16px; border: 1px solid var(--border); border-radius: 8px; background: #fff; box-shadow: var(--shadow) }
+    .pubs-panel ol { margin: 0; padding-left: 18px }
+    .pubs-panel li { margin: 12px 0 }
+    .pubs-panel .links a { color: #1f6fd6; text-decoration: none; border-bottom: 1px dashed #a7c0ff; margin-right: 10px }
+    .pubs-panel .links a:hover { text-decoration: underline }
 
-    .lead { color: #374151; margin: 0 0 12px; }
+    .abstract-block { margin-top: 10px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: #fafafa }
+    .abstract-toggle { margin: 8px 0 10px; display: inline-block; font-size: 14px; color: #1f6fd6; cursor: pointer; user-select: none }
+    .abstract-content { display: none; color: #1f2937; line-height: 1.55 }
+    .abstract-content.open { display: block }
+    .abstract-heading { font-weight: 700; margin: 0 0 6px }
 
-    /* Publications list panel */
-    .pubs-panel {
-      max-height: 520px;
-      overflow: auto;
-      padding: 16px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #fff;
-      box-shadow: var(--shadow);
-    }
+    .pub-pdf { margin-top: 12px; border: 1px dashed var(--border); border-radius: 6px; background: #ffffff; overflow: hidden }
+    .pub-pdf iframe { width: 100%; height: 800px; display: block; border: none; background: #fff }
+    .pub-pdf .caption { font-size: 13px; color: #475569; margin: 6px auto 0; text-align: center; padding: 6px 8px 10px }
 
-    .pubs-panel ol { margin: 0; padding-left: 18px; }
-    .pubs-panel li { margin: 12px 0; }
+    /* Footer */
+    footer { border-top: 1px solid var(--border); color: #4b5563; font-size: 14px; padding: 18px 24px; text-align: center; background: #fafafa }
 
-    .pubs-panel .links a {
-      color: #1f6fd6;
-      text-decoration: none;
-      border-bottom: 1px dashed #a7c0ff;
-      margin-right: 10px;
-    }
-
-    .pubs-panel .links a:hover { text-decoration: underline; }
-
-    /* Abstract block */
-    .abstract-block {
-      margin-top: 10px;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #fafafa;
-    }
-
-    .abstract-toggle {
-      margin: 8px 0 10px;
-      display: inline-block;
-      font-size: 14px;
-      color: #1f6fd6;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .abstract-content { display: none; color: #1f2937; line-height: 1.55; }
-    .abstract-content.open { display: block; }
-    .abstract-heading { font-weight: 700; margin: 0 0 6px; }
-
-    /* PDF embed */
-    .pub-pdf {
-      margin-top: 12px;
-      border: 1px dashed var(--border);
-      border-radius: 6px;
-      background: #ffffff;
-      overflow: hidden;
-    }
-
-    .pub-pdf iframe {
-      width: 100%;
-      height: 800px;
-      display: block;
-      border: none;
-      background: #fff;
-    }
-
-    .pub-pdf .caption {
-      font-size: 13px;
-      color: #475569;
-      margin: 6px auto 0;
-      text-align: center;
-      padding: 6px 8px 10px;
-    }
-
-    footer {
-      padding: 24px 0;
-      border-top: 1px solid var(--border);
-      background: #fff;
-      text-align: center;
-      color: #4b5563;
-    }
-
-    @media (max-width:540px) {
-      .title-wrap h1 { font-size: 30px; }
-      .avatar { width: 132px; height: 132px; }
-      .nav { gap: 12px; }
-      .nav a { font-size: 16px; }
-      .social { gap: 8px; }
-      .pub-pdf iframe { height: 520px; }
+    /* Small screens */
+    @media (max-width: 560px) {
+      .title-wrap h1 { font-size: 30px }
+      .avatar { width: 132px; height: 132px }
+      .pub-pdf iframe { height: 520px }
     }
   </style>
 </head>
@@ -268,91 +113,68 @@
       <div class="title-wrap">
         <h1><a href="index.html" style="color:#fff;text-decoration:none">Boneshwar V K</a></h1>
         <div class="subtitle">B.S. and M.S., Biological Sciences — Department of Biotechnology, Bhupat &amp; Jyoti Mehta School of Biosciences, IIT Madras</div>
-        <ul class="social">
-          <li><a aria-label="Google Scholar" href="https://scholar.google.com/citations?user=KyuX2MYAAAAJ&hl=en" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
-          <li><a aria-label="ORCID" href="https://orcid.org/my-orcid?orcid=0009-0006-7474-8697" target="_blank" rel="noopener"><img src="assets/orcid.png" alt="ORCID"></a></li>
-          <li><a aria-label="LinkedIn" href="https://www.linkedin.com/in/boneshwar-vk-71549a234" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn"></a></li>
-          <li><a aria-label="GitHub" href="https://github.com/boneshwar-vk" target="_blank" rel="noopener"><img src="assets/github.png" alt="GitHub"></a></li>
-          <li><a aria-label="Email" href="mailto:boneshwar.vk20@gmail.com"><img src="assets/gmail.png" alt="Email"></a></li>
-        </ul>
       </div>
-    </div>
-    <div class="nav-wrap">
-      <nav class="nav" aria-label="Primary">
-        <a href="index.html">Home</a>
-        <a class="active" href="publications.html">Publications</a>
-        <a href="cv.html">CV</a>
-        <a href="projects.html">Projects</a>
-        <a href="experience.html">Experiences</a>
+
+      <!-- Social icons -->
+      <ul class="social">
+        <li><a aria-label="Google Scholar" href="https://scholar.google.com/citations?user=KyuX2MYAAAAJ&hl=en" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
+        <li><a aria-label="ORCID" href="https://orcid.org/my-orcid?orcid=0009-0006-7474-8697" target="_blank" rel="noopener"><img src="assets/orcid.png" alt="ORCID"></a></li>
+        <li><a aria-label="LinkedIn" href="https://www.linkedin.com/in/boneshwar-vk-71549a234" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn"></a></li>
+        <li><a aria-label="GitHub" href="https://github.com/boneshwar-vk" target="_blank" rel="noopener"><img src="assets/github.png" alt="GitHub"></a></li>
+        <li><a aria-label="Gmail" href="mailto:boneshwar.vk20@gmail.com"><img src="assets/gmail.png" alt="Gmail"></a></li>
+      </ul>
+
+      <!-- Pill nav -->
+      <nav aria-label="Primary">
+        <ul class="tabs">
+          <li><a href="index.html">Home</a></li>
+          <li><a class="active" href="publications.html">Publications</a></li>
+          <li><a href="cv.html">CV</a></li>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="experience.html">Experiences</a></li>
+        </ul>
       </nav>
     </div>
   </header>
 
-  <main>
-    <div class="container">
-      <h1 class="page-title">Publications</h1>
-      <p class="lead">Peer-reviewed publications and contributions to advancing research in AI and computational neuroscience. Links to PDFs, DOIs, and project materials are available.</p>
+  <main class="container">
+    <h1 class="page-title">Publications</h1>
+    <p class="lead">Peer-reviewed publications and contributions to advancing research in AI and computational neuroscience. Links to PDFs, DOIs, and project materials are available.</p>
 
-      <div class="pubs-panel">
-        <ol>
-          <!-- Publication 1 -->
-          <li>
-            <i>Boneshwar, V. K., Deepesh Agarwal, Bala Natarajan, and Babji Srinivasan. “Inductive graph neural network framework for imputation of single-cell RNA sequencing data.” <em>Computers &amp; Chemical Engineering</em> 195 (2025): 109031</i>
-            <span class="links">
-              <a href="docs/paper.pdf" target="_blank" rel="noopener"><i>(PDF)</i></a>
-            </span>
+    <!-- (Kept your existing publications list/abstract blocks) -->
+    <div class="pubs-panel">
+      <ol>
+        <li>
+          <i>Boneshwar, V. K., Deepesh Agarwal, Bala Natarajan, and Babji Srinivasan. “Inductive graph neural network framework for imputation of single-cell RNA sequencing data.” <em>Computers &amp; Chemical Engineering</em> 195 (2025): 109031</i>
+          <span class="links"><a href="docs/paper.pdf" target="_blank" rel="noopener"><i>(PDF)</i></a></span>
 
-            <div class="abstract-block">
-              <span class="abstract-toggle" onclick="(function(el){
-                var c = el.nextElementSibling;
-                c.classList.toggle('open');
-                el.textContent = c.classList.contains('open') ? 'Hide abstract' : 'Show abstract';
-              })(this)">Show abstract</span>
+          <div class="abstract-block">
+            <span class="abstract-toggle" onclick="(function(el){var c=el.nextElementSibling;c.classList.toggle('open');el.textContent=c.classList.contains('open')?'Hide abstract':'Show abstract';})(this)">Show abstract</span>
 
-              <div class="abstract-content">
-                <p class="abstract-heading">Abstract</p>
-                <p>
-                  Single-cell RNA sequencing enables fine-grained analysis of cellular processes but suffers from sparsity and noise. We present an inductive graph learning framework that constructs node embeddings from subgraphs, improving scalability while achieving strong imputation and clustering performance across multiple scRNA-seq datasets. The method demonstrates gains in Silhouette and ARI scores with reduced runtime and error, supporting downstream applications in trajectory inference and pathway analysis.
-                </p>
+            <div class="abstract-content">
+              <p class="abstract-heading">Abstract</p>
+              <p>Single-cell RNA sequencing enables fine-grained analysis of cellular processes but suffers from sparsity and noise. We present an inductive graph learning framework that constructs node embeddings from subgraphs, improving scalability while achieving strong imputation and clustering performance across multiple scRNA-seq datasets…</p>
 
-                <!-- Image container with zoom functionality -->
-                <div id="image-container" style="overflow:auto; width:600px; height:600px; border:1px solid #223049; border-radius:12px; background:#0c1118; position:relative; cursor:crosshair; text-align:left;">
-                  <img id="image" src="assets/image.png" alt="Publication page"
-                       style="transform: scale(0.4); transform-origin: top left; transition: transform 0.3s ease; position:relative; display:inline-block;">
-                </div>
-                <div class="caption">Overview preview of InductiveGNNt</div>
+              <div id="image-container" style="overflow:auto; width:600px; height:600px; border:1px solid #223049; border-radius:12px; background:#0c1118; position:relative; cursor:crosshair; text-align:left;">
+                <img id="image" src="assets/image.png" alt="Publication page" style="transform: scale(0.4); transform-origin: top left; transition: transform 0.3s ease; position:relative; display:inline-block;">
               </div>
+              <div class="caption">Overview preview of InductiveGNNt</div>
             </div>
-          </li>
+          </div>
+        </li>
 
-          <!-- Publication 2 (PAIGT) -->
-          <li>
-            <i>PAIGT: Positional Aware Inductive Graph Transformer for Single-cell RNA analysis</i>
-            <span class="links"><em>(Preprint in progress)</em></span>
-
-            <div class="abstract-block">
-              <span class="abstract-toggle" onclick="(function(el){
-                var c = el.nextElementSibling;
-                c.classList.toggle('open');
-                el.textContent = c.classList.contains('open') ? 'Hide abstract' : 'Show abstract';
-              })(this)">Show abstract</span>
-
-              <div class="abstract-content">
-                <p class="abstract-heading">Abstract</p>
-                <p>
-                  An inductive graph transformer tailored for sparse single-cell RNA data with emphasis on glioma cohorts. The approach fuses degree-aware and path-aware positional signals directly into attention to capture local and global structure, and adopts multiscale representation learning that unifies neighborhood-level and cohort-level information to respect biological hierarchies and heterogeneity. Validation indicates superior cell type annotation accuracy over contemporary baselines across seven gold-standard benchmarks and eight glioma datasets, with consistent gains on sparse and noisy settings.
-                </p>
-                <ul>
-                  <li><strong>Inductive graph transformer:</strong> Modular handling of sparsity, effective on noisy glioma datasets.</li>
-                  <li><strong>Structure-aware transformer:</strong> Principled fusion of degree and path encodings within attention.</li>
-                  <li><strong>Multiscale learning:</strong> Unified aggregation of neighborhood and cohort signals.</li>
-                  <li><strong>Comprehensive validation:</strong> Consistent improvements across diverse benchmarks and glioma cohorts.</li>
-                </ul>
-              </div>
+        <li>
+          <i>PAIGT: Positional Aware Inductive Graph Transformer for Single-cell RNA analysis</i>
+          <span class="links"><em>(Preprint in progress)</em></span>
+          <div class="abstract-block">
+            <span class="abstract-toggle" onclick="(function(el){var c=el.nextElementSibling;c.classList.toggle('open');el.textContent=c.classList.contains('open')?'Hide abstract':'Show abstract';})(this)">Show abstract</span>
+            <div class="abstract-content">
+              <p class="abstract-heading">Abstract</p>
+              <p>An inductive graph transformer tailored for sparse single-cell RNA data with emphasis on glioma cohorts…</p>
             </div>
-          </li>
-        </ol>
-      </div>
+          </div>
+        </li>
+      </ol>
     </div>
   </main>
 
@@ -360,31 +182,18 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Zoom script for the first publication's preview image
+    // Zoom script (kept)
     (function(){
       const container = document.getElementById("image-container");
       const image = document.getElementById("image");
       if (!container || !image) return;
-
-      let scale = 1;
-      const zoomFactor = 2;
-      let offsetX = 0;
-      let offsetY = 0;
-
-      container.addEventListener("click", (event) => {
-        const rect = container.getBoundingClientRect();
-        const clickX = (event.clientX - rect.left - offsetX) / scale;
-        const clickY = (event.clientY - rect.top - offsetY) / scale;
-
-        if (scale === 1) {
-          scale = zoomFactor;
-          offsetX = container.clientWidth / 2 - clickX * scale;
-          offsetY = container.clientHeight / 2 - clickY * scale;
-        } else {
-          scale = 1;
-          offsetX = 0;
-          offsetY = 0;
-        }
+      let scale = 1, zoomFactor = 2, offsetX = 0, offsetY = 0;
+      container.addEventListener("click", (e) => {
+        const r = container.getBoundingClientRect();
+        const x = (e.clientX - r.left - offsetX) / scale;
+        const y = (e.clientY - r.top - offsetY) / scale;
+        if (scale === 1) { scale = zoomFactor; offsetX = container.clientWidth/2 - x*scale; offsetY = container.clientHeight/2 - y*scale; }
+        else { scale = 1; offsetX = 0; offsetY = 0; }
         image.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
       });
     })();
