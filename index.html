@@ -27,16 +27,18 @@
       position: relative;
       color: #fff;
 
-      /* fallback color in case the image can’t load */
-      background-color: #2f5369;
+      /* fallback color used only if images fail */
+      background-color: #2f5369; /* or keep var(--header-bg) if you prefer */
 
-      /* overlay first for text contrast, then the image
-        - prefers a per-page CSS variable if present
-        - otherwise falls back to the relative assets path */
+      /* 1) subtle overlay for text contrast
+        2) local Mac absolute path (works when opening files from disk)
+        3) site-relative path (works when hosted / deployed) */
       background-image:
         linear-gradient(0deg, rgba(0,0,0,.35), rgba(0,0,0,.35)),
-        var(--header-bg-image, url("assets/image_replacing_bluebackground.png"));
+        url("file:///Users/bonesh/Files/Website/assets/image_replacing_bluebackground.png"),
+        url("assets/image_replacing_bluebackground.png");
 
+      /* make the image actually fill the banner */
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
