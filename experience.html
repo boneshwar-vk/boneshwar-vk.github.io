@@ -76,7 +76,15 @@
     .project-time{ flex:0 0 auto; font-size:14px; color:#475569; white-space:nowrap; display:flex; align-items:center; gap:10px }
     .chevron{ width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:8px solid #475569; transition:transform .2s ease }
     .project-bar.open .chevron{ transform:rotate(180deg) }
-    .project-desc{ margin:10px 0 0; color:#334155; line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
+    /* .project-desc{ margin:10px 0 0; color:#334155; line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden } */
+    .project-bar.open .project-desc{
+      display:block;              /* stop using the webkit box trick */
+      -webkit-line-clamp:unset;   /* remove clamp */
+      -webkit-box-orient:unset;   /* reset orient */
+      overflow:visible;           /* allow full content */
+      /* optional: make it look like a paragraph */
+      color:#1f2937;
+    }
     .project-details{ display:none; margin-top:12px; color:#1f2937; line-height:1.55; border-top:1px dashed #e5e7eb; padding-top:12px }
     .project-bar.open .project-details{ display:block }
 
@@ -133,7 +141,7 @@
           <div class="project-time">April 2025 – present <span class="chevron" aria-hidden="true"></span></div>
         </div>
         <p class="project-desc">Integrating MeSH knowledge graphs with LLMs and using TDA to ground biological concepts.</p>
-        <div class="project-details">Implementing a heuristic framework that incorporates hierarchical MeSH knowledge…</div>
+        <div class="project-details">Building an interpretable, ontology-grounded LLM/LKM for hierarchical differential diagnosis that ties MONDO/ORDO diseases to HPO phenotypes with MeSH-traceable evidence and clinical codes (LOINC/SNOMED/ICD-11). Also exploring parse-tree grounded knowledge graphs (vs. pure embeddings) and topological analysis of concept spaces to improve reasoning quality and safety for CDS</div>
       </div>
 
       <div class="project-bar" data-exp tabindex="0">
@@ -142,7 +150,7 @@
           <div class="project-time">Dec 2023 – May 2025 <span class="chevron" aria-hidden="true"></span></div>
         </div>
         <p class="project-desc">3D-aware generation via U-Net + masked transformer…</p>
-        <div class="project-details">Built a deep pipeline for 3D-aware image generation…</div>
+        <div class="project-details">Developed a position-aware graph-transformer for single-cell RNA-seq that assembles cell–gene community subgraphs and preserves lineage/communication hierarchies for robust annotation across atlases. In parallel, built a 3D-aware image-generation pipeline (U-Net + masked bi-directional transformer) with a differentiable topology-preserving loss using Betti numbers/PHA to enforce real-world stability constraints.</div>
       </div>
 
       <div class="project-bar" data-exp tabindex="0">
@@ -151,7 +159,7 @@
           <div class="project-time">May 2024 – Jul 2024 <span class="chevron" aria-hidden="true"></span></div>
         </div>
         <p class="project-desc">VAE + LTMG framework for GBM imputation/clustering; 21% accuracy gain over SOTA.</p>
-        <div class="project-details">Built an end-to-end framework for GBM specific gene imputation…</div>
+        <div class="project-details">Created an inductive GNN framework for scRNA-seq imputation and clustering that retains cellular manifold structure and boosts downstream metrics (e.g., +60% Silhouette, +14.9% ARI) while cutting runtime. Extended the pipeline for GBM-specific analysis with VGAE + LTMG preprocessing and MST-based ensemble embeddings, improving heterogeneity analysis accuracy on test data</div>
       </div>
 
       <div class="project-bar" data-exp tabindex="0">
@@ -160,7 +168,7 @@
           <div class="project-time">Nov 2023 – Jan 2024 <span class="chevron" aria-hidden="true"></span></div>
         </div>
         <p class="project-desc">CSV-agent QA, multilingual PDF OCR, and RAGs over FAISS/Pinecone with strong results.</p>
-        <div class="project-details">Built a question-answering pipeline…</div>
+        <div class="project-details">Shipped an end-to-end CSV QA agent benchmarked across GPT-3.5/4, Llama, and Mistral, achieving SOTA on internal large-CSV tasks. Built a multilingual OCR pipeline for non-UTF-8 Indic PDFs (Hindi/Tamil/Telugu/Malayalam/Kannada) with competitive CER/WER and layout accuracy, and wired RAG over FAISS/Pinecone with RAGAS-based evaluation.</div>
       </div>
     </div>
 
@@ -172,7 +180,7 @@
           <div class="project-time">May 2025 – Present <span class="chevron" aria-hidden="true"></span></div>
         </div>
         <p class="project-desc">Deployed deep filter-net VAD and optimized speech stack; −13% false positives, −7% latency.</p>
-        <div class="project-details">Implemented a deep filter-net integrated pipeline…</div>
+        <div class="project-details">Integrated DeepFilterNet v3 to denoise speech and improved VAD false positives by 13%, feeding a low-latency voice-bot (≈900 ms TTFB; ≈1.6 s per turn). Prototyping speech-to-speech and TTS stacks (e.g., GPT-4o Realtime, Gemini 2.5, XTTS/FastSpeech) for a non-cascaded pipeline</div>
       </div>
 
       <div class="project-bar" data-exp tabindex="0">
@@ -181,7 +189,7 @@
           <div class="project-time">May 2023 – Jul 2023 <span class="chevron" aria-hidden="true"></span></div>
         </div>
         <p class="project-desc">Wheelchair SLAM (IMU/LiDAR) plus a 5-language chatbot; demonstrated to leadership.</p>
-        <div class="project-details">Designed a wheelchair-based mapping and navigation system…</div>
+        <div class="project-details">Built an autonomous wheelchair with IMU/encoder/LiDAR and ROS (Hector & Cartographer SLAM) plus a multilingual RASA chatbot. Demonstrated the system to Google India’s CEO and the Chief Justice of India; featured for real-time autonomous navigation impact.</div>
       </div>
 
       <div class="project-bar" data-exp tabindex="0">
@@ -190,7 +198,7 @@
           <div class="project-time">Nov 2022 – Jan 2023 <span class="chevron" aria-hidden="true"></span></div>
         </div>
         <p class="project-desc">MobileNet-V2 sports analytics pipeline for keypoints/tracking; 81% accuracy, 0.73 F1.</p>
-        <div class="project-details">Built a lightweight DL pipeline…</div>
+        <div class="project-details">Designed a lightweight keypoint-detection pipeline (MobileNet-V2) to detect human joints and cricket bats, reaching ~81% accuracy and 0.73 F1. Added shot classification, ball tracking, player positioning, and physics-aware (Kalman) analytics for coaching insights.</div>
       </div>
     </div>
   </main>

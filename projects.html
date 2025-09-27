@@ -77,7 +77,14 @@
     .project-time{ flex:0 0 auto; font-size:14px; color:#475569; white-space:nowrap; display:flex; align-items:center; gap:10px }
     .chevron{ width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:8px solid #475569; transition:transform .2s ease }
     .project-bar.open .chevron{ transform:rotate(180deg) }
-    .project-desc{ margin:8px 0 0; color:#334155; line-height:1.45; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden }
+    .project-bar.open .project-desc{
+      display:block;              /* stop using the webkit box trick */
+      -webkit-line-clamp:unset;   /* remove clamp */
+      -webkit-box-orient:unset;   /* reset orient */
+      overflow:visible;           /* allow full content */
+      /* optional: make it look like a paragraph */
+      color:#1f2937;
+    }
     .project-details{ display:none; margin-top:10px; color:#1f2937; line-height:1.55; border-top:1px dashed #e5e7eb; padding-top:10px }
     .project-bar.open .project-details{ display:block }
 
@@ -133,7 +140,7 @@
           <div class="project-time">August 2025 – present <span class="chevron" aria-hidden="true"></span></div>
         </div>
         <p class="project-desc">Multilingual speaker ID &amp; diarisation with downstream transcription/translation.</p>
-        <div class="project-details">AI solution for robust speaker identification and diarisation across multiple languages and dialects…</div>
+        <div class="project-details">AI solution for robust speaker identification and diarisation across multiple languages and dialects.</div>
       </div>
 
       <div class="project-bar" data-project-bar tabindex="0">
@@ -142,16 +149,16 @@
           <div class="project-time">Jan 2024 – May 2024 <span class="chevron" aria-hidden="true"></span></div>
         </div>
         <p class="project-desc">Masked transformer for MSA that improves alignment quality while reducing runtime overhead.</p>
-        <div class="project-details">Developed a seq-to-seq masked transformer…</div>
+        <div class="project-details">Proposed a seq-to-seq masked transformer (inspired by Masked Trajectory Transformer/BetaAlign) that generalizes to unseen gene families. Achieved higher alignment accuracy than classic tools (ClustalW/MAFFT) with up to 13% runtime reduction.</div>
       </div>
 
       <div class="project-bar" data-project-bar tabindex="0">
         <div class="project-top">
-          <h3 class="project-title">Synthetic Medical and IR Image Generation</h3>
+          <h3 class="project-title">Latent-Code-Guided GANs for Image Generation</h3>
           <div class="project-time">Nov 2023 – Mar 2024 <span class="chevron" aria-hidden="true"></span></div>
         </div>
         <p class="project-desc">Diffusion &amp; edge-guided GANs for better foreground and background separability.</p>
-        <div class="project-details">Industrial project (CVRDE, DRDO)…</div>
+        <div class="project-details">Industrial project (CVRDE, DRDO). Fine-tuned GANs to disentangle latent factors (shape/size/texture/color) for precise control and clean foreground–background separation. Added RGB→Thermal-IR translation via edge-guided GANs, improving foreground fidelity and yielding a 6% accuracy lift on a custom set.</div>
       </div>
 
       <div class="project-bar" data-project-bar tabindex="0">
@@ -160,7 +167,7 @@
           <div class="project-time">Jun 2022 – Feb 2023 <span class="chevron" aria-hidden="true"></span></div>
         </div>
         <p class="project-desc">YOLO-V5 based helmet, triple-riding, and speeding detection on Jetson Nano.</p>
-        <div class="project-details">End-to-end deployment for multi-class violation detection…</div>
+        <div class="project-details">Built an end-to-end YOLOv5 pipeline for helmet, triple-riding, and overspeed detection; achieved F1 = 0.79 and 89% deployment accuracy on Jetson Nano. Incubated at Nirmaan and integrated with existing CCTV infrastructure for real-time tracking.</div>
       </div>
     </div>
   </main>
