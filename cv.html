@@ -32,7 +32,6 @@
       position: relative; color:#fff; background-color: var(--header-fallback);
       background-image:
         linear-gradient(0deg, rgba(0,0,0,.35), rgba(0,0,0,.35)),
-        url("file:///Users/bonesh/Files/Website/assets/image_replacing_bluebackground.png"),
         url("assets/image_replacing_bluebackground.png");
       background-size: cover; background-position: center; background-repeat:no-repeat;
       margin-bottom: var(--header-bottom-gap);
@@ -116,8 +115,13 @@
 
   <main class="container">
     <h1 class="page-title">Curriculum Vitae</h1>
-    <p class="lead">Download PDF: <a href="docs/cv_tech.pdf" target="_blank" rel="noopener">Open in a new tab</a></p>
-    <div class="cv-panel"><iframe title="Embedded CV PDF" src="docs/cv_tech.pdf#toolbar=0&navpanes=0"></iframe></div>
+    <!-- UPDATED link target -->
+    <p class="lead">Download PDF: <a href="docs/cv_2025.pdf?ver=20250927" target="_blank" rel="noopener">Open in a new tab</a></p>
+
+    <!-- UPDATED iframe src (with cache-busting query before the #options) -->
+    <div class="cv-panel">
+      <iframe title="Embedded CV PDF" src="docs/cv_2025.pdf?ver=20250927#toolbar=0&navpanes=0"></iframe>
+    </div>
   </main>
 
   <footer>© <span id="year"></span> Boneshwar V K</footer>
