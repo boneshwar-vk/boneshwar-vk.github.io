@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KG-grounded LLM · hierarchical DDx · TDA</title>
+<style>
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+  :root{ /* charcoal (default) */
+    --ink:#f4f1e7; --muted:#968f82; --accent:#c9a86a; --accent2:#c5905f; --line:#34363b;
+  }
+  html[data-theme="teal"]{ --ink:#ecd6ad; --muted:#a99b7f; --accent:#d3a05f; --accent2:#dca569; --line:#2c5b56; }
+  html[data-theme="ivory"]{ --ink:#1a1714; --muted:#6e655c; --accent:#b9532f; --accent2:#b9532f; --line:#d9ccb8; }
+  svg{width:100%;height:100%;display:block}
+  svg text{font-family:system-ui,-apple-system,sans-serif;letter-spacing:.2px}
+  .lbl{text-transform:uppercase;font-weight:700;letter-spacing:.7px}
+</style>
+</head>
+<body>
+<svg id="svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet" role="img"
+  aria-label="Knowledge-graph-grounded LLM for hierarchical differential diagnosis. A clinical phrase is parsed into a dependency tree, entity spans are grounded to an ontology DAG of MONDO and ORDO disease classes over HPO phenotype nodes with is_a and has_phenotype edges and ICD-11, SNOMED and LOINC codes. Concept embeddings are vector-quantized onto a discrete codebook, a Vietoris-Rips filtration builds a simplicial complex with an H0/H1 persistence barcode, and a top-down DAG traversal selects the top differential diagnosis by posterior probability.">
+  <defs>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="0.7" style="fill:var(--line)"/>
+    </pattern>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="ah" markerWidth="8" markerHeight="8" refX="5.4" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" style="fill:var(--ink)"/>
+    </marker>
+    <marker id="ahA" markerWidth="8" markerHeight="8" refX="5.4" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" style="fill:var(--accent)"/>
+    </marker>
+    <marker id="ahM" markerWidth="8" markerHeight="8" refX="5.4" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" style="fill:var(--muted)"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="800" height="500" fill="url(#dots)" opacity="0.55"/>
+  <g id="scene"></g>
+</svg>
+<script>
+(function(){
+  "use strict";
+  var NS="http://www.w3.org/2000/svg";
+  var root=document.documentElement;
+  var theme=(new URLSearchParams(location.search)).get("theme");
+  if(theme==="teal"||theme==="ivory"||theme==="charcoal") root.dataset.theme=theme;
+
+  var scene=document.getElementById("scene");
+  function E(tag,a,p){var e=document.createElementNS(NS,tag);if(a)for(var k in a)e.setAttribute(k,a[k]);(p||scene).appendChild(e);return e;}
+  function txt(x,y,s,fs,fill,anchor,cls,p){
+    var t=E("text",{x:x,y:y,"font-size":fs,"text-anchor":anchor||"start",style:"fill:"+fill},p);
+    if(cls)t.setAttribute("class",cls); t.textContent=s; return t;
+  }
+  function frame(x,y,w,h,title){
+    E("rect",{x:x,y:y,width:w,height:h,rx:7,style:"fill:none;stroke:var(--line);stroke-width:1"});
+    txt(x+9,y+15,title,10.5,"var(--muted)","start","lbl");
+  }
+  function cl(v,a,b){return v<a?a:v>b?b:v;}
+  function ph(t,a,b){return cl((t-a)/(b-a),0,1);}
+  function eIO(x){return x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;}
+  function eOut(x){return 1-Math.pow(1-x,2);}
+  function eBack(x){var c=1.45;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2);}
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function setDash(o,p){o.setAttribute("stroke-dashoffset",1-p);}
+
+  var COL={ink:"var(--ink)",mut:"var(--muted)",acc:"var(--accent)",ac2:"var(--accent2)",ln:"var(--line)"};
+
+  /* ===================== HEADER CHIPS ===================== */
+  var stages=["PARSE","GROUND","ONTOLOGY","VQ","RIPS / PERS","DDx"];
+  var chipX=[28,118,206,320,372,470], chipEl=[], chipUnd=[];
+  for(var i=0;i<stages.length;i++){
+    chipEl.push(txt(chipX[i],26,stages[i],10.5,COL.mut,"start","lbl"));
+    chipUnd.push(E("rect",{x:chipX[i],y:30,width:Math.max(40,stages[i].length*6),height:2,rx:1,style:"fill:var(--accent)",opacity:0}));
+  }
+  for(i=0;i<5;i++){var cxp=chipX[i+1]-9;txt(cxp,26,"›",11,COL.ln,"start",null);}
+
+  /* ===================== PANEL FRAMES ===================== */
+  frame(20,40,254,158,"PARSE");
+  frame(288,40,280,260,"ONTOLOGY · is_a");
+  frame(20,212,254,260,"VQ CODEBOOK");
+  frame(288,312,280,160,"RIPS / PERSISTENCE");
+  frame(576,40,212,432,"DDx");
+
+  /* ===================== PARSE ===================== */
+  var pg=E("g",{});
+  var toks=[
+    {x:54,s:"progressive",ent:0},
+    {x:114,s:"ataxia",ent:1},
+    {x:160,s:"ocular",ent:0},
+    {x:222,s:"telangiectasia",ent:1}
+  ];
+  var TY=176;
+  for(i=0;i<toks.length;i++) txt(toks[i].x,TY,toks[i].s,9,toks[i].ent?COL.ink:COL.mut,"middle",null,pg);
+  var entBoxes=[];
+  var entSpec=[{x:114,w:38},{x:222,w:74}];
+  for(i=0;i<entSpec.length;i++){
+    var hw=entSpec[i].w/2;
+    entBoxes.push(E("rect",{x:entSpec[i].x-hw,y:TY+3,width:entSpec[i].w,height:9,rx:2,
+      style:"fill:none;stroke:var(--accent);stroke-width:1.2",opacity:0},pg));
+  }
+  txt(192,196,"NER span",7.5,COL.mut,"middle",null,pg);
+  function darc(x1,x2,apex,lab){
+    var mid=(x1+x2)/2;
+    var d="M"+x1+" "+(TY-9)+" Q "+mid+" "+apex+" "+x2+" "+(TY-9);
+    var path=E("path",{d:d,"pathLength":1,"stroke-dasharray":"1 1.2","stroke-dashoffset":1,
+      "marker-end":"url(#ah)",style:"fill:none;stroke:var(--ink);stroke-width:1.1"},pg);
+    var l=txt(mid,apex+3,lab,7,COL.mut,"middle",null,pg); l.setAttribute("opacity",0);
+    return {p:path,l:l};
+  }
+  var arcs=[ darc(54,114,150,"amod"), darc(160,222,150,"amod"), darc(114,222,120,"conj") ];
+
+  /* ===================== ONTOLOGY DAG ===================== */
+  var og=E("g",{});
+  var oN={
+    mondo:{x:356,y:88,w:88,h:30,t1:"MONDO",t2:"0008840",k:"cls"},
+    ordo :{x:484,y:88,w:80,h:30,t1:"ORDO",t2:"100 · ataxia",k:"cls"},
+    dis  :{x:424,y:168,w:138,h:34,t1:"Ataxia-telangiectasia",t2:"ICD-11 LD90 · SNOMED",k:"dis"},
+    h1   :{x:336,y:256,r:18,t1:"Cerebellar ataxia",t2:"HP:0001251",k:"hpo"},
+    h2   :{x:452,y:268,r:18,t1:"Telangiectasia",t2:"HP:0001009",k:"hpo"},
+    h3   :{x:534,y:240,r:18,t1:"↑ AFP",t2:"LOINC 1834-1",k:"hpo"}
+  };
+  function oedge(a,b,ay,by,lab,acc){
+    var d="M"+a.x+" "+ay+" L "+b.x+" "+by;
+    var pp=E("path",{d:d,pathLength:1,"stroke-dasharray":"1 1.2","stroke-dashoffset":1,
+      "marker-end":acc?"url(#ahA)":"url(#ahM)",
+      style:"fill:none;stroke:"+(acc?"var(--accent)":"var(--muted)")+";stroke-width:1.1;opacity:.85"},og);
+    var lx=(a.x+b.x)/2, ly=(ay+by)/2;
+    var l=txt(lx,ly-2,lab,6.8,COL.mut,"middle",null,og); l.setAttribute("opacity",0);
+    return {p:pp,l:l};
+  }
+  var oEdges=[
+    oedge(oN.dis,oN.mondo,oN.dis.y-17,oN.mondo.y+15,"is_a",1),
+    oedge(oN.dis,oN.ordo, oN.dis.y-17,oN.ordo.y+15,"is_a",1),
+    oedge(oN.dis,oN.h1,oN.dis.y+17,oN.h1.y-18,"has_phenotype",0),
+    oedge(oN.dis,oN.h2,oN.dis.y+17,oN.h2.y-18,"",0),
+    oedge(oN.dis,oN.h3,oN.dis.y+17,oN.h3.y-18,"",0)
+  ];
+  var oNodeEl=[];
+  function drawNode(n){
+    var g=E("g",{opacity:0},og), col= n.k==="dis"?"var(--accent)":"var(--ink)";
+    if(n.r){
+      E("ellipse",{cx:n.x,cy:n.y,rx:n.r+9,ry:n.r,style:"fill:none;stroke:var(--ink);stroke-width:1.2"},g);
+      txt(n.x,n.y+1,n.t1,7.6,COL.ink,"middle",null,g);
+      txt(n.x,n.y+10,n.t2,6.4,COL.mut,"middle",null,g);
+    } else {
+      E("rect",{x:n.x-n.w/2,y:n.y-n.h/2,width:n.w,height:n.h,rx:5,
+        style:"fill:none;stroke:"+col+";stroke-width:"+(n.k==="dis"?1.6:1.2)},g);
+      txt(n.x,n.y-1,n.t1,n.k==="dis"?8.6:8,col,"middle",null,g);
+      txt(n.x,n.y+9,n.t2,6.2,COL.mut,"middle",null,g);
+    }
+    oNodeEl.push(g);
+  }
+  drawNode(oN.mondo);drawNode(oN.ordo);drawNode(oN.dis);drawNode(oN.h1);drawNode(oN.h2);drawNode(oN.h3);
+  txt(298,294,"MONDO/ORDO classes → HPO phenotypes",6.8,COL.mut,"start",null,og);
+
+  /* ===================== GROUND arcs ===================== */
+  var gg=E("g",{});
+  function ground(sx,sy,ex,ey){
+    var d="M"+sx+" "+sy+" C "+(sx+70)+" "+(sy+6)+" "+(ex-70)+" "+(ey-26)+" "+ex+" "+ey;
+    return E("path",{d:d,pathLength:1,"stroke-dasharray":"1 1.2","stroke-dashoffset":1,
+      "marker-end":"url(#ahA)",
+      style:"fill:none;stroke:var(--accent);stroke-width:1.2",opacity:.9},gg);
+  }
+  var gArcs=[ ground(114,TY+12,oN.h1.x-22,oN.h1.y-6), ground(222,TY+12,oN.h2.x-22,oN.h2.y-6) ];
+  var gLbl=txt(252,232,"GROUND",8,COL.acc,"middle","lbl",gg); gLbl.setAttribute("opacity",0);
+
+  /* ===================== VQ CODEBOOK ===================== */
+  var vg=E("g",{});
+  var gx=[44,100,156,212,256], gy=[262,322,386,448];
+  for(var ci=0;ci<gx.length;ci++)for(var cj=0;cj<gy.length;cj++){
+    E("path",{d:"M"+(gx[ci]-3)+" "+gy[cj]+" h6 M"+gx[ci]+" "+(gy[cj]-3)+" v6",
+      style:"fill:none;stroke:var(--line);stroke-width:1"},vg);
+  }
+  for(ci=0;ci<gx.length;ci++)E("line",{x1:gx[ci],y1:255,x2:gx[ci],y2:455,style:"stroke:var(--line);stroke-width:.5",opacity:.4},vg);
+  for(cj=0;cj<gy.length;cj++)E("line",{x1:38,y1:gy[cj],x2:262,y2:gy[cj],style:"stroke:var(--line);stroke-width:.5",opacity:.4},vg);
+  txt(50,254,"eₖ",6.5,COL.mut,"middle",null,vg);
+  var vqPts=[
+    {tx:100,ty:322,sx:74,sy:340},
+    {tx:212,ty:262,sx:232,sy:284},
+    {tx:156,ty:386,sx:138,sy:362},
+    {tx:256,ty:322,sx:234,sy:306},
+    {tx:100,ty:448,sx:124,sy:428},
+    {tx:212,ty:448,sx:192,sy:464},
+    {tx:156,ty:262,sx:172,sy:282}
+  ];
+  var vqEl=[];
+  for(i=0;i<vqPts.length;i++){
+    var conn=E("line",{style:"stroke:var(--accent);stroke-width:.8;stroke-dasharray:2 2",opacity:0},vg);
+    var dot=E("circle",{r:3.1,style:"fill:var(--accent)",filter:"url(#glow)"},vg);
+    vqEl.push({conn:conn,dot:dot});
+  }
+  txt(146,246,"z_e(x) → e_k  (nearest)",7.6,COL.mut,"middle",null,vg);
+
+  /* ===================== RIPS / PERSISTENCE ===================== */
+  var rg=E("g",{});
+  var cx0=362,cy0=400,rr=42;
+  var rips=[];
+  for(i=0;i<6;i++){var ang=-Math.PI/2+i*(Math.PI*2/6);rips.push({x:cx0+rr*Math.cos(ang),y:cy0+rr*Math.sin(ang)});}
+  var ripFill=E("polygon",{points:rips.map(function(p){return p.x+","+p.y;}).join(" "),
+    style:"fill:var(--accent2)",opacity:0},rg);
+  var ripEdges=[];
+  function redge(a,b,at){
+    var e=E("line",{x1:rips[a].x,y1:rips[a].y,x2:rips[b].x,y2:rips[b].y,
+      style:"stroke:var(--ink);stroke-width:1.2",opacity:0},rg);
+    ripEdges.push({e:e,at:at});
+  }
+  for(i=0;i<6;i++)redge(i,(i+1)%6,0.20);
+  redge(0,3,0.48);redge(1,4,0.56);
+  var ripBall=[],ripDot=[];
+  for(i=0;i<6;i++){
+    ripBall.push(E("circle",{cx:rips[i].x,cy:rips[i].y,r:0,style:"fill:var(--accent)",opacity:.10},rg));
+    ripDot.push(E("circle",{cx:rips[i].x,cy:rips[i].y,r:2.6,style:"fill:var(--ink)"},rg));
+  }
+  txt(362,466,"ε-ball filtration",7,COL.mut,"middle",null,rg);
+  var bx0=436,bw=116;
+  E("line",{x1:bx0,y1:332,x2:bx0,y2:462,style:"stroke:var(--line);stroke-width:1"},rg);
+  E("line",{x1:bx0,y1:462,x2:bx0+bw+6,y2:462,style:"stroke:var(--line);stroke-width:1"},rg);
+  txt(bx0+bw+8,464,"ε",8,COL.mut,"start",null,rg);
+  txt(bx0+2,343,"H0",7.5,COL.acc,"start","lbl",rg);
+  txt(bx0+2,433,"H1",7.5,COL.ac2,"start","lbl",rg);
+  var bars=[
+    {y:348,birth:0,death:0.16,c:"var(--accent)"},
+    {y:359,birth:0,death:0.27,c:"var(--accent)"},
+    {y:370,birth:0,death:0.39,c:"var(--accent)"},
+    {y:381,birth:0,death:0.52,c:"var(--accent)"},
+    {y:392,birth:0,death:0.63,c:"var(--accent)"},
+    {y:403,birth:0,death:1.0, c:"var(--accent)"},
+    {y:420,birth:0.55,death:0.93,c:"var(--accent2)"}
+  ];
+  var barEl=[];
+  for(i=0;i<bars.length;i++){
+    barEl.push(E("line",{x1:bx0+bw*bars[i].birth,y1:bars[i].y,x2:bx0+bw*bars[i].birth,y2:bars[i].y,
+      style:"stroke:"+bars[i].c+";stroke-width:3;stroke-linecap:round",opacity:0},rg));
+  }
+  var sweep=E("line",{x1:bx0,y1:332,x2:bx0,y2:462,style:"stroke:var(--ink);stroke-width:.8;stroke-dasharray:2 3",opacity:0},rg);
+
+  /* ===================== DDx ===================== */
+  var dg=E("g",{});
+  var dRoot={x:682,y:84,w:150,h:30};
+  E("rect",{x:dRoot.x-dRoot.w/2,y:dRoot.y-dRoot.h/2,width:dRoot.w,height:dRoot.h,rx:5,
+    style:"fill:none;stroke:var(--ink);stroke-width:1.2"},dg);
+  txt(dRoot.x,dRoot.y-1,"cerebellar ataxia",8.4,COL.ink,"middle",null,dg);
+  txt(dRoot.x,dRoot.y+9,"P(disease | obs)",6.2,COL.mut,"middle",null,dg);
+  var cand=[
+    {x:626,y:184,name:"Friedreich",code:"MONDO:0010787",post:0.13,top:0},
+    {x:692,y:184,name:"A-T",code:"MONDO:0008840",post:0.71,top:1},
+    {x:756,y:184,name:"SCA1",code:"MONDO:0007117",post:0.09,top:0}
+  ];
+  var leaf={x:692,y:296,name:"ATM biallelic",code:"variant"};
+  function dedge(ax,ay,bx,by,top){
+    return E("path",{d:"M"+ax+" "+ay+" L "+bx+" "+by,pathLength:1,"stroke-dasharray":"1 1.2","stroke-dashoffset":1,
+      "marker-end":top?"url(#ahA)":"url(#ahM)",
+      style:"fill:none;stroke:"+(top?"var(--accent)":"var(--muted)")+";stroke-width:"+(top?1.6:1)},dg);
+  }
+  var dEdge=[];
+  for(i=0;i<cand.length;i++)dEdge.push(dedge(dRoot.x,dRoot.y+15,cand[i].x,cand[i].y-15,cand[i].top));
+  var leafEdge=dedge(cand[1].x,cand[1].y+15,leaf.x,leaf.y-13,1);
+  var candEl=[];
+  for(i=0;i<cand.length;i++){
+    var c=cand[i], col=c.top?"var(--accent)":"var(--ink)";
+    var g=E("g",{},dg);
+    E("rect",{x:c.x-30,y:c.y-15,width:60,height:30,rx:5,
+      style:"fill:none;stroke:"+col+";stroke-width:"+(c.top?1.7:1)},g);
+    txt(c.x,c.y-2,c.name,8.2,col,"middle",null,g);
+    txt(c.x,c.y+8,c.code,5.6,COL.mut,"middle",null,g);
+    E("rect",{x:c.x-26,y:c.y+18,width:52,height:5,rx:2.5,style:"fill:none;stroke:var(--line);stroke-width:.8"},g);
+    var bar=E("rect",{x:c.x-26,y:c.y+18,width:0,height:5,rx:2.5,style:"fill:"+(c.top?"var(--accent)":"var(--muted)")},g);
+    var pct=txt(c.x,c.y+33,"0%",7,c.top?COL.acc:COL.mut,"middle",null,g);
+    candEl.push({bar:bar,pct:pct});
+  }
+  var leafG=E("g",{opacity:0},dg);
+  E("rect",{x:leaf.x-44,y:leaf.y-13,width:88,height:26,rx:5,style:"fill:none;stroke:var(--accent);stroke-width:1.4"},leafG);
+  txt(leaf.x,leaf.y-1,leaf.name,8,COL.acc,"middle",null,leafG);
+  txt(leaf.x,leaf.y+8,leaf.code,6,COL.mut,"middle",null,leafG);
+  var resEdge=dedge(leaf.x,leaf.y+13,682,404,1);
+  var resG=E("g",{opacity:0},dg);
+  E("rect",{x:584,y:418,width:196,height:42,rx:6,style:"fill:none;stroke:var(--accent);stroke-width:1.6"},resG);
+  txt(592,433,"TOP-1 DIFFERENTIAL",7.5,COL.mut,"start","lbl",resG);
+  txt(592,449,"Ataxia-telangiectasia",10.5,COL.acc,"start",null,resG);
+  var resP=txt(772,449,"P=0.71",9.5,COL.ink,"end",null,resG);
+  resP.setAttribute("filter","url(#glow)");
+
+  /* ===================== RENDER ===================== */
+  function render(t){
+    var fade = t<0.05 ? t/0.05 : (t>0.95 ? (1-t)/0.05 : 1);
+    scene.setAttribute("opacity", fade.toFixed(3));
+
+    var pParse=ph(t,0.02,0.16), pGround=ph(t,0.15,0.28), pOnto=ph(t,0.20,0.40),
+        pVq=ph(t,0.30,0.52), pRips=ph(t,0.50,0.74), pDdx=ph(t,0.72,0.92);
+
+    var act = t<0.15?0 : t<0.28?1 : t<0.40?2 : t<0.52?3 : t<0.74?4 : 5;
+    for(var i=0;i<6;i++){
+      chipEl[i].setAttribute("style","fill:"+(i===act?"var(--accent)":"var(--muted)"));
+      chipUnd[i].setAttribute("opacity", i===act?1:0);
+    }
+
+    for(i=0;i<arcs.length;i++){
+      var pp=eIO(cl((pParse-i*0.12)/0.5,0,1));
+      setDash(arcs[i].p,pp); arcs[i].l.setAttribute("opacity",pp);
+    }
+    var eb=eOut(ph(t,0.10,0.18));
+    for(i=0;i<entBoxes.length;i++) entBoxes[i].setAttribute("opacity", eb);
+
+    for(i=0;i<gArcs.length;i++) setDash(gArcs[i], eIO(cl((pGround-i*0.18)/0.6,0,1)));
+    gLbl.setAttribute("opacity",pGround);
+
+    for(i=0;i<oNodeEl.length;i++) oNodeEl[i].setAttribute("opacity", eOut(cl((pOnto-i*0.06)/0.5,0,1)));
+    for(i=0;i<oEdges.length;i++){
+      var op=eIO(cl((pOnto-0.15-i*0.05)/0.5,0,1));
+      setDash(oEdges[i].p,op); oEdges[i].l.setAttribute("opacity",op*0.9);
+    }
+
+    for(i=0;i<vqEl.length;i++){
+      var q=cl((pVq-i*0.06)/0.55,0,1), e=eBack(q), P=vqPts[i];
+      var x=lerp(P.sx,P.tx,e), y=lerp(P.sy,P.ty,e);
+      vqEl[i].dot.setAttribute("cx",x); vqEl[i].dot.setAttribute("cy",y);
+      var cc=vqEl[i].conn;
+      cc.setAttribute("x1",P.sx);cc.setAttribute("y1",P.sy);cc.setAttribute("x2",x);cc.setAttribute("y2",y);
+      cc.setAttribute("opacity", (q>0.02&&q<0.97)?0.7*(1-q):0 );
+    }
+
+    var s=eOut(pRips), eps=s, R=44*s;
+    for(i=0;i<6;i++) ripBall[i].setAttribute("r",R);
+    for(i=0;i<ripEdges.length;i++) ripEdges[i].e.setAttribute("opacity", cl((s-ripEdges[i].at)/0.05,0,1));
+    ripFill.setAttribute("opacity", 0.22*cl((s-0.64)/0.2,0,1));
+    for(i=0;i<bars.length;i++){
+      var b=bars[i];
+      if(eps<=b.birth){ barEl[i].setAttribute("opacity",0); continue; }
+      barEl[i].setAttribute("opacity",1);
+      barEl[i].setAttribute("x1", bx0+bw*b.birth);
+      barEl[i].setAttribute("x2", bx0+bw*Math.min(eps,b.death));
+    }
+    sweep.setAttribute("opacity", (pRips>0.01&&pRips<0.99)?0.8:0);
+    sweep.setAttribute("x1", bx0+bw*eps); sweep.setAttribute("x2", bx0+bw*eps);
+
+    for(i=0;i<dEdge.length;i++) setDash(dEdge[i], eIO(cl((pDdx-i*0.05)/0.4,0,1)));
+    var dd=eOut(pDdx);
+    for(i=0;i<cand.length;i++){
+      candEl[i].bar.setAttribute("width", (52*cand[i].post*dd).toFixed(1));
+      candEl[i].pct.textContent = Math.round(cand[i].post*100*dd)+"%";
+    }
+    var lp=eIO(ph(t,0.80,0.88));
+    setDash(leafEdge,lp); leafG.setAttribute("opacity",lp);
+    var rp=eIO(ph(t,0.85,0.93));
+    setDash(resEdge,rp); resG.setAttribute("opacity",rp);
+  }
+
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduce){ render(0.9); return; }
+
+  var T=10500, start=null;
+  function loop(ts){
+    if(start===null)start=ts;
+    render(((ts-start)%T)/T);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

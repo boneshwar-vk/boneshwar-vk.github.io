@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Boneshwar V K — Home</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --container: 752px;
+      --border: #e5e7eb;
+      --shadow: 0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003;
+      --header-fallback: #2f5369;  /* used only if images fail */
+
+      /* Layout knobs */
+      --header-height: 55vh;       /* banner height ~55% viewport */
+      --header-bottom-gap: 16px;   /* space below banner */
+      --avatar-offset: 120px;       /* lower profile pic slightly */
+      --affix-bottom: -2px;        /* place tabs/icons on the junction; negative overlaps edge */
+      --affix-gap: 10px;           /* space between icons and tabs */
+    }
+    html { scroll-behavior: smooth }
+    * { box-sizing: border-box }
+
+    body {
+      margin: 0;
+      font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: #000000de;
+      background: #fff;
+    }
+    .container { max-width: var(--container); margin: 0 auto; padding: 0 24px }
+
+    /* ===== Header (banner) ===== */
+    .header {
+      position: relative;
+      color: #fff;
+      background-color: var(--header-fallback);
+      background-image:
+        linear-gradient(0deg, rgba(0,0,0,.35), rgba(0,0,0,.35)),
+        url("file:///Users/bonesh/Files/Website/assets/image_replacing_bluebackground.png"),
+        url("assets/image_replacing_bluebackground.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      margin-bottom: var(--header-bottom-gap);
+    }
+    .header-inner { position: relative; min-height: var(--header-height); padding: 22px 20px }
+
+    .avatar {
+      width: 144px; height: 144px;
+      margin: var(--avatar-offset) auto 10px;  /* lowered slightly */
+      border-radius: 50%; border: 5px solid #fff; box-shadow: var(--shadow);
+      overflow: hidden; background: #ccc;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover }
+
+    .title-wrap { text-align: center }
+    .title-wrap h1 { margin: 0; font-weight: 700; font-size: 34px; letter-spacing: -.02em }
+    .subtitle {
+      margin-top: 4px; font-size: 14.5px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, .14), 0 4px 5px rgba(0, 0, 0, .12), 0 1px 10px rgba(0, 0, 0, .2);
+    }
+
+    /* Bottom affix: social + tabs anchored to banner bottom */
+    .header-affix {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      bottom: var(--affix-bottom);
+      z-index: 2; display: flex; flex-direction: column; align-items: center;
+      gap: var(--affix-gap); width: 100%;
+      pointer-events: none; /* parent ignores clicks, children re-enable */
+    }
+    .header-affix .social,
+    .header-affix nav { pointer-events: auto; }
+
+    /* Social circles */
+    .social { list-style: none; padding: 0; margin: 0; display: flex; gap: 16px; justify-content: center; }
+    .social a { display: inline-flex; width: 48px; height: 48px; border-radius: 50%; align-items: center; justify-content: center; background: #fff; box-shadow: var(--shadow) }
+    .social img { width: 28px; height: 28px; display: block }
+
+    /* Nav pills */
+    nav { display: flex; justify-content: center }
+    .tabs {
+      list-style: none; padding: 4px; margin: 0; display: inline-flex; gap: 2px;
+      background: #fff; border-radius: 999px; box-shadow: var(--shadow)
+    }
+    .tabs a {
+      text-decoration: none; color: #111; padding: 8px 14px; border-radius: 999px; display: inline-block;
+      font-weight: 700; font-size: 14px
+    }
+    .tabs a.active { background: #111827; color: #fff }
+
+    /* Main content */
+    main { padding: 28px 0 48px }
+    h2 { margin: 18px 0 10px; font-size: 28px }
+    .lead { margin: 0 0 18px; line-height: 1.55 }
+
+    /* Cards */
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      background: #fff;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      color: #374151;
+      font-size: 14px;
+      padding: 18px 24px;
+      text-align: center;
+      background: #fafafa;
+    }
+
+    /* Small screens */
+    @media (max-width: 560px) {
+      :root { --header-height: 50vh; --affix-bottom: 0; --avatar-offset: 6px; }
+      .title-wrap h1 { font-size: 28px }
+      .social a { width: 44px; height: 44px }
+      .social img { width: 24px; height: 24px }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="header-inner container">
+      <div class="avatar">
+        <img src="assets/dp.jpeg" alt="Portrait of Boneshwar V K">
+      </div>
+
+      <div class="title-wrap">
+        <h1>Boneshwar V K</h1>
+        <div class="subtitle">
+          B.S. and M.S., Biological Sciences — Department of Biotechnology, Bhupat &amp; Jyoti Mehta School of Biosciences, IIT Madras
+        </div>
+      </div>
+
+      <!-- Affixed icons + tabs at the bottom edge of the banner -->
+      <div class="header-affix">
+        <ul class="social">
+          <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
+          <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener"><img src="assets/orcid.png" alt="ORCID"></a></li>
+          <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn"></a></li>
+          <li><a aria-label="GitHub" href="#" target="_blank" rel="noopener"><img src="assets/github.png" alt="GitHub"></a></li>
+          <li><a aria-label="Gmail" href="mailto:someone@example.com"><img src="assets/gmail.png" alt="Gmail"></a></li>
+        </ul>
+
+        <nav aria-label="Primary">
+          <ul class="tabs">
+            <li><a class="active" href="index.html">Home</a></li>
+            <li><a href="publications.html">Publications</a></li>
+            <li><a href="cv.html">CV</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="experience.html">Experiences</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section>
+      <h2>Home</h2>
+      <p class="lead"><strong>Hi! I'm Boneshwar V K.</strong></p>
+      <p class="lead">
+        I am a passionate researcher whose primary interests are in computational biology and AI for healthcare.
+        I enjoy building interpretable, robust models that generalize across modalities and help advance personalized medicine.
+      </p>
+    </section>
+
+    <section>
+      <h2>Education</h2>
+      <div class="card">
+        <p><strong>B.S. &amp; M.S. in Biological Sciences</strong>, Indian Institute of Technology Madras</p>
+        <ul>
+          <li><strong>Degree:</strong> Dual Degree</li>
+          <li><strong>Specialization:</strong> Computational Biology</li>
+          <li><strong>Thesis:</strong> Bioinformatics, graph neural networks, generative modeling (scRNA-seq)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Skills</h2>
+      <div class="card">
+        <ul>
+          <li>Programming Languages: Python, C++, C\#, R</li>
+          <li>Software and tools: Gromacs, AutoDock, Weka, Pymol, VMD, Blender </li>
+          <li>Libraries and packages: PyTorch, NetworkX, PyG, DGL, Gensim, Rpy2, Scikit-learn, Pandas, TensorFlow</li>
+          <li>Wet lab techniques: Molecular cloning, Colony PCR, CFU quantification</li>
+          <li>Technologies & Instruments: Thermocycler, Gel documentation, Spectrophotometer</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>© <span id="year"></span> Boneshwar V K</footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

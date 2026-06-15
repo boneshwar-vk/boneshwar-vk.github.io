@@ -2,206 +2,227 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Boneshwar V K — Home</title>
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --container: 752px;
-      --border: #e5e7eb;
-      --shadow: 0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003;
-      --header-fallback: #2f5369;  /* used only if images fail */
-
-      /* Layout knobs */
-      --header-height: 55vh;       /* banner height ~55% viewport */
-      --header-bottom-gap: 16px;   /* space below banner */
-      --avatar-offset: 120px;       /* lower profile pic slightly */
-      --affix-bottom: -2px;        /* place tabs/icons on the junction; negative overlaps edge */
-      --affix-gap: 10px;           /* space between icons and tabs */
-    }
-    html { scroll-behavior: smooth }
-    * { box-sizing: border-box }
-
-    body {
-      margin: 0;
-      font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      color: #000000de;
-      background: #fff;
-    }
-    .container { max-width: var(--container); margin: 0 auto; padding: 0 24px }
-
-    /* ===== Header (banner) ===== */
-    .header {
-      position: relative;
-      color: #fff;
-      background-color: var(--header-fallback);
-      background-image:
-        linear-gradient(0deg, rgba(0,0,0,.35), rgba(0,0,0,.35)),
-        url("file:///Users/bonesh/Files/Website/assets/image_replacing_bluebackground.png"),
-        url("assets/image_replacing_bluebackground.png");
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      margin-bottom: var(--header-bottom-gap);
-    }
-    .header-inner { position: relative; min-height: var(--header-height); padding: 22px 20px }
-
-    .avatar {
-      width: 144px; height: 144px;
-      margin: var(--avatar-offset) auto 10px;  /* lowered slightly */
-      border-radius: 50%; border: 5px solid #fff; box-shadow: var(--shadow);
-      overflow: hidden; background: #ccc;
-    }
-    .avatar img { width: 100%; height: 100%; object-fit: cover }
-
-    .title-wrap { text-align: center }
-    .title-wrap h1 { margin: 0; font-weight: 700; font-size: 34px; letter-spacing: -.02em }
-    .subtitle {
-      margin-top: 4px; font-size: 14.5px;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, .14), 0 4px 5px rgba(0, 0, 0, .12), 0 1px 10px rgba(0, 0, 0, .2);
-    }
-
-    /* Bottom affix: social + tabs anchored to banner bottom */
-    .header-affix {
-      position: absolute; left: 50%; transform: translateX(-50%);
-      bottom: var(--affix-bottom);
-      z-index: 2; display: flex; flex-direction: column; align-items: center;
-      gap: var(--affix-gap); width: 100%;
-      pointer-events: none; /* parent ignores clicks, children re-enable */
-    }
-    .header-affix .social,
-    .header-affix nav { pointer-events: auto; }
-
-    /* Social circles */
-    .social { list-style: none; padding: 0; margin: 0; display: flex; gap: 16px; justify-content: center; }
-    .social a { display: inline-flex; width: 48px; height: 48px; border-radius: 50%; align-items: center; justify-content: center; background: #fff; box-shadow: var(--shadow) }
-    .social img { width: 28px; height: 28px; display: block }
-
-    /* Nav pills */
-    nav { display: flex; justify-content: center }
-    .tabs {
-      list-style: none; padding: 4px; margin: 0; display: inline-flex; gap: 2px;
-      background: #fff; border-radius: 999px; box-shadow: var(--shadow)
-    }
-    .tabs a {
-      text-decoration: none; color: #111; padding: 8px 14px; border-radius: 999px; display: inline-block;
-      font-weight: 700; font-size: 14px
-    }
-    .tabs a.active { background: #111827; color: #fff }
-
-    /* Main content */
-    main { padding: 28px 0 48px }
-    h2 { margin: 18px 0 10px; font-size: 28px }
-    .lead { margin: 0 0 18px; line-height: 1.55 }
-
-    /* Cards */
-    .card {
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-      padding: 18px;
-      background: #fff;
-    }
-
-    /* Footer */
-    footer {
-      border-top: 1px solid var(--border);
-      color: #374151;
-      font-size: 14px;
-      padding: 18px 24px;
-      text-align: center;
-      background: #fafafa;
-    }
-
-    /* Small screens */
-    @media (max-width: 560px) {
-      :root { --header-height: 50vh; --affix-bottom: 0; --avatar-offset: 6px; }
-      .title-wrap h1 { font-size: 28px }
-      .social a { width: 44px; height: 44px }
-      .social img { width: 24px; height: 24px }
-    }
-  </style>
+  <meta name="theme-color" content="#0f3a37" />
+  <script>try{var t=localStorage.getItem('theme')||'teal';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','teal')}</script>
+  <title>Boneshwar V K · Computational Biology &amp; AI for Healthcare</title>
+  <meta name="description" content="Boneshwar V K, researcher in computational biology and AI for healthcare. Dual-degree (B.S. & M.S.) from IIT Madras. Graph neural networks, generative modeling, and single-cell genomics." />
+  <meta name="author" content="Boneshwar V K" />
+  <meta property="og:title" content="Boneshwar V K · Computational Biology & AI for Healthcare" />
+  <meta property="og:description" content="Researcher in computational biology and AI for healthcare: graph neural networks, generative models, and single-cell genomics." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/site.css" />
 </head>
-
 <body>
-  <header class="header">
-    <div class="header-inner container">
-      <div class="avatar">
-        <img src="assets/dp.jpeg" alt="Portrait of Boneshwar V K">
-      </div>
+  <div class="ambient" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scroll-progress" aria-hidden="true"></div>
 
-      <div class="title-wrap">
-        <h1>Boneshwar V K</h1>
-        <div class="subtitle">
-          B.S. and M.S., Biological Sciences — Department of Biotechnology, Bhupat &amp; Jyoti Mehta School of Biosciences, IIT Madras
+  <!-- ===== Navigation ===== -->
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-inner">
+      <a class="brand" href="index.html"><span class="brand-mark">BV</span> Boneshwar&nbsp;V&nbsp;K</a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="publications.html">Publications</a></li>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="experience.html">Experience</a></li>
+          <li><a href="cv.html">CV</a></li>
+        </ul>
+        <div class="theme-switch" role="group" aria-label="Color theme">
+          <button class="swatch swatch--charcoal" data-set-theme="charcoal" aria-label="Charcoal and ivory theme" aria-pressed="false"></button>
+          <button class="swatch swatch--teal" data-set-theme="teal" aria-label="Teal and caramel theme" aria-pressed="true"></button>
+          <button class="swatch swatch--ivory" data-set-theme="ivory" aria-label="Ivory and terracotta theme" aria-pressed="false"></button>
+        </div>
+        <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== Hero (glass card) ===== -->
+  <header class="hero-wrap">
+    <div class="container">
+      <div class="hero-card reveal">
+        <div class="hero-card-text">
+          <h1 class="hero-card-name">Boneshwar V K</h1>
+          <p class="hero-credential">B.S. &amp; M.S., Biological Sciences · IIT Madras</p>
+          <p class="hero-roles">
+            <span class="accenty">Researcher</span> in machine learning for genomics and precision medicine.<br>
+            Computational Biology · AI for Healthcare.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="cv.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+              View CV
+            </a>
+            <a class="btn btn-ghost" href="publications.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M4 12h16M4 19h10"/></svg>
+              Publications
+            </a>
+          </div>
+        </div>
+        <div class="hero-portrait">
+          <div class="hero-blob" aria-hidden="true"></div>
+          <img src="assets/dp.jpeg" alt="Portrait of Boneshwar V K" />
         </div>
       </div>
 
-      <!-- Affixed icons + tabs at the bottom edge of the banner -->
-      <div class="header-affix">
-        <ul class="social">
-          <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
-          <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener"><img src="assets/orcid.png" alt="ORCID"></a></li>
-          <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn"></a></li>
-          <li><a aria-label="GitHub" href="#" target="_blank" rel="noopener"><img src="assets/github.png" alt="GitHub"></a></li>
-          <li><a aria-label="Gmail" href="mailto:someone@example.com"><img src="assets/gmail.png" alt="Gmail"></a></li>
-        </ul>
+      <ul class="social hero-social reveal" aria-label="Profiles">
+        <li><a href="https://scholar.google.com/citations?user=KyuX2MYAAAAJ&hl=en" target="_blank" rel="noopener" aria-label="Google Scholar" title="Google Scholar"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l11 6 9-4.9V16h2V9L12 3z"/><path d="M5 13v3c0 1.66 3.13 3 7 3s7-1.34 7-3v-3l-7 3.8L5 13z"/></svg></a></li>
+        <li><a href="https://orcid.org/0009-0006-7474-8697" target="_blank" rel="noopener" aria-label="ORCID" title="ORCID"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 100 24 12 12 0 000-24zM7.4 18H5.6V8.5h1.8V18zm-.9-10.8a1.12 1.12 0 110-2.24 1.12 1.12 0 010 2.24zM18.4 13.3c0 2.9-1.9 4.7-5 4.7H9.9V8.5h3.5c3.12 0 5 1.9 5 4.8zm-1.85 0c0-2.1-1.3-3.1-3.32-3.1h-1.48v6.2h1.48c1.82 0 3.32-.9 3.32-3.1z"/></svg></a></li>
+        <li><a href="https://www.linkedin.com/in/boneshwar-vk-71549a234/" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 110-4.14 2.07 2.07 0 010 4.14zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></a></li>
+        <li><a href="#" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.25 2.87.12 3.17.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12.01 12.01 0 0024 12.5C24 5.87 18.63.5 12 .5z"/></svg></a></li>
+        <li><a href="mailto:boneshwar.vk20@gmail.com" aria-label="Email" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 6l9 6 9-6"/></svg></a></li>
+      </ul>
 
-        <nav aria-label="Primary">
-          <ul class="tabs">
-            <li><a class="active" href="index.html">Home</a></li>
-            <li><a href="publications.html">Publications</a></li>
-            <li><a href="cv.html">CV</a></li>
-            <li><a href="projects.html">Projects</a></li>
-            <li><a href="experience.html">Experiences</a></li>
-          </ul>
-        </nav>
-      </div>
+      <section class="about reveal">
+        <p class="eyebrow"><span class="spark" aria-hidden="true">✦</span> About</p>
+        <p class="about-lead">Hi, I'm Boneshwar. I build interpretable, robust models that generalize across biological
+          modalities, from <strong>graph neural networks</strong> for single-cell genomics to <strong>generative</strong>
+          and <strong>knowledge-grounded</strong> systems for clinical reasoning. My goal is to make AI a dependable
+          instrument for personalized medicine.</p>
+        <p class="about-meta"><strong>Research interests:</strong> graph neural networks, single-cell genomics,
+          generative modeling, knowledge graphs, topological data analysis, and LLMs for healthcare.</p>
+      </section>
     </div>
   </header>
 
-  <main class="container">
-    <section>
-      <h2>Home</h2>
-      <p class="lead"><strong>Hi! I'm Boneshwar V K.</strong></p>
-      <p class="lead">
-        I am a passionate researcher whose primary interests are in computational biology and AI for healthcare.
-        I enjoy building interpretable, robust models that generalize across modalities and help advance personalized medicine.
-      </p>
-    </section>
-
-    <section>
-      <h2>Education</h2>
-      <div class="card">
-        <p><strong>B.S. &amp; M.S. in Biological Sciences</strong>, Indian Institute of Technology Madras</p>
-        <ul>
-          <li><strong>Degree:</strong> Dual Degree</li>
-          <li><strong>Specialization:</strong> Computational Biology</li>
-          <li><strong>Thesis:</strong> Bioinformatics, graph neural networks, generative modeling (scRNA-seq)</li>
-        </ul>
+  <main>
+    <!-- ===== Research ===== -->
+    <section class="container" id="research">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="spark" aria-hidden="true">✦</span> Research</p>
+        <h2>What I work on</h2>
+        <p class="lead">My research sits at the intersection of representation learning and biology: designing models
+          that are accurate, efficient, and interpretable enough to trust in a clinical setting.</p>
       </div>
+      <div class="grid grid-3">
+        <div class="card hoverable reveal">
+          <span class="idx">i.</span>
+          <h3>Single-cell genomics</h3>
+          <p>Inductive graph neural networks for imputation, clustering, and trajectory inference on sparse, noisy
+            scRNA-seq atlases.</p>
+        </div>
+        <div class="card hoverable reveal">
+          <span class="idx">ii.</span>
+          <h3>Generative &amp; structured models</h3>
+          <p>Graph transformers, VAEs, and masked transformers that capture position and structure relationships in
+            biological sequences and networks.</p>
+        </div>
+        <div class="card hoverable reveal">
+          <span class="idx">iii.</span>
+          <h3>Knowledge-grounded AI</h3>
+          <p>Ontology and knowledge-graph grounded LLMs for interpretable, traceable clinical decision support and
+            differential diagnosis.</p>
+        </div>
+      </div>
+      <ul class="tags accent reveal" style="margin-top:24px">
+        <li>Graph Neural Networks</li><li>Single-cell RNA-seq</li><li>Generative Modeling</li>
+        <li>Knowledge Graphs</li><li>Topological Data Analysis</li><li>LLMs for Healthcare</li><li>Bioinformatics</li>
+      </ul>
     </section>
 
-    <section>
-      <h2>Skills</h2>
-      <div class="card">
-        <ul>
-          <li>Programming Languages: Python, C++, C\#, R</li>
-          <li>Software and tools: Gromacs, AutoDock, Weka, Pymol, VMD, Blender </li>
-          <li>Libraries and packages: PyTorch, NetworkX, PyG, DGL, Gensim, Rpy2, Scikit-learn, Pandas, TensorFlow</li>
-          <li>Wet lab techniques: Molecular cloning, Colony PCR, CFU quantification</li>
-          <li>Technologies & Instruments: Thermocycler, Gel documentation, Spectrophotometer</li>
-        </ul>
+    <hr class="divider container" />
+
+    <!-- ===== News ===== -->
+    <section class="container" id="news">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="spark" aria-hidden="true">✦</span> Highlights</p>
+        <h2>Recent news</h2>
+      </div>
+      <ul class="news reveal">
+        <li><span class="when">Jun 2026</span><span class="what">Joining <strong>PopVax, Hyderabad</strong> as a <strong>Machine Learning Scientist</strong>, working on ML for vaccine and therapeutic design.</span></li>
+        <li><span class="when">Jun 2026</span><span class="what">Submitted <strong>"Adapting Indic Text-to-Speech for the Real World"</strong>, a survey of architectures and an industrial-grade benchmark.</span></li>
+        <li><span class="when">May 2025</span><span class="what">Joined <strong>ConvoZen AI, NoBroker</strong> as an <strong>Associate Data Scientist</strong> on the voice stack.</span></li>
+        <li><span class="when">Apr 2025</span><span class="what">Joined the <strong>CRIS Lab at Columbia University</strong> as a Project Member, working on knowledge-graph-grounded LLMs for differential diagnosis.</span></li>
+        <li><span class="when">2025</span><span class="what">First-author paper published in <strong>Computers &amp; Chemical Engineering</strong> on inductive GNNs for scRNA-seq imputation.</span></li>
+        <li><span class="when">2024</span><span class="what">Research Intern at the <strong>CPSWin Lab, Kansas State University</strong>, building a VAE + LTMG framework for glioblastoma analysis.</span></li>
+      </ul>
+    </section>
+
+    <hr class="divider container" />
+
+    <!-- ===== Featured publication ===== -->
+    <section class="container" id="selected">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="spark" aria-hidden="true">✦</span> Selected work</p>
+        <h2>Featured publication</h2>
+      </div>
+      <ol class="pub-list reveal">
+        <li class="pub">
+          <span class="badge">Journal · 2025</span>
+          <p class="title">Inductive graph neural network framework for imputation of single-cell RNA sequencing data</p>
+          <p class="authors"><span class="me">Boneshwar V K</span>, Deepesh Agarwal, Bala Natarajan, Babji Srinivasan</p>
+          <p class="venue">Computers &amp; Chemical Engineering, vol. 195 (2025), 109031</p>
+          <div class="pub-links">
+            <a href="https://www.sciencedirect.com/science/article/abs/pii/S0098135425000353" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg> Read article</a>
+            <a href="publications.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg> All publications</a>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <hr class="divider container" />
+
+    <!-- ===== Education & Skills ===== -->
+    <section class="container" id="profile">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="spark" aria-hidden="true">✦</span> Background</p>
+        <h2>Education &amp; skills</h2>
+      </div>
+      <div class="grid grid-2">
+        <div class="card reveal">
+          <h3>B.S. &amp; M.S. in Biological Sciences</h3>
+          <p class="meta">Indian Institute of Technology Madras · Dual Degree</p>
+          <ul style="margin:16px 0 0; padding-left:18px; color:var(--ink-soft)">
+            <li><strong>Specialization:</strong> Computational Biology</li>
+            <li><strong>Thesis:</strong> Bioinformatics, graph neural networks, and generative modeling for scRNA-seq</li>
+          </ul>
+        </div>
+        <div class="card reveal">
+          <p class="meta" style="margin-bottom:6px">Languages</p>
+          <ul class="tags"><li>Python</li><li>C++</li><li>C#</li><li>R</li></ul>
+          <p class="meta" style="margin:16px 0 6px">ML &amp; data</p>
+          <ul class="tags"><li>PyTorch</li><li>PyG</li><li>DGL</li><li>TensorFlow</li><li>scikit-learn</li><li>NetworkX</li><li>Pandas</li></ul>
+          <p class="meta" style="margin:16px 0 6px">Scientific computing</p>
+          <ul class="tags"><li>GROMACS</li><li>AutoDock</li><li>PyMOL</li><li>VMD</li><li>Weka</li><li>Blender</li></ul>
+          <p class="meta" style="margin:16px 0 6px">Wet lab</p>
+          <ul class="tags"><li>Molecular cloning</li><li>Colony PCR</li><li>CFU quantification</li></ul>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer>© <span id="year"></span> Boneshwar V K</footer>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-name reveal">Let's work together.</div>
+      <div class="footer-row reveal">
+        <ul class="social" aria-label="Profiles">
+          <li><a href="https://scholar.google.com/citations?user=KyuX2MYAAAAJ&hl=en" target="_blank" rel="noopener" aria-label="Google Scholar"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l11 6 9-4.9V16h2V9L12 3z"/><path d="M5 13v3c0 1.66 3.13 3 7 3s7-1.34 7-3v-3l-7 3.8L5 13z"/></svg></a></li>
+          <li><a href="https://orcid.org/0009-0006-7474-8697" target="_blank" rel="noopener" aria-label="ORCID"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 100 24 12 12 0 000-24zM7.4 18H5.6V8.5h1.8V18zm-.9-10.8a1.12 1.12 0 110-2.24 1.12 1.12 0 010 2.24zM18.4 13.3c0 2.9-1.9 4.7-5 4.7H9.9V8.5h3.5c3.12 0 5 1.9 5 4.8zm-1.85 0c0-2.1-1.3-3.1-3.32-3.1h-1.48v6.2h1.48c1.82 0 3.32-.9 3.32-3.1z"/></svg></a></li>
+          <li><a href="https://www.linkedin.com/in/boneshwar-vk-71549a234/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 110-4.14 2.07 2.07 0 010 4.14zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></a></li>
+          <li><a href="#" target="_blank" rel="noopener" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.25 2.87.12 3.17.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12.01 12.01 0 0024 12.5C24 5.87 18.63.5 12 .5z"/></svg></a></li>
+          <li><a href="mailto:boneshwar.vk20@gmail.com" aria-label="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 6l9 6 9-6"/></svg></a></li>
+        </ul>
+        <a class="btn btn-primary" href="mailto:boneshwar.vk20@gmail.com">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 6l9 6 9-6"/></svg>
+          boneshwar.vk20@gmail.com
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>© <span data-year></span> Boneshwar V K</span>
+        <span>Computational Biology · AI for Healthcare · IIT Madras</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/site.js"></script>
 </body>
 </html>

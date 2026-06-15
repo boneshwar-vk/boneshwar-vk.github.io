@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neural Speech Enhancement + TTS Pipeline</title>
+<style>
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+  :root{ /* charcoal (default) */
+    --ink:#f4f1e7; --muted:#968f82; --accent:#c9a86a; --accent2:#c5905f; --line:#34363b;
+  }
+  :root[data-theme="teal"]{
+    --ink:#ecd6ad; --muted:#a99b7f; --accent:#d3a05f; --accent2:#dca569; --line:#2c5b56;
+  }
+  :root[data-theme="ivory"]{
+    --ink:#1a1714; --muted:#6e655c; --accent:#b9532f; --accent2:#b9532f; --line:#d9ccb8;
+  }
+  svg{width:100%;height:100%;display:block}
+  text{font-family:system-ui,sans-serif;dominant-baseline:middle}
+  .lab{fill:var(--muted);font-size:10px;letter-spacing:1.3px;font-weight:600;transition:fill .25s}
+  .lab.on{fill:var(--accent)}
+  .ttl{fill:var(--ink);font-size:13px;font-weight:700;letter-spacing:.5px}
+  .desc{fill:var(--muted);font-size:9.5px;letter-spacing:.4px}
+  .chip{fill:var(--ink);font-size:10.5px;font-weight:700;letter-spacing:.5px}
+  .unit{fill:var(--muted);font-size:8.5px;letter-spacing:.3px}
+  .box{fill:none;stroke:var(--line);stroke-width:1}
+</style>
+</head>
+<body>
+<svg id="svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet" role="img"
+  aria-label="Animated real-time neural speech pipeline. A noisy STFT spectrogram is analysed on an ERB band scale and denoised by a DeepFilterNet complex ratio mask deep filter into a clean enhanced spectrogram, with voice activity detection gating speech versus silence frames. A text-to-speech front end converts text through grapheme-to-phoneme conversion and an encoder into a monotonic duration alignment matrix, then a mel spectrogram decoder. A HiFi-GAN neural vocoder synthesises the output waveform on the right, and a real-time latency budget bar fills to a time-to-first-byte of about nine hundred milliseconds.">
+  <defs>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arw" markerWidth="7" markerHeight="7" refX="5.5" refY="3" orient="auto">
+      <path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+</svg>
+<script>
+(function(){
+"use strict";
+var SVGNS="http://www.w3.org/2000/svg";
+var svg=document.getElementById("svg");
+var defs=svg.querySelector("defs");
+/* theme */
+var theme=new URLSearchParams(location.search).get("theme");
+if(theme==="teal"||theme==="ivory")document.documentElement.setAttribute("data-theme",theme);
+
+function E(tag,a,p){var e=document.createElementNS(SVGNS,tag);if(a)for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;}
+function T(x,y,str,cls,extra){var t=E("text",{x:x,y:y,"class":cls||"lab"},svg);if(extra)for(var k in extra)t.setAttribute(k,extra[k]);t.textContent=str;return t;}
+function arrow(x1,y1,x2,y2){return E("line",{x1:x1,y1:y1,x2:x2,y2:y2,stroke:"var(--muted)","stroke-width":1.1,"marker-end":"url(#arw)"},svg);}
+function clamp(v){return v<0?0:v>1?1:v;}
+function map(v,a,b){return clamp((v-a)/(b-a));}
+
+/* deterministic noise */
+var _s=98731;function rnd(){_s=(_s*1103515245+12345)&0x7fffffff;return _s/0x7fffffff;}
+
+/* ---- speech energy model (shared) ---- */
+function energy(r,c,rows,cols){
+  var t=c/(cols-1);
+  var voiced=(t>0.12&&t<0.86)?1:0;
+  var env=Math.exp(-Math.pow((t-0.34)/0.15,2))+0.9*Math.exp(-Math.pow((t-0.64)/0.14,2));
+  env=Math.min(1,env);
+  var f=1-r/(rows-1); /* 0 bottom(low freq) .. 1 top(high freq) */
+  var F=[0.10,0.28,0.50], A=[1,0.72,0.42], e=0;
+  for(var i=0;i<3;i++) e+=A[i]*Math.exp(-Math.pow((f-F[i])/0.055,2));
+  e*= (0.62+0.38*Math.abs(Math.sin(f*Math.PI*9.0)));
+  e*=env*voiced;
+  return e<0?0:e>1?1:e;
+}
+
+/* ================= TITLE ================= */
+T(24,20,"REAL-TIME NEURAL SPEECH ENHANCEMENT → TTS","ttl");
+T(24,34,"DeepFilterNet denoise · G2P → monotonic align → mel · HiFi-GAN vocoder · streaming","desc");
+
+/* ================= STAGE 1 : ENHANCE ================= */
+var tagEnh=T(24,50,"1 · ENHANCE · DeepFilterNet","lab");
+
+var NSx=26,NSy=60,NSw=104,NSh=66, COLS=22, ROWS=14;
+var CLx=232,CLy=60,CLw=104,CLh=66;
+var cw=NSw/COLS, ch=NSh/ROWS;
+
+E("rect",{x:NSx,y:NSy,width:NSw,height:NSh,"class":"box"},svg);
+E("rect",{x:CLx,y:CLy,width:CLw,height:CLh,"class":"box"},svg);
+
+/* noisy cells + voice-activity */
+var speech=[];
+for(var c=0;c<COLS;c++){
+  var sum=0;
+  for(var r=0;r<ROWS;r++){
+    var e=energy(r,c,ROWS,COLS); sum+=e;
+    var n=Math.pow(rnd(),1.7)*0.5;
+    var ne=Math.min(1,e*0.95+n*0.55);
+    E("rect",{x:(NSx+c*cw).toFixed(2),y:(NSy+r*ch).toFixed(2),width:(cw+0.6).toFixed(2),height:(ch+0.6).toFixed(2),
+      fill:e>0.55?"var(--accent)":"var(--accent2)",opacity:(0.08+ne*0.9).toFixed(3)},svg);
+  }
+  speech.push(sum>1.1?1:0);
+}
+/* clean spectro inside reveal clip */
+var cClip=E("clipPath",{id:"clClip"},defs);
+var cClipRect=E("rect",{x:CLx,y:CLy-2,width:0,height:CLh+4},cClip);
+var cleanG=E("g",{"clip-path":"url(#clClip)"},svg);
+for(var c2=0;c2<COLS;c2++)for(var r2=0;r2<ROWS;r2++){
+  var e2=energy(r2,c2,ROWS,COLS);
+  if(e2<0.03)continue;
+  E("rect",{x:(CLx+c2*cw).toFixed(2),y:(CLy+r2*ch).toFixed(2),width:(cw+0.6).toFixed(2),height:(ch+0.6).toFixed(2),
+    fill:e2>0.55?"var(--accent)":"var(--accent2)",opacity:(0.1+e2*0.9).toFixed(3)},cleanG);
+}
+/* ERB band lines on noisy (nonlinear spacing, denser at low freq) */
+for(var b=0;b<7;b++){
+  var fr=Math.pow(b/6,1.55);
+  var yy=NSy+NSh-fr*NSh;
+  E("line",{x1:NSx,y1:yy.toFixed(1),x2:NSx+NSw,y2:yy.toFixed(1),stroke:"var(--ink)","stroke-width":0.5,opacity:0.22},svg);
+}
+T(NSx+NSw-2,NSy+8,"ERB","unit",{"text-anchor":"end"});
+var erbSweep=E("rect",{x:NSx,y:NSy-1,width:1.4,height:NSh+2,fill:"var(--ink)",opacity:0},svg);
+
+/* deep filter (CRM) block : complex ratio mask grid */
+var CRx=152,CRy=72,CRw=58,CRh=44;
+E("rect",{x:CRx,y:CRy,width:CRw,height:CRh,"class":"box",rx:2},svg);
+T(CRx+CRw/2,CRy+8,"CRM","unit",{"text-anchor":"middle"});
+var crmG=E("g",{},svg), crmLines=[];
+var gcx=5,gcy=4;
+for(var i=0;i<gcx;i++)for(var j=0;j<gcy;j++){
+  var pcx=CRx+8+i*((CRw-14)/(gcx-1));
+  var pcy=CRy+15+j*((CRh-18)/(gcy-1));
+  var ln=E("line",{x1:pcx-3,y1:pcy,x2:pcx+3,y2:pcy,stroke:"var(--accent)","stroke-width":1.4,opacity:0.5,filter:"url(#glow)"},crmG);
+  ln._x=pcx;ln._y=pcy;ln._ph=rnd()*6.28;ln._g=0.3+rnd()*0.7;
+  crmLines.push(ln);
+}
+arrow(NSx+NSw+2,93,CRx-3,93);
+arrow(CRx+CRw+2,93,CLx-3,93);
+
+/* VAD gate strip under clean */
+var VADy=130, vadBlk=[];
+for(var v=0;v<COLS;v++){
+  var bk=E("rect",{x:(CLx+v*cw).toFixed(2),y:VADy,width:(cw-0.8).toFixed(2),height:8,
+    fill:speech[v]?"var(--accent)":"var(--line)",opacity:0},svg);
+  vadBlk.push(bk);
+}
+T(CLx+CLw+6,VADy+4,"VAD","lab");
+
+T(NSx+NSw/2,150,"NOISY STFT","lab",{"text-anchor":"middle"});
+T(CRx+CRw/2,150,"DEEP FILTER","lab",{"text-anchor":"middle"});
+T(CLx+CLw/2,150,"ENHANCED","lab",{"text-anchor":"middle"});
+
+/* ================= AGENT node ================= */
+var AGx=384,AGy=66,AGw=120,AGh=52;
+E("rect",{x:AGx,y:AGy,width:AGw,height:AGh,"class":"box",rx:6},svg);
+T(AGx+AGw/2,AGy+19,"AGENT","chip",{"text-anchor":"middle"});
+T(AGx+AGw/2,AGy+34,"ASR → LLM","lab",{"text-anchor":"middle"});
+var agDots=[];
+for(var d=0;d<3;d++){agDots.push(E("circle",{cx:AGx+AGw/2-12+d*12,cy:AGy+44,r:2.2,fill:"var(--accent)"},svg));}
+arrow(CLx+CLw+2,93,AGx-3,93);
+
+/* response bus : agent -> down -> left -> text */
+var busY=176, busFromX=AGx+AGw/2, busToX=40;
+E("path",{d:"M"+busFromX+" "+(AGy+AGh)+" L"+busFromX+" "+busY+" L"+busToX+" "+busY+" L"+busToX+" 198",
+  fill:"none",stroke:"var(--line)","stroke-width":1,"stroke-dasharray":"3 3"},svg);
+T((busFromX+busToX)/2-4,busY-7,"RESPONSE TEXT","unit",{"text-anchor":"middle"});
+var busDot=E("circle",{cx:busFromX,cy:AGy+AGh,r:2.6,fill:"var(--accent)",opacity:0,filter:"url(#glow)"},svg);
+
+/* ================= STAGE 2 : TTS FRONT-END ================= */
+T(24,192,"2 · TTS FRONT-END","lab");
+
+var TXx=24,TXy=200;
+E("rect",{x:TXx,y:TXy,width:50,height:22,"class":"box",rx:3},svg);
+T(TXx+25,TXy+11,"HELLO","chip",{"text-anchor":"middle"});
+var phs=["HH","AH","L","OW"], pills=[];
+arrow(TXx+52,TXy+11,TXx+62,TXy+11);
+var px0=92;
+for(var pi=0;pi<phs.length;pi++){
+  var pgx=px0+pi*30;
+  var g=E("g",{},svg);
+  E("rect",{x:pgx,y:TXy+1,width:26,height:20,rx:9,fill:"none",stroke:"var(--accent)","stroke-width":1},g);
+  T(pgx+13,TXy+11,phs[pi],"chip",{"text-anchor":"middle","font-size":"9.5"});
+  pills.push(g);
+}
+T(px0+58,TXy+34,"G2P PHONEMES","lab",{"text-anchor":"middle"});
+
+/* encoder */
+var ENx=224,ENy=200,ENw=62,ENh=24;
+arrow(px0+4*30,TXy+11,ENx-3,ENy+12);
+E("rect",{x:ENx,y:ENy,width:ENw,height:ENh,"class":"box",rx:3},svg);
+T(ENx+ENw/2,ENy+12,"ENCODER","lab",{"text-anchor":"middle"});
+
+/* alignment matrix (monotonic) */
+var ALx=304,ALy=200,ALw=104,ALh=64, AC=12,AR=4;
+var acw=ALw/AC, arh=ALh/AR;
+E("rect",{x:ALx,y:ALy,width:ALw,height:ALh,"class":"box"},svg);
+T(ALx+ALw/2,194,"ALIGN (mono)","lab",{"text-anchor":"middle"});
+for(var gi=1;gi<AC;gi++)E("line",{x1:(ALx+gi*acw).toFixed(1),y1:ALy,x2:(ALx+gi*acw).toFixed(1),y2:ALy+ALh,stroke:"var(--line)","stroke-width":0.4,opacity:0.5},svg);
+for(var gj=1;gj<AR;gj++)E("line",{x1:ALx,y1:(ALy+gj*arh).toFixed(1),x2:ALx+ALw,y2:(ALy+gj*arh).toFixed(1),stroke:"var(--line)","stroke-width":0.4,opacity:0.5},svg);
+var durs=[3,4,2,3], phof=[];
+durs.forEach(function(dd,ix){for(var k=0;k<dd;k++)phof.push(ix);});
+var alCells=[];
+for(var ac=0;ac<AC;ac++){
+  var ar=phof[ac];
+  alCells.push(E("rect",{x:(ALx+ac*acw+0.6).toFixed(2),y:(ALy+ar*arh+0.6).toFixed(2),width:(acw-1.2).toFixed(2),height:(arh-1.2).toFixed(2),
+    fill:"var(--accent)",opacity:0,filter:"url(#glow)"},svg));
+}
+T(ALx-6,ALy+ALh/2,"PH","unit",{"text-anchor":"middle",transform:"rotate(-90 "+(ALx-6)+" "+(ALy+ALh/2)+")"});
+T(ALx+ALw/2,ALy+ALh+9,"FRAMES →","unit",{"text-anchor":"middle"});
+arrow(ENx+ENw+2,ENy+12,ALx-3,ALy+arh*1.3);
+
+/* mel decoder spectrogram */
+var MEx=420,MEy=206,MEw=104,MEh=66, MC=22,MR=14;
+var mcw=MEw/MC, mch=MEh/MR;
+E("rect",{x:MEx,y:MEy,width:MEw,height:MEh,"class":"box"},svg);
+var mClip=E("clipPath",{id:"mClip"},defs);
+var mClipRect=E("rect",{x:MEx,y:MEy-2,width:0,height:MEh+4},mClip);
+var melG=E("g",{"clip-path":"url(#mClip)"},svg);
+for(var mc=0;mc<MC;mc++)for(var mr=0;mr<MR;mr++){
+  var me=energy(mr,mc,MR,MC);
+  if(me<0.03)continue;
+  E("rect",{x:(MEx+mc*mcw).toFixed(2),y:(MEy+mr*mch).toFixed(2),width:(mcw+0.6).toFixed(2),height:(mch+0.6).toFixed(2),
+    fill:me>0.55?"var(--accent)":"var(--accent2)",opacity:(0.1+me*0.9).toFixed(3)},melG);
+}
+T(MEx+MEw/2,MEy+MEh+10,"MEL","lab",{"text-anchor":"middle"});
+arrow(ALx+ALw+2,ALy+ALh/2,MEx-3,MEy+MEh/2);
+
+/* ================= STAGE 3 : VOCODER ================= */
+T(544,200,"3 · VOCODER","lab");
+var HFx=544,HFy=214,HFw=68,HFh=46;
+E("rect",{x:HFx,y:HFy,width:HFw,height:HFh,"class":"box",rx:3},svg);
+T(HFx+HFw/2,HFy+18,"HiFi-GAN","chip",{"text-anchor":"middle","font-size":"10"});
+for(var hk=0;hk<3;hk++)E("line",{x1:HFx+10,y1:HFy+30+hk*5,x2:HFx+HFw-10,y2:HFy+30+hk*5,stroke:"var(--accent)","stroke-width":0.8,opacity:0.4},svg);
+arrow(MEx+MEw+2,MEy+MEh/2,HFx-3,HFy+HFh/2);
+
+/* waveform */
+var WVx=628,WVy=208,WVw=150,WVh=74;
+E("rect",{x:WVx,y:WVy,width:WVw,height:WVh,"class":"box"},svg);
+E("line",{x1:WVx,y1:WVy+WVh/2,x2:WVx+WVw,y2:WVy+WVh/2,stroke:"var(--line)","stroke-width":0.5,opacity:0.6},svg);
+var wClip=E("clipPath",{id:"wClip"},defs);
+var wClipRect=E("rect",{x:WVx,y:WVy-2,width:0,height:WVh+4},wClip);
+var wavePath=E("path",{d:"",fill:"none",stroke:"var(--accent)","stroke-width":1.5,"clip-path":"url(#wClip)",filter:"url(#glow)"},svg);
+T(WVx+WVw/2,WVy+WVh+10,"WAVEFORM","lab",{"text-anchor":"middle"});
+arrow(HFx+HFw+2,HFy+HFh/2,WVx-3,WVy+WVh/2);
+
+function makeWave(t){
+  var x0=WVx+5,x1=WVx+WVw-5,mid=WVy+WVh/2,N=96,d="";
+  for(var i=0;i<=N;i++){
+    var u=i/N,x=x0+(x1-x0)*u;
+    var env=Math.exp(-Math.pow((u-0.34)/0.18,2))+0.85*Math.exp(-Math.pow((u-0.66)/0.16,2));
+    var s=Math.sin(u*42-t*0.006)*0.6+Math.sin(u*18-t*0.0042)*0.4;
+    var y=mid - s*Math.min(1,env)*(WVh*0.4);
+    d+=(i?"L":"M")+x.toFixed(1)+" "+y.toFixed(1)+" ";
+  }
+  return d;
+}
+
+/* ================= STAGE 4 : LATENCY (TTFB) ================= */
+var tagLat=T(24,312,"4 · LATENCY · TTFB","lab");
+var BARx=24,BARy=322,BARw=752,BARh=12, BUD=1200, TTFB=900;
+E("rect",{x:BARx,y:BARy,width:BARw,height:BARh,rx:6,"class":"box"},svg);
+var barFill=E("rect",{x:BARx,y:BARy,width:0,height:BARh,rx:6,fill:"var(--accent)",opacity:0.9},svg);
+var mkX=BARx+(TTFB/BUD)*BARw;
+E("line",{x1:mkX,y1:BARy-3,x2:mkX,y2:BARy+BARh+3,stroke:"var(--accent2)","stroke-width":1.2},svg);
+T(mkX,BARy-9,"TTFB ≈ 900 ms","lab",{"text-anchor":"middle","font-size":"9.5","fill":"var(--accent2)"});
+[0,300,600,900,1200].forEach(function(ms){
+  var tx=BARx+(ms/BUD)*BARw;
+  E("line",{x1:tx,y1:BARy+BARh,x2:tx,y2:BARy+BARh+3,stroke:"var(--muted)","stroke-width":0.7},svg);
+  T(tx,BARy+BARh+11,ms+(ms===1200?" ms":""),"unit",{"text-anchor":ms===0?"start":ms===1200?"end":"middle"});
+});
+var msTxt=T(BARx,BARy+BARh/2,"0 ms","unit",{"text-anchor":"start","font-size":"9","fill":"var(--ink)"});
+
+/* ================= ANIMATION ================= */
+var LOOP=10000;
+function update(p,ts){
+  var ep=map(p,0.02,0.28), tp=map(p,0.30,0.60), vp=map(p,0.60,0.85), lp=map(p,0.0,0.86);
+  /* enhance */
+  erbSweep.setAttribute("x",(NSx+ep*NSw-0.7).toFixed(1));
+  erbSweep.setAttribute("opacity",(ep>0&&ep<0.999)?0.85:0);
+  cClipRect.setAttribute("width",(map(ep,0.06,0.85)*(CLw+2)).toFixed(1));
+  crmG.setAttribute("opacity",(0.35+0.65*ep).toFixed(2));
+  for(var i=0;i<crmLines.length;i++){var L=crmLines[i];var ang=ts*0.05+L._ph+ep*3;L.setAttribute("transform","rotate("+(ang*57.3).toFixed(1)+" "+L._x+" "+L._y+")");L.setAttribute("opacity",(0.25+L._g*0.65*ep).toFixed(2));}
+  for(var vb=0;vb<vadBlk.length;vb++){vadBlk[vb].setAttribute("opacity",(ep*COLS>=vb)?(speech[vb]?0.9:0.28):0);}
+  /* agent */
+  for(var ad=0;ad<3;ad++){var aph=ts*0.004+ad*0.7;agDots[ad].setAttribute("opacity",(0.3+0.6*Math.abs(Math.sin(aph))).toFixed(2));}
+  /* bus dot */
+  var bp=map(p,0.27,0.33);
+  busDot.setAttribute("opacity",(bp>0&&bp<1)?0.95:0);
+  if(bp>0&&bp<1){
+    var bx,by;
+    if(bp<0.18){bx=busFromX;by=(AGy+AGh)+(busY-(AGy+AGh))*(bp/0.18);}
+    else if(bp<0.9){bx=busFromX+(busToX-busFromX)*((bp-0.18)/0.72);by=busY;}
+    else{bx=busToX;by=busY+(198-busY)*((bp-0.9)/0.1);}
+    busDot.setAttribute("cx",bx.toFixed(1));busDot.setAttribute("cy",by.toFixed(1));
+  }
+  /* tts */
+  for(var pp=0;pp<pills.length;pp++){
+    var ltt=map(tp,pp*0.05,pp*0.05+0.18);
+    pills[pp].setAttribute("opacity",(0.2+0.8*ltt).toFixed(2));
+  }
+  var shown=Math.floor(tp*AC+0.001);
+  for(var al=0;al<alCells.length;al++){
+    var o=al<shown?0.85:(al===shown?0.4+0.5*Math.abs(Math.sin(ts*0.012)):0);
+    alCells[al].setAttribute("opacity",o.toFixed(2));
+  }
+  mClipRect.setAttribute("width",(map(tp,0.25,1)*(MEw+2)).toFixed(1));
+  /* vocoder */
+  wavePath.setAttribute("d",makeWave(ts));
+  wClipRect.setAttribute("width",(vp*(WVw+2)).toFixed(1));
+  /* latency */
+  barFill.setAttribute("width",(lp*(TTFB/BUD)*BARw).toFixed(1));
+  msTxt.textContent=Math.round(lp*TTFB)+" ms";
+  var fx=BARx+lp*(TTFB/BUD)*BARw;
+  msTxt.setAttribute("x",Math.min(fx+5,BARx+BARw-46).toFixed(0));
+  /* active tags */
+  tagEnh.setAttribute("class",ep>0&&ep<1?"lab on":"lab");
+  tagLat.setAttribute("class",lp<1?"lab on":"lab");
+}
+
+var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if(reduce){
+  update(0.92,0);
+}else{
+  var t0=null;
+  function frame(ts){
+    if(t0===null)t0=ts;
+    var elp=(ts-t0)%LOOP;
+    update(elp/LOOP,ts);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+})();
+</script>
+</body>
+</html>

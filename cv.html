@@ -2,129 +2,89 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Boneshwar V K — CV</title>
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --container: 752px; 
-      --border: #e5e7eb; 
-      --shadow: 0 2px 4px #00000024, 0 4px 5px #0000001f, 0 1px 10px #0003; 
-      --header-fallback: #2f5369;
-
-      --header-height: 55vh;
-      --header-bottom-gap: 16px;
-      --avatar-offset: 120px;
-      --affix-bottom: -2px;
-      --affix-gap: 10px;
-    }
-    html { scroll-behavior: smooth } * { box-sizing: border-box }
-    body { margin: 0; font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif; color: #000000de; background: #fff }
-    .container { max-width: var(--container); margin: 0 auto; padding: 0 24px }
-
-    /* Header */
-    .header{
-      position: relative; color:#fff; background-color: var(--header-fallback);
-      background-image:
-        linear-gradient(0deg, rgba(0,0,0,.35), rgba(0,0,0,.35)),
-        url("assets/image_replacing_bluebackground.png");
-      background-size: cover; background-position: center; background-repeat:no-repeat;
-      margin-bottom: var(--header-bottom-gap);
-    }
-    .header-inner{ position:relative; min-height: var(--header-height); padding:22px 20px }
-
-    .avatar{
-      width:144px; height:144px; margin: var(--avatar-offset) auto 10px; border-radius:50%;
-      border:5px solid #fff; box-shadow:var(--shadow); overflow:hidden; background:#ccc
-    }
-    .avatar img{ width:100%; height:100%; object-fit:cover }
-
-    .title-wrap{ text-align:center }
-    .title-wrap h1{ margin:0; font-weight:700; font-size:34px; letter-spacing:-.02em }
-    .subtitle{ margin-top:4px; font-size:14.5px; text-shadow:0 2px 4px rgba(0,0,0,.14),0 4px 5px rgba(0,0,0,.12),0 1px 10px rgba(0,0,0,.2) }
-
-    .header-affix {
-      position: absolute; left: 50%; transform: translateX(-50%);
-      bottom: var(--affix-bottom); z-index: 2;
-      display: flex; flex-direction: column; align-items: center; gap: var(--affix-gap); width: 100%;
-      pointer-events: none;
-    }
-    .header-affix .social, .header-affix nav { pointer-events: auto; }
-
-    .social{ list-style:none; padding:0; margin:0; display:flex; gap:16px; justify-content:center }
-    .social a{ display:inline-flex; width:48px; height:48px; border-radius:50%; align-items:center; justify-content:center; background:#fff; box-shadow:var(--shadow) }
-    .social img{ width:28px; height:28px; display:block }
-
-    nav{ display:flex; justify-content:center }
-    .tabs{ list-style:none; padding:4px; margin:0; display:inline-flex; gap:2px; background:#fff; border-radius:999px; box-shadow:var(--shadow) }
-    .tabs a{ text-decoration:none; color:#111; padding:8px 14px; border-radius:999px; display:inline-block; font-weight:700; font-size:14px }
-    .tabs a.active{ background:#111827; color:#fff }
-
-    /* Main */
-    main{ padding:28px 0 48px; min-height:60vh }
-    .page-title{ margin:0 0 8px; font-size:30px; letter-spacing:-.02em }
-    .lead{ color:#374151; margin:0 0 10px }
-
-    .cv-panel{ height:520px; overflow:auto; border:1px solid var(--border); border-radius:8px; background:#fff; box-shadow:var(--shadow) }
-    .cv-panel iframe{ width:100%; height:100%; border:0; display:block }
-
-    footer{ border-top:1px solid var(--border); color:#4b5563; font-size:14px; padding:18px 24px; text-align:center; background:#fafafa }
-
-    @media (max-width:560px){
-      :root { --header-height: 50vh; --affix-bottom: 0; --avatar-offset: 6px; }
-      .title-wrap h1{ font-size:30px }
-      .avatar{ width:132px; height:132px }
-    }
-  </style>
+  <meta name="theme-color" content="#0f3a37" />
+  <script>try{var t=localStorage.getItem('theme')||'teal';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','teal')}</script>
+  <title>Boneshwar V K · Curriculum Vitae</title>
+  <meta name="description" content="Curriculum Vitae of Boneshwar V K, computational biology and AI for healthcare." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/site.css" />
 </head>
 <body>
-  <header class="header">
-    <div class="header-inner container">
-      <div class="avatar"><img src="assets/dp.jpeg" alt="Portrait of Boneshwar V K"></div>
-      <div class="title-wrap">
-        <h1><a href="index.html" style="color:#fff;text-decoration:none">Boneshwar V K</a></h1>
-        <div class="subtitle">B.S. and M.S., Biological Sciences — Department of Biotechnology, Bhupat &amp; Jyoti Mehta School of Biosciences, IIT Madras</div>
-      </div>
+  <div class="ambient" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scroll-progress" aria-hidden="true"></div>
 
-      <div class="header-affix">
-        <ul class="social">
-          <li><a aria-label="Google Scholar" href="#" target="_blank" rel="noopener"><img src="assets/google_scholar.png" alt="Google Scholar"></a></li>
-          <li><a aria-label="ORCID" href="#" target="_blank" rel="noopener"><img src="assets/orcid.png" alt="ORCID"></a></li>
-          <li><a aria-label="LinkedIn" href="#" target="_blank" rel="noopener"><img src="assets/linkedin.png" alt="LinkedIn"></a></li>
-          <li><a aria-label="GitHub" href="#" target="_blank" rel="noopener"><img src="assets/github.png" alt="GitHub"></a></li>
-          <li><a aria-label="Gmail" href="mailto:someone@example.com"><img src="assets/gmail.png" alt="Gmail"></a></li>
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-inner">
+      <a class="brand" href="index.html"><span class="brand-mark">BV</span> Boneshwar&nbsp;V&nbsp;K</a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="publications.html">Publications</a></li>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="experience.html">Experience</a></li>
+          <li><a href="cv.html" class="active">CV</a></li>
         </ul>
-
-        <nav aria-label="Primary">
-          <ul class="tabs">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="publications.html">Publications</a></li>
-            <li><a class="active" href="cv.html">CV</a></li>
-            <li><a href="projects.html">Projects</a></li>
-            <li><a href="experience.html">Experiences</a></li>
-          </ul>
-        </nav>
+        <div class="theme-switch" role="group" aria-label="Color theme">
+          <button class="swatch swatch--charcoal" data-set-theme="charcoal" aria-label="Charcoal and ivory theme" aria-pressed="false"></button>
+          <button class="swatch swatch--teal" data-set-theme="teal" aria-label="Teal and caramel theme" aria-pressed="true"></button>
+          <button class="swatch swatch--ivory" data-set-theme="ivory" aria-label="Ivory and terracotta theme" aria-pressed="false"></button>
+        </div>
+        <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
       </div>
+    </div>
+  </nav>
+
+  <header class="page-hero container">
+    <p class="eyebrow reveal"><span class="spark" aria-hidden="true">✦</span> Document</p>
+    <h1 class="reveal">Curriculum Vitae</h1>
+    <p class="lead reveal">A complete record of my education, research, publications, and experience.</p>
+    <div class="hero-actions reveal">
+      <a class="btn btn-primary" href="./assets/cv_2025.pdf?v=20250927" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+        Download PDF
+      </a>
+      <a class="btn btn-ghost" href="./assets/cv_2025.pdf?v=20250927" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3h7v7M21 3l-9 9M19 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h5"/></svg>
+        Open in new tab
+      </a>
     </div>
   </header>
 
   <main class="container">
-    <h1 class="page-title">Curriculum Vitae</h1>
-    <!-- Download link points to assets/ -->
-    <p class="lead">Download PDF: <a href="./assets/cv_2025.pdf?v=20250927" target="_blank" rel="noopener">Open in a new tab</a></p>
-
-    <!-- Embedded viewer points to assets/ -->
-    <div class="cv-panel">
-      <iframe title="Embedded CV PDF" src="./assets/cv_2025.pdf?v=20250927#toolbar=0&navpanes=0"></iframe>
+    <div class="doc-frame reveal">
+      <iframe title="Curriculum Vitae of Boneshwar V K" src="./assets/cv_2025.pdf?v=20250927#toolbar=0&navpanes=0"></iframe>
     </div>
   </main>
 
-  <footer>© <span id="year"></span> Boneshwar V K</footer>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-name reveal">Let's work together.</div>
+      <div class="footer-row reveal">
+        <ul class="social" aria-label="Profiles">
+          <li><a href="https://scholar.google.com/citations?user=KyuX2MYAAAAJ&hl=en" target="_blank" rel="noopener" aria-label="Google Scholar"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l11 6 9-4.9V16h2V9L12 3z"/><path d="M5 13v3c0 1.66 3.13 3 7 3s7-1.34 7-3v-3l-7 3.8L5 13z"/></svg></a></li>
+          <li><a href="https://orcid.org/0009-0006-7474-8697" target="_blank" rel="noopener" aria-label="ORCID"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 100 24 12 12 0 000-24zM7.4 18H5.6V8.5h1.8V18zm-.9-10.8a1.12 1.12 0 110-2.24 1.12 1.12 0 010 2.24zM18.4 13.3c0 2.9-1.9 4.7-5 4.7H9.9V8.5h3.5c3.12 0 5 1.9 5 4.8zm-1.85 0c0-2.1-1.3-3.1-3.32-3.1h-1.48v6.2h1.48c1.82 0 3.32-.9 3.32-3.1z"/></svg></a></li>
+          <li><a href="https://www.linkedin.com/in/boneshwar-vk-71549a234/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 110-4.14 2.07 2.07 0 010 4.14zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></a></li>
+          <li><a href="#" target="_blank" rel="noopener" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.25 2.87.12 3.17.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12.01 12.01 0 0024 12.5C24 5.87 18.63.5 12 .5z"/></svg></a></li>
+          <li><a href="mailto:boneshwar.vk20@gmail.com" aria-label="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 6l9 6 9-6"/></svg></a></li>
+        </ul>
+        <a class="btn btn-primary" href="mailto:boneshwar.vk20@gmail.com">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 6l9 6 9-6"/></svg>
+          boneshwar.vk20@gmail.com
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>© <span data-year></span> Boneshwar V K</span>
+        <span>Computational Biology · AI for Healthcare · IIT Madras</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/site.js"></script>
 </body>
 </html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<!-- /assets/anim/tenx.html — 2D-LiDAR SLAM loop: sense→scan-match→occupancy grid→pose-graph loop-closure→A* plan -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SLAM</title>
+<style>
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+  :root{
+    --ink:#f4f1e7; --muted:#968f82; --accent:#c9a86a; --accent2:#c5905f; --line:#34363b;
+  }
+  :root[data-theme="teal"]{
+    --ink:#ecd6ad; --muted:#a99b7f; --accent:#d3a05f; --accent2:#dca569; --line:#2c5b56;
+  }
+  :root[data-theme="ivory"]{
+    --ink:#1a1714; --muted:#6e655c; --accent:#b9532f; --accent2:#b9532f; --line:#d9ccb8;
+  }
+  svg{width:100%;height:100%;display:block;font-family:system-ui,sans-serif}
+  .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;fill:var(--muted)}
+  .lblA{fill:var(--accent)}
+  .lblI{fill:var(--ink)}
+  .num{font-size:10.5px;letter-spacing:.04em;fill:var(--muted);font-variant-numeric:tabular-nums}
+  .title{font-size:13px;letter-spacing:.2em;text-transform:uppercase;fill:var(--ink);font-weight:600}
+  .pipe{font-size:10px;letter-spacing:.1em;text-transform:uppercase;fill:var(--muted)}
+</style>
+</head>
+<body>
+<svg id="svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet" role="img"
+     aria-label="Autonomous-navigation SLAM pipeline. A wheeled robot drives through a floor plan while a 2D LiDAR sweeps rays that strike walls and form a point cloud. ICP scan-matching registers scans into an occupancy grid of free, occupied and unknown cells. A Cartographer-style pose graph of submap nodes and odometry edges accumulates drift until a loop closure constraint snaps the trajectory straight, after which an A-star path is planned to a goal.">
+  <defs>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <radialGradient id="sweepFade" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- frame -->
+  <rect x="0.5" y="0.5" width="799" height="499" fill="none"/>
+  <text class="title" x="40" y="40">Autonomous SLAM &#183; 2D LiDAR</text>
+  <text class="lbl" x="40" y="57">Cartographer / Hector &#183; occupancy grid</text>
+
+  <g id="gGrid"></g>
+  <g id="gWalls"></g>
+  <g id="gSweep"></g>
+  <g id="gRays"></g>
+  <g id="gCloud"></g>
+  <g id="gTrajTrue"></g>
+  <g id="gPlan"></g>
+  <g id="gGraphEdges"></g>
+  <g id="gLoop"></g>
+  <g id="gGraphNodes"></g>
+  <g id="gGoal"></g>
+  <g id="gRobot"></g>
+
+  <!-- HUD -->
+  <g id="hud">
+    <text class="num" id="odom"  x="760" y="36" text-anchor="end">ODOM  +0.00 m</text>
+    <text class="num" id="imu"   x="760" y="51" text-anchor="end">IMU &#969;  +0.00 rad/s</text>
+    <text class="num" id="match" x="760" y="66" text-anchor="end">ICP  e=0.000</text>
+  </g>
+
+  <!-- step label -->
+  <g id="step">
+    <rect id="stepBox" x="40" y="448" width="0" height="22" rx="3" fill="none" stroke="var(--accent)" stroke-opacity="0.55" stroke-width="1"/>
+    <text class="lbl lblA" id="stepTxt" x="50" y="463"></text>
+  </g>
+
+  <!-- legend -->
+  <g id="legend" transform="translate(596,440)">
+    <rect x="0"  y="6" width="9" height="9" fill="var(--accent)" fill-opacity="0.12" stroke="var(--line)"/>
+    <text class="pipe" x="13" y="14">free</text>
+    <rect x="60" y="6" width="9" height="9" fill="var(--accent2)" fill-opacity="0.9"/>
+    <text class="pipe" x="73" y="14">occ</text>
+    <rect x="118" y="6" width="9" height="9" fill="none" stroke="var(--line)" stroke-dasharray="2 2"/>
+    <text class="pipe" x="131" y="14">unk</text>
+  </g>
+</svg>
+
+<script>
+(function(){
+  "use strict";
+  var P = new URLSearchParams(location.search);
+  var theme = P.get("theme"); if(["charcoal","teal","ivory"].indexOf(theme)<0) theme="charcoal";
+  document.documentElement.setAttribute("data-theme", theme);
+  var NS = "http://www.w3.org/2000/svg";
+  function el(n,a){var e=document.createElementNS(NS,n);if(a)for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function clamp(v,a,b){return v<a?a:v>b?b:v;}
+  function lerp(a,b,t){return a+(b-a)*t;}
+
+  /* ---------- geometry: floor plan ---------- */
+  var WALLS = [
+    [160,100,640,100],[640,100,640,400],[640,400,160,400],[160,400,160,100], // outer
+    [320,200,480,200],[480,200,480,300],[480,300,320,300],[320,300,320,200], // central block
+    [160,250,212,250],[588,250,640,250]                                       // stubs
+  ];
+  var BOX={x0:160,y0:100,x1:640,y1:400};
+  var BLK={x0:320,y0:200,x1:480,y1:300};
+
+  /* ---------- trajectory (loop) ---------- */
+  var WP = [[270,350],[270,150],[530,150],[530,350],[270,350]];
+  var TS=[], TLEN=0; // trajectory samples {x,y,s}
+  (function(){
+    var N=300, pts=[];
+    // build cumulative
+    var segLen=[],tot=0;
+    for(var i=0;i<WP.length-1;i++){var dx=WP[i+1][0]-WP[i][0],dy=WP[i+1][1]-WP[i][1];var l=Math.hypot(dx,dy);segLen.push(l);tot+=l;}
+    TLEN=tot;
+    for(var k=0;k<=N;k++){
+      var d=tot*k/N, acc=0, seg=0;
+      while(seg<segLen.length-1 && acc+segLen[seg]<d){acc+=segLen[seg];seg++;}
+      var t=(d-acc)/segLen[seg];
+      pts.push({x:lerp(WP[seg][0],WP[seg+1][0],t),y:lerp(WP[seg][1],WP[seg+1][1],t),s:k/N});
+    }
+    TS=pts;
+  })();
+  function trajAt(s){ s=((s%1)+1)%1; var i=clamp(Math.round(s*(TS.length-1)),0,TS.length-1); return TS[i]; }
+  function trajHeading(s){ var a=trajAt(s-0.01),b=trajAt(s+0.01); return Math.atan2(b.y-a.y,b.x-a.x); }
+
+  /* ---------- utility: distances ---------- */
+  function distSeg(px,py,x1,y1,x2,y2){
+    var dx=x2-x1,dy=y2-y1, l2=dx*dx+dy*dy;
+    var t = l2? clamp(((px-x1)*dx+(py-y1)*dy)/l2,0,1):0;
+    var cx=x1+t*dx, cy=y1+t*dy; return Math.hypot(px-cx,py-cy);
+  }
+  function minWallDist(px,py){var m=1e9;for(var i=0;i<WALLS.length;i++){var w=WALLS[i];var d=distSeg(px,py,w[0],w[1],w[2],w[3]);if(d<m)m=d;}return m;}
+  function nearestParam(px,py){var m=1e9,s=0;for(var i=0;i<TS.length;i+=2){var d=(TS[i].x-px)*(TS[i].x-px)+(TS[i].y-py)*(TS[i].y-py);if(d<m){m=d;s=TS[i].s;}}return {s:s,d:Math.sqrt(m)};}
+
+  /* ---------- ray casting ---------- */
+  function castRay(px,py,ang,maxR){
+    var dx=Math.cos(ang),dy=Math.sin(ang), best=maxR;
+    for(var i=0;i<WALLS.length;i++){
+      var w=WALLS[i],x1=w[0],y1=w[1],x2=w[2],y2=w[3];
+      var sx=x2-x1, sy=y2-y1;
+      var den = dx*sy - dy*sx; if(Math.abs(den)<1e-6) continue;
+      var t = ((x1-px)*sy - (y1-py)*sx)/den;       // along ray
+      var u = ((x1-px)*dy - (y1-py)*dx)/den;       // along segment
+      if(t>0 && t<best && u>=0 && u<=1) best=t;
+    }
+    return {x:px+dx*best,y:py+dy*best,r:best,hit:best<maxR};
+  }
+
+  /* ---------- occupancy grid ---------- */
+  var SENSOR=170, CELL=24;
+  var gGrid=document.getElementById("gGrid");
+  var cells=[];
+  (function(){
+    for(var x=BOX.x0; x<BOX.x1; x+=CELL){
+      for(var y=BOX.y0; y<BOX.y1; y+=CELL){
+        var cx=x+CELL/2, cy=y+CELL/2;
+        var wd=minWallDist(cx,cy);
+        var inBlk = cx>BLK.x0&&cx<BLK.x1&&cy>BLK.y0&&cy<BLK.y1;
+        var np=nearestParam(cx,cy);
+        var occ = wd<11;
+        var free = !occ && !inBlk && np.d<SENSOR;
+        if(!occ && !free) continue; // unknown -> not drawn
+        var r=el("rect",{x:x+1,y:y+1,width:CELL-2,height:CELL-2,
+          fill: occ? "var(--accent2)":"var(--accent)",
+          "fill-opacity":"0", stroke:"none"});
+        gGrid.appendChild(r);
+        cells.push({el:r,occ:occ,s:np.s});
+      }
+    }
+  })();
+
+  /* ---------- walls render ---------- */
+  (function(){
+    var g=document.getElementById("gWalls");
+    for(var i=0;i<WALLS.length;i++){var w=WALLS[i];
+      g.appendChild(el("line",{x1:w[0],y1:w[1],x2:w[2],y2:w[3],
+        stroke:"var(--line)","stroke-width":"3","stroke-linecap":"round"}));
+    }
+  })();
+
+  /* ---------- true trajectory path ---------- */
+  (function(){
+    var d="M"+WP.map(function(p){return p[0]+" "+p[1];}).join(" L ");
+    var g=document.getElementById("gTrajTrue");
+    g.appendChild(el("path",{d:d,fill:"none",stroke:"var(--accent)","stroke-width":"1.4",
+      "stroke-dasharray":"1 5","stroke-linecap":"round","stroke-opacity":"0.55"}));
+  })();
+
+  /* ---------- wall point cloud (revealed progressively) ---------- */
+  var gCloud=document.getElementById("gCloud");
+  var cloudPts=[];
+  (function(){
+    for(var i=0;i<WALLS.length;i++){
+      var w=WALLS[i], len=Math.hypot(w[2]-w[0],w[3]-w[1]), n=Math.max(2,Math.round(len/9));
+      for(var k=0;k<=n;k++){
+        var t=k/n, bx=lerp(w[0],w[2],t), by=lerp(w[1],w[3],t);
+        var np=nearestParam(bx,by);
+        if(np.d>SENSOR) continue;
+        var jx=(Math.random()-0.5)*2.4, jy=(Math.random()-0.5)*2.4;
+        var c=el("circle",{cx:bx+jx,cy:by+jy,r:1.5,fill:"var(--ink)","fill-opacity":"0"});
+        gCloud.appendChild(c);
+        cloudPts.push({el:c,s:np.s});
+      }
+    }
+  })();
+
+  /* ---------- LiDAR ray pool ---------- */
+  var NR=96, MAXR=190;
+  var gRays=document.getElementById("gRays"), rayEls=[];
+  for(var i=0;i<NR;i++){
+    var ln=el("line",{x1:0,y1:0,x2:0,y2:0,stroke:"var(--accent)","stroke-width":"1","stroke-opacity":"0"});
+    var dt=el("circle",{cx:0,cy:0,r:1.7,fill:"var(--accent2)","fill-opacity":"0"});
+    gRays.appendChild(ln); gRays.appendChild(dt);
+    rayEls.push({ln:ln,dt:dt});
+  }
+  var gSweep=document.getElementById("gSweep");
+  var sweepWedge=el("path",{d:"",fill:"url(#sweepFade)","fill-opacity":"1"});
+  gSweep.appendChild(sweepWedge);
+
+  /* ---------- pose graph ---------- */
+  var NODE_S=[0.0,0.16,0.33,0.5,0.66,0.83];
+  function driftOf(s){ // accumulated drift vector, grows along path
+    var k=Math.pow(s,1.45);
+    return { dx: k*30*Math.cos(0.6+s*1.1), dy: -k*22 + k*14*Math.sin(s*1.4) };
+  }
+  var gNodes=document.getElementById("gGraphNodes"), gEdges=document.getElementById("gGraphEdges");
+  var nodeEls=[], edgeEls=[];
+  for(var i=0;i<NODE_S.length;i++){
+    var c=el("circle",{r:4.2,fill:"var(--ink)",stroke:"var(--accent)","stroke-width":"1.2","fill-opacity":"0"});
+    gNodes.appendChild(c); nodeEls.push(c);
+    if(i>0){ var e=el("line",{stroke:"var(--ink)","stroke-width":"1.6","stroke-opacity":"0"}); gEdges.appendChild(e); edgeEls.push(e); }
+  }
+  var gLoop=document.getElementById("gLoop");
+  var loopEdge=el("line",{stroke:"var(--accent)","stroke-width":"1.8","stroke-dasharray":"5 4","stroke-opacity":"0",filter:"url(#glow)"});
+  var loopRing=el("circle",{r:13,fill:"none",stroke:"var(--accent)","stroke-width":"1.6","stroke-opacity":"0"});
+  gLoop.appendChild(loopEdge); gLoop.appendChild(loopRing);
+
+  /* ---------- goal + A* plan ---------- */
+  var GOAL=[404,150];
+  var gGoal=document.getElementById("gGoal");
+  (function(){
+    var g=el("g",{transform:"translate("+GOAL[0]+","+GOAL[1]+")"});
+    g.appendChild(el("circle",{r:7,fill:"none",stroke:"var(--accent)","stroke-width":"1.4"}));
+    var star="M0,-6 1.6,-1.8 6,-1.8 2.4,1 3.7,5.6 0,2.8 -3.7,5.6 -2.4,1 -6,-1.8 -1.6,-1.8Z";
+    g.appendChild(el("path",{d:star,fill:"var(--accent)","fill-opacity":"0.9",transform:"scale(0.8)"}));
+    g.id="goalG"; g.setAttribute("opacity","0");
+    gGoal.appendChild(g);
+  })();
+  var gPlan=document.getElementById("gPlan");
+  // A* path: from start area to goal as a grid-stepped corridor route
+  var PLAN_PTS=[[270,350],[270,250],[270,150],[404,150]];
+  var planLen=0; for(var i=0;i<PLAN_PTS.length-1;i++){planLen+=Math.hypot(PLAN_PTS[i+1][0]-PLAN_PTS[i][0],PLAN_PTS[i+1][1]-PLAN_PTS[i][1]);}
+  var planPath=el("path",{d:"M"+PLAN_PTS.map(function(p){return p[0]+" "+p[1];}).join(" L "),
+    fill:"none",stroke:"var(--accent)","stroke-width":"2.4","stroke-linecap":"round","stroke-linejoin":"round",
+    "stroke-dasharray":planLen+" "+planLen,"stroke-dashoffset":planLen,"stroke-opacity":"0",filter:"url(#glow)"});
+  gPlan.appendChild(planPath);
+
+  /* ---------- robot ---------- */
+  var gRobot=document.getElementById("gRobot");
+  var robot=el("g");
+  robot.appendChild(el("circle",{r:9,fill:"none",stroke:"var(--accent)","stroke-width":"1","stroke-opacity":"0.5"}));
+  robot.appendChild(el("circle",{r:5.2,fill:"var(--accent)",filter:"url(#glow)"}));
+  robot.appendChild(el("path",{d:"M0,0 L13,0",stroke:"var(--ink)","stroke-width":"1.6"})); // heading
+  gRobot.appendChild(robot);
+
+  /* ---------- step labels ---------- */
+  var STEPS=[
+    [0.00,0.27,"LiDAR &#183; range scan"],
+    [0.27,0.46,"ICP scan-match"],
+    [0.46,0.66,"Occupancy grid"],
+    [0.66,0.82,"Pose graph"],
+    [0.82,0.90,"Loop closure"],
+    [0.90,1.01,"A* plan"]
+  ];
+  var stepTxt=document.getElementById("stepTxt"), stepBox=document.getElementById("stepBox");
+  var odomEl=document.getElementById("odom"), imuEl=document.getElementById("imu"), matchEl=document.getElementById("match");
+
+  /* ---------- render ---------- */
+  function render(p, sweepAng){
+    var pose=trajAt(p), hd=trajHeading(p);
+
+    // robot
+    robot.setAttribute("transform","translate("+pose.x.toFixed(2)+","+pose.y.toFixed(2)+") rotate("+(hd*180/Math.PI).toFixed(1)+")");
+
+    // LiDAR rays with rotating-sweep comet fade
+    for(var i=0;i<NR;i++){
+      var a = i/NR*Math.PI*2;
+      var hit=castRay(pose.x,pose.y,a,MAXR);
+      var trail = ((sweepAng - a)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
+      var w = trail < 1.5 ? (1-trail/1.5) : 0;
+      var r=rayEls[i];
+      r.ln.setAttribute("x1",pose.x); r.ln.setAttribute("y1",pose.y);
+      r.ln.setAttribute("x2",hit.x.toFixed(2)); r.ln.setAttribute("y2",hit.y.toFixed(2));
+      r.ln.setAttribute("stroke-opacity",(0.34*w).toFixed(3));
+      r.dt.setAttribute("cx",hit.x.toFixed(2)); r.dt.setAttribute("cy",hit.y.toFixed(2));
+      r.dt.setAttribute("fill-opacity", hit.hit? (0.9*w).toFixed(3):"0");
+    }
+    // sweep wedge
+    var a0=sweepAng-1.5, a1=sweepAng;
+    sweepWedge.setAttribute("d","M"+pose.x+","+pose.y+" L"+(pose.x+Math.cos(a0)*MAXR)+","+(pose.y+Math.sin(a0)*MAXR)+
+      " A"+MAXR+","+MAXR+" 0 0 1 "+(pose.x+Math.cos(a1)*MAXR)+","+(pose.y+Math.sin(a1)*MAXR)+" Z");
+
+    // mapping front
+    var front = clamp(p/0.62,0,1);
+    // cloud
+    for(var i=0;i<cloudPts.length;i++){
+      var cp=cloudPts[i];
+      cloudPts[i].el.setAttribute("fill-opacity", (cp.s<=front)? "0.85":"0");
+    }
+    // grid (log-odds reveal)
+    for(var i=0;i<cells.length;i++){
+      var c=cells[i], on=c.s<=front;
+      c.el.setAttribute("fill-opacity", on? (c.occ?0.88:0.12).toString():"0");
+    }
+
+    // pose graph appears 0.40..., loop closure correction 0.82..0.90
+    var graphShow = clamp((p-0.40)/0.10,0,1);
+    var cc = clamp((p-0.82)/0.06,0,1); // correction lerp drift->true
+    var positions=[];
+    for(var i=0;i<NODE_S.length;i++){
+      var s=NODE_S[i], tp=trajAt(s), dr=driftOf(s);
+      var appear = clamp((p - (0.40 + s*0.40))/0.05, 0,1);
+      var x=lerp(tp.x+dr.dx, tp.x, cc), y=lerp(tp.y+dr.dy, tp.y, cc);
+      positions.push({x:x,y:y,a:appear});
+      var nd=nodeEls[i];
+      nd.setAttribute("cx",x.toFixed(2)); nd.setAttribute("cy",y.toFixed(2));
+      nd.setAttribute("fill-opacity",(0.95*appear).toFixed(3));
+      nd.setAttribute("r",(4.2+ (i===0? 0:0)).toString());
+    }
+    for(var i=0;i<edgeEls.length;i++){
+      var A=positions[i],B=positions[i+1], o=Math.min(A.a,B.a)*0.7;
+      edgeEls[i].setAttribute("x1",A.x);edgeEls[i].setAttribute("y1",A.y);
+      edgeEls[i].setAttribute("x2",B.x);edgeEls[i].setAttribute("y2",B.y);
+      edgeEls[i].setAttribute("stroke-opacity",o.toFixed(3));
+    }
+    // loop closure edge: last node -> first node
+    var L=positions[positions.length-1], F=positions[0];
+    var loopOn = clamp((p-0.80)/0.03,0,1) * (1-clamp((p-0.94)/0.05,0,1));
+    loopEdge.setAttribute("x1",L.x);loopEdge.setAttribute("y1",L.y);
+    loopEdge.setAttribute("x2",F.x);loopEdge.setAttribute("y2",F.y);
+    loopEdge.setAttribute("stroke-opacity",(0.9*loopOn).toFixed(3));
+    var ringPulse = clamp((p-0.81)/0.02,0,1)*(1-clamp((p-0.90)/0.04,0,1));
+    loopRing.setAttribute("cx",F.x);loopRing.setAttribute("cy",F.y);
+    loopRing.setAttribute("r",(8+ringPulse*10).toFixed(1));
+    loopRing.setAttribute("stroke-opacity",(0.8*(1-Math.abs(0.5-ringPulse)*2)).toFixed(3));
+
+    // A* plan phase 0.90..1.0
+    var planShow = clamp((p-0.90)/0.04,0,1);
+    var planDraw = clamp((p-0.90)/0.07,0,1);
+    document.getElementById("goalG").setAttribute("opacity",(0.4+0.6*planShow).toFixed(3));
+    planPath.setAttribute("stroke-opacity",planShow.toFixed(3));
+    planPath.setAttribute("stroke-dashoffset",(planLen*(1-planDraw)).toFixed(1));
+
+    // HUD
+    var dist=(p*TLEN/100).toFixed(2);
+    odomEl.textContent="ODOM  +"+dist+" m";
+    imuEl.textContent ="IMU ω  "+(Math.sin(p*Math.PI*6)*0.3).toFixed(2)+" rad/s";
+    var err = Math.max(0.002, 0.06*(1-front) + (cc>0?0.04*(1-cc):0));
+    matchEl.textContent="ICP  e="+err.toFixed(3);
+
+    // step label
+    for(var i=0;i<STEPS.length;i++){
+      if(p>=STEPS[i][0] && p<STEPS[i][1]){
+        if(stepTxt.getAttribute("data-i")!==String(i)){
+          stepTxt.setAttribute("data-i",String(i));
+          stepTxt.innerHTML=STEPS[i][2];
+          var w=stepTxt.getComputedTextLength? stepTxt.getComputedTextLength():120;
+          stepBox.setAttribute("width",(w+22).toFixed(0));
+        }
+        break;
+      }
+    }
+  }
+
+  /* ---------- loop ---------- */
+  var LOOP=10000;
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduce){
+    render(0.96, 2.1);
+  } else {
+    var t0=performance.now();
+    function frame(now){
+      var p=((now-t0)%LOOP)/LOOP;
+      var sweep=(now/1000*4.2)%(Math.PI*2);
+      render(p, sweep);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+})();
+</script>
+</body>
+</html>

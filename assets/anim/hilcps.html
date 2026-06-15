@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inductive graph-transformer — scRNA-seq trajectory</title>
+<style>
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+  :root{
+    --ink:#f4f1e7; --muted:#968f82; --accent:#c9a86a; --accent2:#c5905f; --line:#34363b;
+  }
+  :root[data-theme="teal"]{
+    --ink:#ecd6ad; --muted:#a99b7f; --accent:#d3a05f; --accent2:#dca569; --line:#2c5b56;
+  }
+  :root[data-theme="ivory"]{
+    --ink:#1a1714; --muted:#6e655c; --accent:#b9532f; --accent2:#b9532f; --line:#d9ccb8;
+  }
+  #wrap{width:100%;height:100%}
+  svg{width:100%;height:100%;display:block}
+  .lbl{font-family:system-ui,-apple-system,sans-serif;font-weight:700;letter-spacing:.12em;
+       fill:var(--muted);text-transform:uppercase}
+  .lbl.sm{letter-spacing:.1em}
+  .val{font-family:system-ui,-apple-system,sans-serif;font-weight:600;fill:var(--ink)}
+  .panelTitle{font-family:system-ui,-apple-system,sans-serif;font-weight:800;letter-spacing:.14em;
+       fill:var(--ink);text-transform:uppercase}
+  .struct{stroke:var(--line)}
+  @media (prefers-reduced-motion: reduce){
+    .anim{animation:none !important}
+    #ticker{display:none}
+  }
+</style>
+</head>
+<body>
+<div id="wrap">
+<svg id="svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet" role="img"
+  aria-label="Inductive graph-transformer pipeline for single-cell RNA-seq cell-trajectory recovery in gliomas: a kNN cell graph feeds inductive neighborhood sampling and a graph-transformer attention head with softmax-weighted edges plus Laplacian positional and structural encodings; learned embeddings form a UMAP manifold threaded by a branching pseudotime lineage separating neoplastic and non-neoplastic cells.">
+
+  <defs>
+    <radialGradient id="vig" cx="50%" cy="42%" r="75%">
+      <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.05"/>
+      <stop offset="70%" stop-color="var(--accent)" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ptime" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"  stop-color="var(--muted)"/>
+      <stop offset="55%" stop-color="var(--accent)"/>
+      <stop offset="100%" stop-color="var(--accent2)"/>
+    </linearGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3.4"/>
+    </filter>
+    <marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="500" fill="url(#vig)"/>
+
+  <!-- ============ STAGE TITLES ============ -->
+  <text class="panelTitle" x="40"  y="34" font-size="13">kNN GRAPH</text>
+  <text class="panelTitle" x="300" y="34" font-size="13">ATTENTION (softmax)</text>
+  <text class="panelTitle" x="560" y="34" font-size="13">UMAP · PSEUDOTIME</text>
+
+  <!-- stage flow arrows -->
+  <path class="struct" d="M250,250 L292,250" fill="none" stroke-width="1.4" marker-end="url(#arw)" opacity="0.8"/>
+  <path class="struct" d="M512,250 L554,250" fill="none" stroke-width="1.4" marker-end="url(#arw)" opacity="0.8"/>
+
+  <!-- =================================================== -->
+  <!-- STAGE 1 : kNN CELL GRAPH                             -->
+  <!-- =================================================== -->
+  <g id="g1"></g>
+  <text class="lbl sm" x="40" y="470" font-size="10">NODES = CELLS · EDGES = kNN (k=6)</text>
+
+  <!-- =================================================== -->
+  <!-- STAGE 2 : INDUCTIVE SAMPLING + GRAPH-TRANSFORMER     -->
+  <!-- =================================================== -->
+  <g id="g2"></g>
+  <text class="lbl sm" x="300" y="470" font-size="10">INDUCTIVE SUBGRAPH · +PE / +SE</text>
+
+  <!-- =================================================== -->
+  <!-- STAGE 3+4 : UMAP MANIFOLD + PSEUDOTIME LINEAGE       -->
+  <!-- =================================================== -->
+  <g id="g3"></g>
+
+  <!-- ============ PSEUDOTIME COLORBAR ============ -->
+  <g id="bar" transform="translate(566,452)">
+    <text class="lbl sm" x="0" y="-6" font-size="10">PSEUDOTIME</text>
+    <rect x="0" y="0" width="170" height="7" rx="3.5" fill="url(#ptime)"/>
+    <text class="lbl sm" x="0" y="22" font-size="9">0</text>
+    <text class="lbl sm" x="160" y="22" font-size="9">1</text>
+  </g>
+
+</svg>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var p = new URLSearchParams(location.search);
+  var theme = p.get("theme");
+  if(["charcoal","teal","ivory"].indexOf(theme)>=0){
+    document.documentElement.setAttribute("data-theme",theme);
+  }
+  var SVGNS="http://www.w3.org/2000/svg";
+  function E(tag,attrs){
+    var e=document.createElementNS(SVGNS,tag);
+    if(attrs)for(var k in attrs)e.setAttribute(k,attrs[k]);
+    return e;
+  }
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* deterministic PRNG */
+  function rng(seed){return function(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};}
+
+  /* ---------------- STAGE 1: kNN cell graph ---------------- */
+  var g1 = document.getElementById("g1");
+  var R1 = rng(7);
+  var N1 = 22;
+  var box1 = {x:40,y:64,w:200,h:360};
+  var cells1=[];
+  for(var i=0;i<N1;i++){
+    cells1.push({
+      x: box1.x + 14 + R1()*(box1.w-28),
+      y: box1.y + 14 + R1()*(box1.h-28)
+    });
+  }
+  // kNN edges (k=3 each for tidiness -> appears as graph)
+  var edges1=[];
+  for(var a=0;a<N1;a++){
+    var d=[];
+    for(var b=0;b<N1;b++) if(a!==b) d.push({b:b,dist:Math.hypot(cells1[a].x-cells1[b].x,cells1[a].y-cells1[b].y)});
+    d.sort(function(u,v){return u.dist-v.dist;});
+    for(var k=0;k<3;k++){
+      var bb=d[k].b;
+      if(a<bb) edges1.push({a:a,b:bb});
+      else if(!edges1.some(function(e){return e.a===bb&&e.b===a;})) edges1.push({a:bb,b:a});
+    }
+  }
+  var edgeEls1=[];
+  edges1.forEach(function(e){
+    var ln=E("line",{x1:cells1[e.a].x,y1:cells1[e.a].y,x2:cells1[e.b].x,y2:cells1[e.b].y,
+      stroke:"var(--line)","stroke-width":1.1,"stroke-linecap":"round"});
+    g1.appendChild(ln); edgeEls1.push(ln);
+  });
+  // highlight the target node (one node that becomes the sampled center)
+  var target1 = 10;
+  var nodeEls1=[];
+  cells1.forEach(function(c,i){
+    var isT = (i===target1);
+    var nd=E("circle",{cx:c.x,cy:c.y,r:isT?5.2:3.2,
+      fill:isT?"var(--accent)":"var(--ink)",
+      stroke:isT?"var(--accent)":"none","stroke-width":isT?1.4:0,
+      "fill-opacity":isT?1:0.82});
+    if(isT) nd.setAttribute("filter","url(#soft)");
+    g1.appendChild(nd); nodeEls1.push(nd);
+  });
+  // a sweeping "sampling" ring around target
+  var ring1 = E("circle",{cx:cells1[target1].x,cy:cells1[target1].y,r:8,fill:"none",
+    stroke:"var(--accent)","stroke-width":1.4,"stroke-dasharray":"3 4",opacity:0.0});
+  g1.appendChild(ring1);
+
+  /* ---------------- STAGE 2: graph-transformer head ---------------- */
+  var g2 = document.getElementById("g2");
+  var cx2=380, cy2=250;          // center / query node
+  var nbr=[];
+  var Nn=6, R2=rng(31);
+  for(var j=0;j<Nn;j++){
+    var ang = -Math.PI/2 + j*(2*Math.PI/Nn);
+    var rad = 78;
+    nbr.push({
+      x: cx2 + Math.cos(ang)*rad,
+      y: cy2 + Math.sin(ang)*rad,
+      w: 0.05+R2()*0.95   // raw score
+    });
+  }
+  // softmax weights
+  var sm = nbr.map(function(n){return Math.exp(n.w*2.4);});
+  var Z = sm.reduce(function(a,b){return a+b;},0);
+  nbr.forEach(function(n,i){ n.alpha = sm[i]/Z; });
+
+  // attention edges (query -> neighbor), width/opacity ~ alpha
+  var attEls=[];
+  nbr.forEach(function(n){
+    var ln=E("line",{x1:cx2,y1:cy2,x2:n.x,y2:n.y,
+      stroke:"var(--accent)","stroke-linecap":"round",
+      "stroke-width":1, opacity:0.15});
+    g2.appendChild(ln); attEls.push(ln);
+  });
+  // neighbor nodes + PE/SE chips
+  var nbrEls=[], chipEls=[];
+  nbr.forEach(function(n,i){
+    var nd=E("circle",{cx:n.x,cy:n.y,r:5,fill:"var(--ink)","fill-opacity":0.85});
+    g2.appendChild(nd); nbrEls.push(nd);
+    // small +PE / +SE annotation alternating
+    var tag = (i%2===0)?"+PE":"+SE";
+    var col = (i%2===0)?"var(--accent)":"var(--accent2)";
+    var tx = n.x + (n.x>cx2? 9 : -9);
+    var t=E("text",{x:tx,y:n.y+(n.y<cy2?-8:14),
+      "font-family":"system-ui,-apple-system,sans-serif","font-size":9,"font-weight":700,
+      "letter-spacing":"0.06em",fill:col,
+      "text-anchor": n.x>cx2?"start":"end", opacity:0});
+    t.textContent=tag;
+    g2.appendChild(t); chipEls.push(t);
+  });
+  // query node (center)
+  var qNode=E("circle",{cx:cx2,cy:cy2,r:6.5,fill:"var(--accent)",filter:"url(#soft)"});
+  g2.appendChild(qNode);
+  var qHalo=E("circle",{cx:cx2,cy:cy2,r:6.5,fill:"none",stroke:"var(--accent)","stroke-width":1.4,opacity:0});
+  g2.appendChild(qHalo);
+  // softmax mini-bars showing distribution
+  var barG=E("g",{transform:"translate(300,400)"});
+  g2.appendChild(barG);
+  var barT=E("text",{x:0,y:-8,class:"lbl sm","font-size":9}); barT.textContent="α = softmax(qᵀk/√d)";
+  barG.appendChild(barT);
+  var smBars=[];
+  nbr.forEach(function(n,i){
+    var bw=12;
+    var bx=i*(bw+5);
+    var rb=E("rect",{x:bx,y:0,width:bw,height:1,rx:1.5,fill:(i%2===0)?"var(--accent)":"var(--accent2)","fill-opacity":0.9});
+    barG.appendChild(rb); smBars.push(rb);
+  });
+
+  /* ---------------- STAGE 3: UMAP manifold + pseudotime lineage ---------------- */
+  var g3 = document.getElementById("g3");
+  var box3={x:560,y:60,w:200,h:360};
+  // principal curve: a branching lineage. Root at bottom, splits near middle.
+  // trunk
+  var trunk = "M650,420 C640,360 660,330 668,300";
+  // branch A (neoplastic) - to upper right
+  var brA = "M668,300 C676,262 720,242 736,200 C746,170 740,130 726,96";
+  // branch B (non-neoplastic) - to upper left
+  var brB = "M668,300 C660,262 612,250 596,212 C582,178 588,140 600,104";
+
+  var trunkP = E("path",{d:trunk,fill:"none",stroke:"url(#ptime)","stroke-width":3.4,
+    "stroke-linecap":"round",opacity:0.9});
+  var brAP = E("path",{d:brA,fill:"none",stroke:"var(--accent)","stroke-width":3,"stroke-linecap":"round",opacity:0.9});
+  var brBP = E("path",{d:brB,fill:"none",stroke:"var(--muted)","stroke-width":3,"stroke-linecap":"round",opacity:0.9});
+
+  // scatter cells around the curves with pseudotime shading
+  function pcol(t){ // gradient muted->accent->accent2
+    return t<0.5? "var(--muted)" : "var(--accent)";
+  }
+  var R3=rng(91);
+  var dots3=[];
+  // sample points near each path using simple parametric approximations
+  function quadFromPaths(){
+    // build dot clusters: trunk cells (low pt), branchA (high pt neoplastic), branchB (high pt non-neo)
+    var anchors=[];
+    // trunk anchors
+    var tr=[[650,420],[645,392],[648,360],[658,332],[666,306]];
+    tr.forEach(function(pt,i){anchors.push({x:pt[0],y:pt[1],pt:i/12,br:0});});
+    // branch A
+    var ba=[[676,278],[700,250],[722,220],[734,186],[730,150],[724,110]];
+    ba.forEach(function(pt,i){anchors.push({x:pt[0],y:pt[1],pt:0.45+i/11,br:1});});
+    // branch B
+    var bb=[[656,278],[632,252],[608,224],[596,188],[598,150],[604,112]];
+    bb.forEach(function(pt,i){anchors.push({x:pt[0],y:pt[1],pt:0.45+i/11,br:2});});
+    return anchors;
+  }
+  var anchors = quadFromPaths();
+  anchors.forEach(function(an){
+    var cnt = 3;
+    for(var s=0;s<cnt;s++){
+      var dx=(R3()-0.5)*22, dy=(R3()-0.5)*22;
+      var t = Math.min(1,Math.max(0,an.pt + (R3()-0.5)*0.08));
+      // color by branch identity for the two high-pt branches
+      var fill;
+      if(an.br===1) fill="var(--accent2)";
+      else if(an.br===2) fill="var(--muted)";
+      else fill="var(--accent)";
+      dots3.push({x:an.x+dx,y:an.y+dy,t:t,fill:fill,br:an.br});
+    }
+  });
+  // draw scatter (initially hidden)
+  var dotEls3=[];
+  dots3.forEach(function(d){
+    var c=E("circle",{cx:d.x,cy:d.y,r:2.6,fill:d.fill,"fill-opacity":0,
+      stroke:"none"});
+    g3.appendChild(c); dotEls3.push(c);
+  });
+  // draw curves ON TOP, with draw-on animation
+  g3.appendChild(trunkP); g3.appendChild(brAP); g3.appendChild(brBP);
+  // branch point node
+  var bpNode=E("circle",{cx:668,cy:300,r:4,fill:"var(--ink)",stroke:"var(--accent)","stroke-width":1.4,opacity:0});
+  g3.appendChild(bpNode);
+
+  // lineage labels
+  var labNeo=E("text",{x:734,y:84,class:"lbl",
+    "font-size":10,"text-anchor":"middle",fill:"var(--accent2)",opacity:0});
+  labNeo.textContent="NEOPLASTIC";
+  var labNon=E("text",{x:596,y:96,class:"lbl",
+    "font-size":10,"text-anchor":"middle",fill:"var(--muted)",opacity:0});
+  labNon.textContent="NON-NEOPLASTIC";
+  var labLin=E("text",{x:660,y:444,class:"lbl sm","font-size":10,"text-anchor":"middle",fill:"var(--muted)",opacity:0});
+  labLin.textContent="LINEAGE";
+  g3.appendChild(labNeo); g3.appendChild(labNon); g3.appendChild(labLin);
+
+  // prep dash for draw-on
+  [trunkP,brAP,brBP].forEach(function(pth){
+    var L=pth.getTotalLength();
+    pth.style.strokeDasharray=L; pth.style.strokeDashoffset=L;
+    pth._L=L;
+  });
+
+  /* ============ ANIMATION ENGINE ============ */
+  function clamp(v){return v<0?0:v>1?1:v;}
+  function easeIO(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+  function ease(t){return 1-Math.pow(1-t,3);}
+
+  // static frame for reduced motion
+  function setStatic(){
+    ring1.setAttribute("opacity",0.5);
+    attEls.forEach(function(ln,i){
+      ln.setAttribute("stroke-width",(0.8+nbr[i].alpha*9).toFixed(2));
+      ln.setAttribute("opacity",(0.25+nbr[i].alpha*0.7).toFixed(2));
+    });
+    chipEls.forEach(function(t){t.setAttribute("opacity",1);});
+    qHalo.setAttribute("opacity",0.6);
+    smBars.forEach(function(rb,i){
+      var h=nbr[i].alpha*60*nbr.length/2.2; if(h<2)h=2;
+      rb.setAttribute("height",h.toFixed(1));
+      rb.setAttribute("y",(0-h).toFixed(1));
+    });
+    [trunkP,brAP,brBP].forEach(function(p){p.style.strokeDashoffset=0;});
+    bpNode.setAttribute("opacity",1);
+    dotEls3.forEach(function(c){c.setAttribute("fill-opacity",0.9);});
+    labNeo.setAttribute("opacity",1); labNon.setAttribute("opacity",1); labLin.setAttribute("opacity",1);
+  }
+  if(reduce){ setStatic(); return; }
+
+  var T = 10000; // loop length ms
+  var t0 = performance.now();
+
+  function frame(now){
+    var loc=((now-t0)%T)/T; // 0..1
+    // ---- Phase timing (overlapping) ----
+    // P1 sampling ring pulse: 0.00-0.30
+    // P2 attention reveal:    0.18-0.55
+    // P3 manifold scatter:    0.45-0.72
+    // P4 lineage draw:        0.62-0.95
+
+    // Phase 1: sampling ring expands & pulses around target
+    var p1 = clamp((loc-0.0)/0.30);
+    var ringR = 8 + easeIO(p1)*26;
+    ring1.setAttribute("r",ringR.toFixed(1));
+    ring1.setAttribute("opacity",(0.7*Math.sin(Math.min(p1,1)*Math.PI)).toFixed(2));
+    ring1.setAttribute("transform","rotate("+(loc*200).toFixed(1)+" "+cells1[target1].x+" "+cells1[target1].y+")");
+    // gentle node twinkle in graph
+    nodeEls1.forEach(function(nd,i){
+      if(i===target1)return;
+      var ph=(loc*2+i*0.21)%1;
+      nd.setAttribute("fill-opacity",(0.55+0.35*Math.abs(Math.sin(ph*Math.PI))).toFixed(2));
+    });
+
+    // Phase 2: attention edges grow per softmax weight (staggered)
+    attEls.forEach(function(ln,i){
+      var pa = clamp((loc-0.18 - i*0.012)/0.30);
+      pa = easeIO(pa);
+      // pulse breathing once revealed
+      var breathe = 0.85+0.15*Math.sin(loc*Math.PI*4 + i);
+      var w = 0.8 + nbr[i].alpha*9 * pa;
+      var op = (0.12 + (0.25+nbr[i].alpha*0.7-0.12)*pa)*breathe;
+      ln.setAttribute("stroke-width",w.toFixed(2));
+      ln.setAttribute("opacity",clamp(op).toFixed(2));
+    });
+    var p2 = clamp((loc-0.20)/0.30);
+    chipEls.forEach(function(t,i){
+      t.setAttribute("opacity",clamp((loc-0.24-i*0.02)/0.18).toFixed(2));
+    });
+    qHalo.setAttribute("r",(6.5+ (1-Math.cos(loc*Math.PI*6))*3).toFixed(1));
+    qHalo.setAttribute("opacity",(0.5*easeIO(p2)).toFixed(2));
+    // softmax bars
+    smBars.forEach(function(rb,i){
+      var pb=clamp((loc-0.22-i*0.015)/0.22);
+      var h = nbr[i].alpha*150*pb; if(h<1.5)h=1.5*pb;
+      rb.setAttribute("height",h.toFixed(1));
+      rb.setAttribute("y",(-h).toFixed(1));
+    });
+
+    // Phase 3: UMAP scatter fade-in (staggered by pseudotime)
+    dotEls3.forEach(function(c,i){
+      var d=dots3[i];
+      var ps=clamp((loc-0.45 - d.t*0.18)/0.22);
+      c.setAttribute("fill-opacity",(0.9*ease(ps)).toFixed(2));
+      // subtle drift
+      var dr=Math.sin(loc*Math.PI*2 + i)*0.6;
+      c.setAttribute("r",(2.4+0.6*ease(ps)).toFixed(2));
+    });
+
+    // Phase 4: lineage principal curve draws on
+    var p4t = clamp((loc-0.60)/0.16);
+    trunkP.style.strokeDashoffset = (trunkP._L*(1-ease(p4t)));
+    var p4ab = clamp((loc-0.72)/0.18);
+    brAP.style.strokeDashoffset = (brAP._L*(1-ease(p4ab)));
+    brBP.style.strokeDashoffset = (brBP._L*(1-ease(p4ab)));
+    bpNode.setAttribute("opacity",clamp((loc-0.70)/0.1).toFixed(2));
+    labNeo.setAttribute("opacity",clamp((loc-0.84)/0.1).toFixed(2));
+    labNon.setAttribute("opacity",clamp((loc-0.84)/0.1).toFixed(2));
+    labLin.setAttribute("opacity",clamp((loc-0.66)/0.1).toFixed(2));
+
+    // a moving pseudotime marker traveling up the lineage
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

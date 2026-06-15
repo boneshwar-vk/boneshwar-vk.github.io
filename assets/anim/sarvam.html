@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retrieval-Augmented Multilingual LLM Agent</title>
+<style>
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+
+  :root{
+    /* default: charcoal */
+    --ink:#f4f1e7; --muted:#968f82; --accent:#c9a86a; --accent2:#c5905f; --line:#34363b;
+  }
+  :root[data-theme="teal"]{
+    --ink:#ecd6ad; --muted:#a99b7f; --accent:#d3a05f; --accent2:#dca569; --line:#2c5b56;
+  }
+  :root[data-theme="ivory"]{
+    --ink:#1a1714; --muted:#6e655c; --accent:#b9532f; --accent2:#b9532f; --line:#d9ccb8;
+  }
+
+  .stage{width:100%;height:100%;display:block}
+
+  .cap{
+    font-family:system-ui,-apple-system,sans-serif;
+    fill:var(--muted);
+    font-size:11px;
+    letter-spacing:2.2px;
+    font-weight:600;
+    text-transform:uppercase;
+  }
+  .tiny{
+    font-family:system-ui,-apple-system,sans-serif;
+    fill:var(--muted);
+    font-size:9px;
+    letter-spacing:1.4px;
+    font-weight:600;
+    text-transform:uppercase;
+  }
+  .num{
+    font-family:system-ui,-apple-system,sans-serif;
+    fill:var(--ink);
+    font-size:11px;
+    font-weight:600;
+    font-variant-numeric:tabular-nums;
+  }
+  .title{
+    font-family:system-ui,-apple-system,sans-serif;
+    fill:var(--ink);
+    font-size:13px;
+    letter-spacing:3px;
+    font-weight:700;
+    text-transform:uppercase;
+  }
+  .glyphTxt{
+    font-family:system-ui,-apple-system,sans-serif;
+    font-size:12px; font-weight:700; fill:var(--ink);
+  }
+
+  .stage *{will-change:transform,opacity}
+
+  @media (prefers-reduced-motion: reduce){
+    .anim{animation:none !important;}
+  }
+</style>
+</head>
+<body>
+<svg class="stage" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet"
+     role="img"
+     aria-label="Pipeline of a retrieval-augmented multilingual LLM agent: an OCR stage scans a document and emits bounding boxes over Devanagari, Tamil and Telugu text regions producing tokens; chunks embed into a vector space where an approximate nearest neighbour search highlights the top-k neighbours of a query vector with a cosine similarity ranking; retrieved context is injected into an LLM running a ReAct Thought-Action-Observation loop to answer a CSV question; and a RAGAS gauge for faithfulness and answer relevance ticks upward.">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="var(--accent)" stop-opacity="0.30"/>
+      <stop offset="55%" stop-color="var(--accent)" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="panelFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="var(--accent)"  stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="var(--accent2)" stop-opacity="0.015"/>
+    </linearGradient>
+    <linearGradient id="barGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"  stop-color="var(--accent2)"/>
+      <stop offset="100%" stop-color="var(--accent)"/>
+    </linearGradient>
+    <filter id="soft" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.4"/>
+    </filter>
+    <clipPath id="docClip"><rect x="34" y="92" width="156" height="216" rx="9"/></clipPath>
+    <clipPath id="vecClip"><rect x="246" y="106" width="206" height="150" rx="8"/></clipPath>
+  </defs>
+
+  <!-- ambient glow -->
+  <ellipse cx="400" cy="250" rx="380" ry="210" fill="url(#glow)">
+    <animate class="anim" attributeName="opacity" values="0.75;1;0.75" dur="9s" repeatCount="indefinite"/>
+  </ellipse>
+
+  <!-- title -->
+  <text x="400" y="30" text-anchor="middle" class="title">Retrieval-Augmented Multilingual Agent</text>
+
+  <!-- connectors between stages (with flowing tokens) -->
+  <g fill="none" stroke="var(--line)" stroke-width="1.4" stroke-dasharray="2 5" stroke-linecap="round" opacity="0.85">
+    <path id="conn0" d="M190 196 L246 184"/>
+    <path id="conn1" d="M452 188 L484 192"/>
+    <path id="conn2" d="M638 196 L676 198"/>
+  </g>
+  <g id="flow" fill="var(--accent)"></g>
+
+  <!-- ===================== STAGE 1 : OCR ===================== -->
+  <g id="ocr">
+    <text x="38" y="80" class="cap">OCR · BBOX</text>
+    <!-- document body -->
+    <rect x="34" y="92" width="156" height="216" rx="9" fill="url(#panelFill)" stroke="var(--ink)" stroke-width="1.5"/>
+    <rect x="34" y="92" width="156" height="22" rx="9" fill="var(--accent)" opacity="0.10"/>
+    <line x1="34" y1="114" x2="190" y2="114" stroke="var(--line)" stroke-width="1"/>
+    <text x="44" y="107" class="tiny">CSV · DOC</text>
+    <circle cx="178" cy="103" r="3" fill="var(--accent)" opacity="0.8"/>
+
+    <!-- glyph + bounding-box layer (built in JS) -->
+    <g id="glyphs" fill="none" stroke-linecap="round" stroke-linejoin="round"></g>
+    <g id="bboxes" fill="none"></g>
+
+    <!-- faint CSV grid rows at the bottom -->
+    <g stroke="var(--line)" stroke-width="1" opacity="0.55">
+      <line x1="46" y1="262" x2="178" y2="262"/>
+      <line x1="46" y1="278" x2="178" y2="278"/>
+      <line x1="46" y1="294" x2="178" y2="294"/>
+      <line x1="92" y1="252" x2="92" y2="304"/>
+      <line x1="138" y1="252" x2="138" y2="304"/>
+    </g>
+
+    <!-- scan line (clipped to document) -->
+    <g clip-path="url(#docClip)">
+      <rect id="scanline" x="34" y="120" width="156" height="3" fill="var(--accent)" opacity="0.85"/>
+      <rect id="scanglow" x="34" y="110" width="156" height="22" fill="var(--accent)" opacity="0.12"/>
+    </g>
+  </g>
+
+  <!-- ============ STAGE 2 : EMBED + ANN TOP-k ============ -->
+  <g id="ann">
+    <text x="250" y="80" class="cap">EMBED · ANN TOP-k</text>
+    <text x="438" y="80" text-anchor="end" class="tiny">FAISS · PINECONE</text>
+    <!-- vector-space panel -->
+    <rect x="246" y="106" width="206" height="150" rx="8" fill="url(#panelFill)" stroke="var(--ink)" stroke-width="1.4"/>
+    <!-- axes hint -->
+    <g stroke="var(--line)" stroke-width="1" opacity="0.5">
+      <line x1="260" y1="240" x2="438" y2="240"/>
+      <line x1="262" y1="120" x2="262" y2="240"/>
+    </g>
+    <g clip-path="url(#vecClip)">
+      <g id="annLinks" fill="none"></g>      <!-- query -> neighbour links -->
+      <g id="annPoints"></g>                  <!-- vector points -->
+      <g id="annRings" fill="none"></g>       <!-- top-k highlight rings -->
+      <g id="queryPt"></g>                     <!-- query vector -->
+    </g>
+
+    <!-- cosine similarity ranking list -->
+    <text x="250" y="282" class="tiny">COSINE · TOP-k</text>
+    <g id="rankList"></g>
+  </g>
+
+  <!-- ============ STAGE 3 : RAG + ReAct ============ -->
+  <g id="rag">
+    <text x="486" y="80" class="cap">RAG · ReAct</text>
+    <!-- LLM block -->
+    <rect x="484" y="92" width="154" height="170" rx="10" fill="url(#panelFill)" stroke="var(--ink)" stroke-width="1.5"/>
+    <text x="561" y="110" text-anchor="middle" class="num" style="font-size:12px;letter-spacing:2px">LLM</text>
+    <line x1="496" y1="118" x2="626" y2="118" stroke="var(--line)" stroke-width="1"/>
+
+    <!-- ReAct triangle cycle (built/animated in JS) -->
+    <g id="react"></g>
+
+    <!-- CSV question + answer chips -->
+    <rect x="496" y="222" width="130" height="14" rx="3" fill="none" stroke="var(--line)" stroke-width="1"/>
+    <text x="502" y="232" class="tiny" style="letter-spacing:1px">Q: CSV  AGG ?</text>
+    <rect id="ansChip" x="496" y="240" width="130" height="14" rx="3" fill="var(--accent)" opacity="0.0"/>
+    <text id="ansTxt" x="502" y="250" class="tiny" style="letter-spacing:1px;fill:var(--ink)" opacity="0">A: 0.94</text>
+  </g>
+
+  <!-- ============ STAGE 4 : RAGAS gauge ============ -->
+  <g id="ragas">
+    <text x="676" y="80" class="cap">RAGAS</text>
+    <rect x="664" y="92" width="124" height="170" rx="10" fill="url(#panelFill)" stroke="var(--ink)" stroke-width="1.4"/>
+    <!-- semicircle gauge track -->
+    <path d="M684 188 A42 42 0 0 1 768 188" fill="none" stroke="var(--line)" stroke-width="6" stroke-linecap="round"/>
+    <path id="gaugeFill" d="" fill="none" stroke="url(#barGrad)" stroke-width="6" stroke-linecap="round"/>
+    <line id="needle" x1="726" y1="188" x2="726" y2="152" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="726" cy="188" r="4" fill="var(--ink)"/>
+    <text id="gaugeNum" x="726" y="176" text-anchor="middle" class="num" style="font-size:15px">0.00</text>
+
+    <!-- sub-metric bars -->
+    <text x="676" y="214" class="tiny">FAITHFULNESS</text>
+    <rect x="676" y="218" width="100" height="6" rx="3" fill="var(--line)" opacity="0.6"/>
+    <rect id="mFaith" x="676" y="218" width="0" height="6" rx="3" fill="url(#barGrad)"/>
+    <text x="676" y="240" class="tiny">ANSWER REL.</text>
+    <rect x="676" y="244" width="100" height="6" rx="3" fill="var(--line)" opacity="0.6"/>
+    <rect id="mRel" x="676" y="244" width="0" height="6" rx="3" fill="url(#barGrad)"/>
+  </g>
+
+  <!-- bottom pipeline labels -->
+  <g>
+    <text x="112" y="486" text-anchor="middle" class="tiny" style="fill:var(--accent)">1 · OCR</text>
+    <text x="349" y="486" text-anchor="middle" class="tiny" style="fill:var(--accent)">2 · EMBED + ANN</text>
+    <text x="561" y="486" text-anchor="middle" class="tiny" style="fill:var(--accent)">3 · RAG · ReAct</text>
+    <text x="726" y="486" text-anchor="middle" class="tiny" style="fill:var(--accent)">4 · RAGAS</text>
+  </g>
+</svg>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- THEME ----------
+  var params = new URLSearchParams(location.search);
+  var theme = (params.get('theme')||'charcoal').toLowerCase();
+  if(['charcoal','teal','ivory'].indexOf(theme)===-1) theme='charcoal';
+  document.documentElement.setAttribute('data-theme', theme);
+
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function el(name, attrs){
+    var e = document.createElementNS(SVGNS, name);
+    if(attrs) for(var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+  function smooth(t){ return t<0?0:(t>1?1:t*t*(3-2*t)); }
+  function easeOut(t){ t=clamp(t,0,1); return 1-Math.pow(1-t,3); }
+
+  // ================= STAGE 1 : OCR text regions =================
+  // Three stylised Indic scripts drawn as SVG strokes (no installed fonts relied upon).
+  // Devanagari : horizontal top-bar (shirorekha) with hanging strokes.
+  // Tamil      : rounded loops, no top bar.
+  // Telugu     : circular bowls with head-tick.
+  var glyphLayer = document.getElementById('glyphs');
+  var bboxLayer  = document.getElementById('bboxes');
+
+  // Devanagari "word" : continuous shirorekha + descenders/curls
+  function devanagari(ox, oy){
+    var d = "M"+ox+" "+oy+" h120 ";                  // shirorekha (top bar)
+    var x = ox+6;
+    var segs = [
+      " M"+(ox+8)+" "+oy+" v16 q0 7 7 7",
+      " M"+(ox+26)+" "+oy+" v18",
+      " M"+(ox+40)+" "+oy+" c0 14 12 16 12 4 q0 -8 -6 -8",
+      " M"+(ox+62)+" "+oy+" v16 q0 8 8 6",
+      " M"+(ox+80)+" "+oy+" v17",
+      " M"+(ox+94)+" "+oy+" c0 14 12 15 12 3",
+      " M"+(ox+114)+" "+oy+" v16"
+    ];
+    return d + segs.join("");
+  }
+  // Tamil : flowing loops and curls
+  function tamil(ox, oy){
+    return  "M"+ox+" "+oy+" q8 -12 16 0 q8 12 16 0 "
+          + "M"+(ox+38)+" "+(oy-7)+" a7 7 0 1 0 0.1 0 "
+          + "M"+(ox+54)+" "+(oy-9)+" q10 16 0 18 q-6 1 -6 -6 "
+          + "M"+(ox+72)+" "+(oy-8)+" q11 4 4 14 q-3 4 -9 1 "
+          + "M"+(ox+92)+" "+(oy-9)+" v18 q0 6 8 5 "
+          + "M"+(ox+108)+" "+(oy-9)+" q8 9 0 18";
+  }
+  // Telugu : round bowls each with a small head-tick
+  function telugu(ox, oy){
+    var s=""; var xs=[0,22,44,66,88,108];
+    for(var i=0;i<xs.length;i++){
+      var x=ox+xs[i];
+      s += "M"+x+" "+oy+" a7 7 0 1 0 0.1 0 ";        // bowl
+      s += "M"+x+" "+(oy-7)+" v-5 ";                   // head-tick
+      if(i%2===0) s += "M"+(x+6)+" "+(oy+7)+" q4 5 0 9 "; // descender curl
+    }
+    return s;
+  }
+
+  var rows = [
+    { name:"DEVANAGARI", path:devanagari(50,140), bx:46, by:126, bw:130, bh:28 },
+    { name:"TAMIL",      path:tamil(52,188),       bx:46, by:170, bw:124, bh:30 },
+    { name:"TELUGU",     path:telugu(50,226),      bx:46, by:212, bw:128, bh:28 }
+  ];
+  var glyphNodes = [], bboxNodes = [];
+  for(var r=0;r<rows.length;r++){
+    var p = el('path', { d:rows[r].path, fill:'none', stroke:'var(--ink)', 'stroke-width':1.8,
+                         'stroke-linecap':'round','stroke-linejoin':'round', opacity:0.92 });
+    glyphLayer.appendChild(p); glyphNodes.push(p);
+    var bb = el('rect', { x:rows[r].bx, y:rows[r].by, width:rows[r].bw, height:rows[r].bh, rx:3,
+                          fill:'none', stroke:'var(--accent2)', 'stroke-width':1.4,
+                          'stroke-dasharray':'4 3', opacity:0.0 });
+    bboxLayer.appendChild(bb);
+    var lab = el('text', { x:rows[r].bx+rows[r].bw-2, y:rows[r].by-3, 'text-anchor':'end',
+                           'font-family':'system-ui,sans-serif','font-size':7.5,'letter-spacing':'1px',
+                           'font-weight':700, fill:'var(--accent2)', opacity:0 });
+    lab.textContent = rows[r].name;
+    bboxLayer.appendChild(lab);
+    bboxNodes.push({box:bb, lab:lab, mid:rows[r].by+rows[r].bh/2, top:rows[r].by, bot:rows[r].by+rows[r].bh});
+  }
+
+  // ================= STAGE 2 : vector space + ANN =================
+  var QX=352, QY=178;                       // query vector position
+  var ptCoords = [
+    [276,142],[306,128],[336,150],[362,136],[396,150],[426,160],
+    [268,182],[316,176],[378,176],[412,200],[436,186],
+    [292,216],[348,224],[404,228],[430,214]
+  ];
+  var annPointsG = document.getElementById('annPoints');
+  var annLinksG  = document.getElementById('annLinks');
+  var annRingsG  = document.getElementById('annRings');
+  var queryG     = document.getElementById('queryPt');
+
+  var pts = [];
+  for(var i=0;i<ptCoords.length;i++){
+    var c = el('circle', { cx:ptCoords[i][0], cy:ptCoords[i][1], r:2.8,
+                           fill:'var(--muted)', opacity:0.75 });
+    annPointsG.appendChild(c);
+    var dx=ptCoords[i][0]-QX, dy=ptCoords[i][1]-QY;
+    pts.push({ node:c, x:ptCoords[i][0], y:ptCoords[i][1], dist:Math.sqrt(dx*dx+dy*dy) });
+  }
+  // determine top-k nearest neighbours
+  var K=4;
+  var order = pts.slice().sort(function(a,b){ return a.dist-b.dist; });
+  var topk = order.slice(0,K);
+  var cosVals = [0.94,0.91,0.88,0.85];      // displayed cosine similarities (descending)
+
+  var ringNodes=[], linkNodes=[];
+  for(var k=0;k<K;k++){
+    var ln = el('line', { x1:QX, y1:QY, x2:topk[k].x, y2:topk[k].y,
+                          stroke:'var(--accent)', 'stroke-width':1.2,
+                          'stroke-dasharray':'3 3', opacity:0 });
+    annLinksG.appendChild(ln); linkNodes.push(ln);
+    var rg = el('circle', { cx:topk[k].x, cy:topk[k].y, r:7, fill:'none',
+                            stroke:'var(--accent)', 'stroke-width':1.5, opacity:0 });
+    annRingsG.appendChild(rg); ringNodes.push(rg);
+  }
+  // query vector marker (diamond + glow)
+  queryG.appendChild(el('circle',{cx:QX,cy:QY,r:9,fill:'var(--accent2)',opacity:0.18}));
+  var qd = el('rect',{x:QX-4,y:QY-4,width:8,height:8,fill:'var(--accent2)',
+                      transform:'rotate(45 '+QX+' '+QY+')'});
+  queryG.appendChild(qd);
+
+  // cosine ranking list (4 rows under the panel)
+  var rankG = document.getElementById('rankList');
+  var rankBars=[], rankNums=[];
+  var RLX=250, RLY=290, RW=140;
+  for(var rr=0;rr<K;rr++){
+    var y = RLY + rr*15;
+    rankG.appendChild(el('text',{x:RLX, y:y+7, 'font-family':'system-ui,sans-serif',
+        'font-size':8.5,'font-weight':700,fill:'var(--muted)', }))
+        .textContent = "#"+(rr+1);
+    rankG.appendChild(el('rect',{x:RLX+18,y:y,width:RW,height:7,rx:3.5,fill:'var(--line)',opacity:0.5}));
+    var bar = el('rect',{x:RLX+18,y:y,width:0,height:7,rx:3.5,fill:'url(#barGrad)'});
+    rankG.appendChild(bar); rankBars.push(bar);
+    var nt = el('text',{x:RLX+18+RW+4,y:y+7,'font-family':'system-ui,sans-serif',
+        'font-size':9,'font-weight':600,fill:'var(--ink)','font-variant-numeric':'tabular-nums'});
+    nt.textContent="0.00"; rankG.appendChild(nt); rankNums.push(nt);
+  }
+
+  // ================= STAGE 3 : ReAct cycle =================
+  var reactG = document.getElementById('react');
+  var RCX=561, RCY=170, RR=40;
+  var nodes = [
+    { key:'T', label:'THOUGHT',     a:-Math.PI/2 },
+    { key:'A', label:'ACTION',      a:-Math.PI/2 + 2*Math.PI/3 },
+    { key:'O', label:'OBSERVATION', a:-Math.PI/2 + 4*Math.PI/3 }
+  ];
+  for(var n=0;n<3;n++){
+    nodes[n].x = RCX + Math.cos(nodes[n].a)*RR;
+    nodes[n].y = RCY + Math.sin(nodes[n].a)*RR;
+  }
+  // curved arrows T->A->O->T
+  var arcNodes=[];
+  for(var n=0;n<3;n++){
+    var f=nodes[n], t=nodes[(n+1)%3];
+    var mx=(f.x+t.x)/2 - (RCX-(f.x+t.x)/2)*0.45;
+    var my=(f.y+t.y)/2 - (RCY-(f.y+t.y)/2)*0.45;
+    var arc = el('path',{ d:"M"+f.x.toFixed(1)+" "+f.y.toFixed(1)+" Q"+mx.toFixed(1)+" "+my.toFixed(1)+" "+t.x.toFixed(1)+" "+t.y.toFixed(1),
+                          fill:'none', stroke:'var(--line)','stroke-width':1.4,
+                          'stroke-dasharray':'4 4','stroke-linecap':'round', opacity:0.8 });
+    reactG.appendChild(arc); arcNodes.push(arc);
+  }
+  // RAG context arrow into the loop centre
+  reactG.appendChild(el('text',{x:RCX,y:138,'text-anchor':'middle','font-family':'system-ui,sans-serif',
+      'font-size':8,'letter-spacing':'1px','font-weight':600,fill:'var(--muted)'})).textContent="CONTEXT";
+  var nodeNodes=[];
+  for(var n=0;n<3;n++){
+    var g=el('g',{});
+    var circ=el('circle',{cx:nodes[n].x,cy:nodes[n].y,r:13,fill:'var(--accent)','fill-opacity':0.08,
+                          stroke:'var(--ink)','stroke-width':1.4});
+    var key=el('text',{x:nodes[n].x,y:nodes[n].y+4,'text-anchor':'middle',
+                       'font-family':'system-ui,sans-serif','font-size':12,'font-weight':700,fill:'var(--ink)'});
+    key.textContent=nodes[n].key;
+    g.appendChild(circ); g.appendChild(key);
+    reactG.appendChild(g);
+    nodeNodes.push({circ:circ,key:key});
+  }
+  var stepLabel = el('text',{x:RCX,y:RCY+4,'text-anchor':'middle','font-family':'system-ui,sans-serif',
+      'font-size':8.5,'letter-spacing':'1.2px','font-weight':700,fill:'var(--accent)'});
+  reactG.appendChild(stepLabel);
+
+  // ================= STAGE 4 : RAGAS gauge =================
+  var gaugeFill = document.getElementById('gaugeFill');
+  var needle    = document.getElementById('needle');
+  var gaugeNum  = document.getElementById('gaugeNum');
+  var mFaith    = document.getElementById('mFaith');
+  var mRel      = document.getElementById('mRel');
+  var GCX=726, GCY=188, GR=42;
+  function gaugeArc(frac){
+    // semicircle from 180deg (left) sweeping to 0deg (right)
+    var a0=Math.PI, a1=Math.PI*(1-clamp(frac,0,1));
+    var x0=GCX+Math.cos(a0)*GR, y0=GCY+Math.sin(a0)*-GR;
+    var x1=GCX+Math.cos(a1)*GR, y1=GCY+Math.sin(a1)*-GR;
+    var large=0;
+    return "M"+x0.toFixed(1)+" "+y0.toFixed(1)+" A"+GR+" "+GR+" 0 "+large+" 1 "+x1.toFixed(1)+" "+y1.toFixed(1);
+  }
+
+  // ---------- flow tokens along connectors ----------
+  var conns = [
+    document.getElementById('conn0'),
+    document.getElementById('conn1'),
+    document.getElementById('conn2')
+  ];
+  var connLen = conns.map(function(c){ return c.getTotalLength(); });
+  var flowG = document.getElementById('flow');
+  var tokens=[];
+  for(var ci=0; ci<3; ci++){
+    for(var j=0;j<3;j++){
+      var c=el('circle',{r:2.4, fill:(ci===2?'var(--accent2)':'var(--accent)'), opacity:0});
+      flowG.appendChild(c);
+      tokens.push({node:c, conn:ci, off:j/3});
+    }
+  }
+
+  // ===================== RENDER =====================
+  var LOOP = 10000; // ms — fast technical loop
+
+  function render(now){
+    var t = (now % LOOP) / LOOP;            // master phase 0..1
+    var sec = now/1000;
+
+    // ---- OCR scan ----
+    var sweep = (t*1.6)%1;                   // continuous downward sweep
+    var sy = lerp(116, 300, sweep);
+    document.getElementById('scanline').setAttribute('y', sy.toFixed(1));
+    document.getElementById('scanglow').setAttribute('y', (sy-10).toFixed(1));
+    for(var b=0;b<bboxNodes.length;b++){
+      var bn=bboxNodes[b];
+      var hit = (sy>bn.top-6 && sy<bn.bot+6);
+      var op = hit?0.95:0.2;
+      bn.box.setAttribute('opacity', op.toFixed(2));
+      bn.lab.setAttribute('opacity', (hit?0.95:0).toFixed(2));
+      bn.box.setAttribute('stroke', hit?'var(--accent)':'var(--accent2)');
+      // glyph emphasises when scanned
+      glyphNodes[b].setAttribute('stroke', hit?'var(--accent)':'var(--ink)');
+    }
+
+    // ---- flowing tokens ----
+    for(var i=0;i<tokens.length;i++){
+      var tk=tokens[i];
+      var u=((sec*0.35)+tk.off)%1;
+      var pt=conns[tk.conn].getPointAtLength(u*connLen[tk.conn]);
+      tk.node.setAttribute('cx', pt.x.toFixed(1));
+      tk.node.setAttribute('cy', pt.y.toFixed(1));
+      tk.node.setAttribute('opacity', (Math.sin(u*Math.PI)*0.9).toFixed(2));
+    }
+
+    // ---- ANN points twinkle + neighbour reveal ----
+    for(var p=0;p<pts.length;p++){
+      pts[p].node.setAttribute('r', (2.6+0.6*Math.sin(sec*3+p)).toFixed(2));
+    }
+    // neighbours sweep in during stage-2 window, stay lit
+    var annOn = smooth((t-0.22)/0.18);
+    for(var k=0;k<K;k++){
+      var kr = 6 + 1.6*Math.sin(sec*4 + k*1.3);
+      ringNodes[k].setAttribute('r', kr.toFixed(2));
+      ringNodes[k].setAttribute('opacity', (annOn*0.95).toFixed(2));
+      linkNodes[k].setAttribute('opacity', (annOn*0.8).toFixed(2));
+      topk[k].node.setAttribute('fill', annOn>0.4?'var(--accent)':'var(--muted)');
+      // ranking bars fill
+      var bw = RW*cosVals[k]*annOn;
+      rankBars[k].setAttribute('width', bw.toFixed(1));
+      rankNums[k].textContent = (cosVals[k]*annOn).toFixed(2);
+    }
+
+    // ---- ReAct cycle ----
+    var stepF = (sec/0.9);                   // ~0.9s per step
+    var active = Math.floor(stepF)%3;
+    var localF = stepF - Math.floor(stepF);
+    for(var n=0;n<3;n++){
+      var on = (n===active);
+      nodeNodes[n].circ.setAttribute('fill', on?'var(--accent)':'var(--accent)');
+      nodeNodes[n].circ.setAttribute('fill-opacity', on?0.85:0.08);
+      nodeNodes[n].circ.setAttribute('stroke', on?'var(--accent)':'var(--ink)');
+      nodeNodes[n].key.setAttribute('fill', on?(theme==='ivory'?'#fff':'#1a1714'):'var(--ink)');
+    }
+    stepLabel.textContent = nodes[active].label;
+    // active arc pulses
+    for(var a=0;a<3;a++){
+      arcNodes[a].setAttribute('stroke', a===active?'var(--accent)':'var(--line)');
+      arcNodes[a].setAttribute('opacity', a===active?(0.6+0.4*Math.sin(localF*Math.PI)):0.45);
+    }
+    // answer chip appears late in loop
+    var ansOn = smooth((t-0.72)/0.12);
+    document.getElementById('ansChip').setAttribute('opacity', (ansOn*0.18).toFixed(2));
+    document.getElementById('ansChip').setAttribute('width', (130*ansOn).toFixed(1));
+    document.getElementById('ansTxt').setAttribute('opacity', ansOn.toFixed(2));
+
+    // ---- RAGAS gauge ticks up ----
+    var gv = easeOut((t-0.30)/0.55);         // ramps then holds
+    var faith = 0.94*gv, rel = 0.89*gv, score = 0.92*gv;
+    gaugeFill.setAttribute('d', gaugeArc(score/1.0));
+    var ang = Math.PI*(1-score);             // needle angle
+    needle.setAttribute('x2', (GCX+Math.cos(ang)*(GR-6)).toFixed(1));
+    needle.setAttribute('y2', (GCY - Math.sin(ang)*(GR-6)).toFixed(1));
+    gaugeNum.textContent = score.toFixed(2);
+    mFaith.setAttribute('width', (100*faith).toFixed(1));
+    mRel.setAttribute('width', (100*rel).toFixed(1));
+
+    rafId = requestAnimationFrame(render);
+  }
+
+  var rafId;
+  if(reduce){
+    // STATIC representative frame (phase ~0.62: ANN lit, ReAct on ACTION, gauge ~0.5)
+    render(6200);
+    cancelAnimationFrame(rafId);
+    // pin a clean static state
+    document.getElementById('scanline').setAttribute('y','198');
+    document.getElementById('scanglow').setAttribute('y','188');
+    bboxNodes[1].box.setAttribute('opacity','0.95');
+    bboxNodes[1].box.setAttribute('stroke','var(--accent)');
+    bboxNodes[1].lab.setAttribute('opacity','0.95');
+    for(var k2=0;k2<K;k2++){
+      ringNodes[k2].setAttribute('opacity','0.95'); ringNodes[k2].setAttribute('r','6.5');
+      linkNodes[k2].setAttribute('opacity','0.8');
+      topk[k2].node.setAttribute('fill','var(--accent)');
+      rankBars[k2].setAttribute('width',(140*cosVals[k2]).toFixed(1));
+      rankNums[k2].textContent=cosVals[k2].toFixed(2);
+    }
+  } else {
+    rafId = requestAnimationFrame(render);
+  }
+})();
+</script>
+</body>
+</html>

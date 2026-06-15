@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indic Text-to-Speech</title>
+<style>
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+
+  :root{
+    /* default: charcoal */
+    --ink:#f4f1e7; --muted:#968f82; --accent:#c9a86a; --accent2:#c5905f; --line:#34363b;
+  }
+  :root[data-theme="teal"]{
+    --ink:#ecd6ad; --muted:#a99b7f; --accent:#d3a05f; --accent2:#dca569; --line:#2c5b56;
+  }
+  :root[data-theme="ivory"]{
+    --ink:#1a1714; --muted:#6e655c; --accent:#b9532f; --accent2:#b9532f; --line:#d9ccb8;
+  }
+
+  .stage{width:100%;height:100%;display:block}
+
+  /* ---- shared stroke styling ---- */
+  .ink     { stroke:var(--ink);    }
+  .muted   { stroke:var(--muted);  }
+  .line    { stroke:var(--line);   }
+  .accent  { stroke:var(--accent); }
+  .accent2 { stroke:var(--accent2);}
+  .fill-accent { fill:var(--accent);}
+  .fill-ink    { fill:var(--ink);   }
+
+  .cap{
+    font-family:system-ui,-apple-system,sans-serif;
+    fill:var(--muted);
+    font-size:11px;
+    letter-spacing:3px;
+    font-weight:600;
+    text-transform:uppercase;
+  }
+
+  /* GPU friendliness */
+  .stage *{will-change:transform,opacity}
+
+  @media (prefers-reduced-motion: reduce){
+    .anim{animation:none !important;}
+    .reduce-show{opacity:1 !important;}
+  }
+</style>
+</head>
+<body>
+<svg class="stage" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet"
+     role="img"
+     aria-label="Animation of multilingual Indic scripts flowing into a text-to-speech model that emits speech waveforms, alongside an animated benchmark leaderboard comparing architectures.">
+  <defs>
+    <!-- soft accent glow -->
+    <radialGradient id="glowCore" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="var(--accent)" stop-opacity="0.55"/>
+      <stop offset="45%" stop-color="var(--accent)" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="fadeLeft" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"  stop-color="var(--accent)" stop-opacity="0"/>
+      <stop offset="100%" stop-color="var(--accent)" stop-opacity="1"/>
+    </linearGradient>
+
+    <linearGradient id="modelFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="var(--accent)"  stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="var(--accent2)" stop-opacity="0.03"/>
+    </linearGradient>
+
+    <linearGradient id="barGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%"  stop-color="var(--accent2)"/>
+      <stop offset="100%" stop-color="var(--accent)"/>
+    </linearGradient>
+
+    <filter id="soft" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3.2"/>
+    </filter>
+    <filter id="softBig" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+
+    <!-- clip for model interior shimmer -->
+    <clipPath id="modelClip">
+      <rect x="332" y="196" width="136" height="108" rx="14"/>
+    </clipPath>
+
+    <!-- clip for benchmark scan -->
+    <clipPath id="benchClip">
+      <rect x="560" y="372" width="196" height="98" rx="8"/>
+    </clipPath>
+  </defs>
+
+  <!-- ============ AMBIENT GLOW ============ -->
+  <ellipse cx="400" cy="250" rx="240" ry="160" fill="url(#glowCore)" opacity="0.9">
+    <animate class="anim" attributeName="opacity" values="0.7;1;0.7" dur="9s" repeatCount="indefinite"/>
+  </ellipse>
+
+  <!-- faint structural grid lines -->
+  <g class="line" stroke-width="1" opacity="0.35" fill="none">
+    <line x1="40" y1="100" x2="760" y2="100"/>
+    <line x1="40" y1="400" x2="760" y2="400"/>
+  </g>
+
+  <!-- ============ FLOW PARTICLES (scripts -> model) ============ -->
+  <g id="flowL" fill="var(--accent)"></g>
+
+  <!-- ============ FLOW PARTICLES (model -> speech) ============ -->
+  <g id="flowR" fill="var(--accent2)"></g>
+
+  <!-- ============ LEFT: INDIC SCRIPT GLYPHS ============ -->
+  <!-- Each glyph travels left->right toward the model, then fades; abstract calligraphic strokes -->
+  <g id="glyphs" fill="none" stroke-linecap="round" stroke-linejoin="round"></g>
+
+  <!-- ============ CENTER: TTS MODEL BLOCK ============ -->
+  <g id="model">
+    <!-- outer soft glow -->
+    <rect x="332" y="196" width="136" height="108" rx="14"
+          fill="var(--accent)" opacity="0.10" filter="url(#softBig)"/>
+    <!-- body -->
+    <rect x="332" y="196" width="136" height="108" rx="14"
+          fill="url(#modelFill)" stroke="var(--ink)" stroke-width="1.6" opacity="0.95"/>
+
+    <!-- internal attention shimmer (clipped) -->
+    <g clip-path="url(#modelClip)" opacity="0.9">
+      <!-- attention node lattice -->
+      <g id="attn" stroke="var(--accent)" stroke-width="0.8" opacity="0.55" fill="none"></g>
+      <!-- sweeping shimmer band -->
+      <rect id="shimmer" x="-60" y="196" width="60" height="108" fill="var(--accent)" opacity="0.12"/>
+      <!-- central pulse -->
+      <circle id="corePulse" cx="400" cy="250" r="10" fill="var(--accent)" opacity="0.5"/>
+    </g>
+
+    <!-- model inner border accent -->
+    <rect x="340" y="204" width="120" height="92" rx="10"
+          fill="none" stroke="var(--line)" stroke-width="1" opacity="0.7"/>
+
+    <text x="400" y="332" text-anchor="middle" class="cap">TTS</text>
+  </g>
+
+  <!-- ============ RIGHT: SPEECH WAVEFORMS ============ -->
+  <g id="waves" fill="none" stroke-linecap="round"></g>
+
+  <!-- ============ BENCHMARK PANEL ============ -->
+  <g id="bench">
+    <rect x="560" y="372" width="196" height="98" rx="8"
+          fill="none" stroke="var(--line)" stroke-width="1.2" opacity="0.8"/>
+    <!-- baseline -->
+    <line x1="572" y1="452" x2="744" y2="452" class="muted" stroke-width="1" opacity="0.6"/>
+    <g id="bars"></g>
+    <!-- scan line (clipped to panel) -->
+    <g clip-path="url(#benchClip)">
+      <rect id="scan" x="560" y="372" width="14" height="98"
+            fill="var(--accent)" opacity="0.10"/>
+    </g>
+    <text x="658" y="392" text-anchor="middle" class="cap" style="font-size:10px">BENCHMARK</text>
+  </g>
+
+  <!-- ============ CAPTIONS ============ -->
+  <text x="92"  y="430" text-anchor="middle" class="cap">SCRIPTS</text>
+  <text x="585" y="200" text-anchor="middle" class="cap">SPEECH</text>
+</svg>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- THEME ----------
+  var params = new URLSearchParams(location.search);
+  var theme = (params.get('theme')||'charcoal').toLowerCase();
+  if(['charcoal','teal','ivory'].indexOf(theme)===-1) theme='charcoal';
+  document.documentElement.setAttribute('data-theme', theme);
+
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function el(name, attrs){
+    var e = document.createElementNS(SVGNS, name);
+    if(attrs) for(var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  // ---------- GLYPH SHAPES (abstract Indic calligraphy) ----------
+  // Drawn relative to an origin; we translate the whole <g> to animate.
+  // Each entry: array of path "d" strings (sub-strokes). Designed within ~ -22..22 box.
+  var GLYPHS = [
+    // Devanagari-like: top bar + descending hook + loop
+    [ "M -20 -18 L 20 -18",                       // top bar (shirorekha)
+      "M -10 -18 C -14 -2 -6 8 2 6 C 12 4 12 -8 4 -10",
+      "M 12 -18 L 12 14 C 12 20 6 22 0 20" ],
+    // Tamil/Kannada-like: rounded loops
+    [ "M -16 -8 C -22 6 -8 20 4 12 C 14 6 10 -8 0 -10 C -8 -12 -14 -6 -12 2",
+      "M 10 -16 C 18 -10 18 6 8 12" ],
+    // Devanagari-like with vertical + curl
+    [ "M -18 -18 L 18 -18",
+      "M -2 -18 L -2 16",
+      "M -2 2 C -2 14 8 20 16 14 C 20 11 18 4 12 4" ],
+    // Telugu-like: rounded headmark + descender curve
+    [ "M -8 -16 C -2 -22 8 -18 6 -10",
+      "M -16 -4 C -18 10 -4 20 8 12 C 16 7 12 -8 0 -8 C -10 -8 -16 -2 -16 6",
+      "M 10 8 C 14 14 20 14 22 8" ],
+    // Bengali-like: top bar + open loop + tail
+    [ "M -20 -16 L 16 -16",
+      "M 8 -16 C 8 0 8 10 0 14 C -10 19 -20 10 -16 0 C -13 -7 -4 -7 -2 0",
+      "M 16 -16 L 16 10" ]
+  ];
+
+  // subtle real unicode enhancement (drawn fallback always present underneath)
+  var UNI = ["अ","ক","த","క","ম"];
+
+  var glyphLayer = document.getElementById('glyphs');
+  var waveLayer  = document.getElementById('waves');
+  var attnLayer  = document.getElementById('attn');
+  var flowL      = document.getElementById('flowL');
+  var flowR      = document.getElementById('flowR');
+  var barsLayer  = document.getElementById('bars');
+
+  var N = GLYPHS.length;
+  // vertical lanes on the left
+  var laneY = [150, 190, 230, 270, 310];
+  // remap to balanced spread
+  laneY = [150, 195, 245, 295, 340];
+
+  // ---------- BUILD GLYPHS ----------
+  var glyphNodes = [];
+  for(var i=0;i<N;i++){
+    var g = el('g', {opacity:0});
+    var hue = (i%2===0) ? 'var(--ink)' : 'var(--accent)';
+    var strokes = GLYPHS[i];
+    var totalLen = [];
+    for(var s=0;s<strokes.length;s++){
+      var p = el('path', {
+        d: strokes[s],
+        fill:'none',
+        stroke: hue,
+        'stroke-width': 2.4,
+        'stroke-linecap':'round',
+        'stroke-linejoin':'round'
+      });
+      g.appendChild(p);
+    }
+    // subtle unicode glyph behind, very faint
+    var t = el('text', {
+      x:0, y:8, 'text-anchor':'middle',
+      'font-family':'system-ui,-apple-system,sans-serif',
+      'font-size':30, fill:'var(--muted)', opacity:0.0
+    });
+    t.textContent = UNI[i];
+    g.insertBefore(t, g.firstChild);
+    glyphLayer.appendChild(g);
+    glyphNodes.push({node:g, lane:laneY[i], idx:i});
+  }
+
+  // ---------- BUILD ATTENTION LATTICE ----------
+  var attnPts = [];
+  for(var ay=210; ay<=290; ay+=26){
+    for(var ax=346; ax<=454; ax+=27){
+      attnPts.push({x:ax,y:ay});
+      attnLayer.appendChild(el('circle',{cx:ax,cy:ay,r:1.6,fill:'var(--accent)',stroke:'none'}));
+    }
+  }
+  // a few connecting lines
+  for(var c=0;c<10;c++){
+    var a = attnPts[(c*7)%attnPts.length];
+    var b = attnPts[(c*7+5)%attnPts.length];
+    attnLayer.appendChild(el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,'stroke-width':0.6}));
+  }
+  var attnCircles = attnLayer.querySelectorAll('circle');
+
+  // ---------- BUILD WAVEFORMS ----------
+  // Five horizontal waveform paths emanating to the right of the model.
+  var WAVE_X0 = 478, WAVE_X1 = 752, WAVE_PTS = 60;
+  var waveCfg = [
+    {y:148, color:'var(--accent)',  amp:13, freq:3.0, sp:1.0},
+    {y:188, color:'var(--ink)',     amp:10, freq:4.2, sp:1.3},
+    {y:228, color:'var(--accent2)', amp:15, freq:2.4, sp:0.8},
+    {y:268, color:'var(--ink)',     amp:9,  freq:5.0, sp:1.6},
+    {y:308, color:'var(--accent)',  amp:12, freq:3.6, sp:1.1}
+  ];
+  var wavePaths = [];
+  for(var w=0; w<waveCfg.length; w++){
+    var pth = el('path', {
+      fill:'none', stroke: waveCfg[w].color,
+      'stroke-width': (w===2?2.2:1.6),
+      'stroke-linecap':'round',
+      opacity:0.85
+    });
+    waveLayer.appendChild(pth);
+    wavePaths.push(pth);
+  }
+  // connector lines from model to waveforms
+  for(var w2=0; w2<waveCfg.length; w2++){
+    waveLayer.insertBefore(el('line',{
+      x1:468, y1:250, x2:WAVE_X0, y2:waveCfg[w2].y,
+      stroke:'var(--line)','stroke-width':1, opacity:0.4
+    }), waveLayer.firstChild);
+  }
+
+  // ---------- BUILD BENCHMARK BARS ----------
+  var barBaseY = 452, barTop = 402, barW = 16;
+  var barXs = [588, 618, 648, 678, 708, 738];
+  var barTargets = [0.42, 0.66, 0.85, 0.58, 0.95, 0.74];
+  var barNodes = [];
+  for(var bi=0; bi<barXs.length; bi++){
+    var r = el('rect', {
+      x: barXs[bi]-barW/2, y: barBaseY, width: barW, height: 0,
+      rx:3, fill:'url(#barGrad)', opacity:0.9
+    });
+    barsLayer.appendChild(r);
+    barNodes.push(r);
+  }
+
+  // ---------- PARTICLES ----------
+  function makeParticles(layer, count){
+    var arr=[];
+    for(var i=0;i<count;i++){
+      var c = el('circle',{r: (Math.random()*1.4+0.6).toFixed(2), opacity:0});
+      layer.appendChild(c);
+      arr.push({node:c, off:Math.random(), sp:0.10+Math.random()*0.10, lane:Math.random()});
+    }
+    return arr;
+  }
+  var partsL = makeParticles(flowL, 26);
+  var partsR = makeParticles(flowR, 26);
+
+  var shimmer   = document.getElementById('shimmer');
+  var corePulse = document.getElementById('corePulse');
+  var scan      = document.getElementById('scan');
+
+  // ---------- EASING ----------
+  function easeInOut(t){ return t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
+  function smooth(t){ return t*t*(3-2*t); }
+
+  // ---------- TIMELINE ----------
+  var LOOP = 16000; // ms
+
+  function setGlyph(g, t){
+    // glyph travels from x=70 (left) to x=300 (model edge), with ease;
+    // appears, then fades as it enters the model.
+    // stagger per index
+    var stagger = (g.idx / N) * 0.5;
+    var lt = (t - stagger);
+    lt = lt - Math.floor(lt); // wrap 0..1
+    // we want a clear left->right pass each loop; use a single pass mapped over 0..0.78
+    var prog = Math.min(1, lt/0.82);
+    var e = easeInOut(prog);
+    var x = 70 + e * 232;            // 70 -> 302
+    var y = g.lane + Math.sin((t*Math.PI*2)+(g.idx))*4;
+    // opacity envelope: fade in 0..0.12, hold, fade out near model 0.7..0.9
+    var op;
+    if(prog<0.12) op = prog/0.12;
+    else if(prog>0.74) op = Math.max(0, 1-(prog-0.74)/0.18);
+    else op = 1;
+    var scale = 0.85 + 0.25*e;
+    g.node.setAttribute('transform','translate('+x.toFixed(2)+','+y.toFixed(2)+') scale('+scale.toFixed(3)+')');
+    g.node.setAttribute('opacity', (op*0.96).toFixed(3));
+    // faint unicode reveal at mid travel
+    var txt = g.node.querySelector('text');
+    if(txt) txt.setAttribute('opacity', (op*0.18).toFixed(3));
+  }
+
+  function setWave(p, cfg, t){
+    var d='';
+    var phase = t*Math.PI*2*cfg.sp;
+    // amplitude envelope grows from model toward right then settles (breathing)
+    var breath = 0.7 + 0.3*Math.sin(t*Math.PI*2 + cfg.y);
+    for(var i=0;i<=WAVE_PTS;i++){
+      var u = i/WAVE_PTS;
+      var x = WAVE_X0 + u*(WAVE_X1-WAVE_X0);
+      // taper amplitude at both ends
+      var taper = Math.sin(u*Math.PI);
+      var amp = cfg.amp * breath * taper;
+      var yy = cfg.y + Math.sin(u*Math.PI*2*cfg.freq + phase)*amp
+                     + Math.sin(u*Math.PI*2*cfg.freq*0.5 - phase*0.7)*amp*0.35;
+      d += (i===0?'M':'L')+x.toFixed(1)+' '+yy.toFixed(1)+' ';
+    }
+    p.setAttribute('d', d);
+  }
+
+  function setParticles(parts, t, x0, x1, ycenter, yspread, dir){
+    for(var i=0;i<parts.length;i++){
+      var pr = parts[i];
+      var u = (t*pr.sp*4 + pr.off) % 1;
+      var e = u;
+      var x = x0 + (x1-x0)*e;
+      var y = ycenter + (pr.lane-0.5)*yspread + Math.sin((u*6.28)+i)*5;
+      pr.node.setAttribute('cx', x.toFixed(1));
+      pr.node.setAttribute('cy', y.toFixed(1));
+      // fade in/out at ends
+      var op = Math.sin(u*Math.PI)*0.6;
+      pr.node.setAttribute('opacity', op.toFixed(3));
+    }
+  }
+
+  function render(now){
+    var t = (now % LOOP) / LOOP; // 0..1
+
+    // glyphs
+    for(var i=0;i<glyphNodes.length;i++) setGlyph(glyphNodes[i], t);
+
+    // waveforms
+    for(var w=0;w<wavePaths.length;w++) setWave(wavePaths[w], waveCfg[w], t);
+
+    // model shimmer sweep
+    var sx = 332 + ((t*1.0)%1)*150 - 60;
+    shimmer.setAttribute('x', sx.toFixed(1));
+    // core pulse
+    var pr = 8 + Math.sin(t*Math.PI*2*2)*5;
+    corePulse.setAttribute('r', pr.toFixed(2));
+    corePulse.setAttribute('opacity', (0.35 + 0.25*Math.sin(t*Math.PI*2*2)).toFixed(3));
+    // attention nodes twinkle
+    for(var a=0;a<attnCircles.length;a++){
+      var tw = 0.3 + 0.7*Math.abs(Math.sin(t*Math.PI*2*1.5 + a*0.6));
+      attnCircles[a].setAttribute('opacity', tw.toFixed(3));
+    }
+
+    // particles
+    setParticles(partsL, t, 95, 330, 245, 200, 1);
+    setParticles(partsR, t, 470, 750, 230, 180, 1);
+
+    // benchmark bars (rise with stagger, gentle bob)
+    for(var b=0;b<barNodes.length;b++){
+      var bs = (b/barNodes.length)*0.3;
+      var bt = (t - bs); bt = bt - Math.floor(bt);
+      var grow = smooth(Math.min(1, bt/0.4));
+      var bob = 1 + 0.04*Math.sin(t*Math.PI*2*2 + b);
+      var full = (barBaseY - barTop) * barTargets[b] * bob;
+      var h = full * grow;
+      barNodes[b].setAttribute('height', h.toFixed(1));
+      barNodes[b].setAttribute('y', (barBaseY - h).toFixed(1));
+    }
+    // scan line
+    var scx = 560 + ((t*1.0)%1)*196 - 14;
+    scan.setAttribute('x', scx.toFixed(1));
+
+    rafId = requestAnimationFrame(render);
+  }
+
+  var rafId;
+  if(reduce){
+    // STATIC tasteful final frame
+    // pick a representative time
+    var T = 0.62;
+    for(var i=0;i<glyphNodes.length;i++) setGlyph(glyphNodes[i], (i/N)*0.16 + 0.45);
+    for(var w=0;w<wavePaths.length;w++) setWave(wavePaths[w], waveCfg[w], 0.25);
+    shimmer.setAttribute('opacity','0.06');
+    corePulse.setAttribute('r','10');
+    corePulse.setAttribute('opacity','0.45');
+    for(var a=0;a<attnCircles.length;a++) attnCircles[a].setAttribute('opacity','0.5');
+    for(var b=0;b<barNodes.length;b++){
+      var full = (barBaseY - barTop) * barTargets[b];
+      barNodes[b].setAttribute('height', full.toFixed(1));
+      barNodes[b].setAttribute('y', (barBaseY-full).toFixed(1));
+    }
+    scan.setAttribute('opacity','0.06');
+    // show particles faintly static
+    setParticles(partsL, 0.3, 95, 330, 245, 200, 1);
+    setParticles(partsR, 0.5, 470, 750, 230, 180, 1);
+  } else {
+    rafId = requestAnimationFrame(render);
+  }
+})();
+</script>
+</body>
+</html>

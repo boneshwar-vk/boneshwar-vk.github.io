@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inductive GNN scRNA-seq imputation & clustering</title>
+<style>
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+  :root{
+    --ink:#f4f1e7; --muted:#968f82; --accent:#c9a86a; --accent2:#c5905f; --line:#34363b;
+  }
+  :root.teal{
+    --ink:#ecd6ad; --muted:#a99b7f; --accent:#d3a05f; --accent2:#dca569; --line:#2c5b56;
+  }
+  :root.ivory{
+    --ink:#1a1714; --muted:#6e655c; --accent:#b9532f; --accent2:#b9532f; --line:#d9ccb8;
+  }
+  svg{width:100%;height:100%;display:block;font-family:system-ui,sans-serif}
+  .lab{fill:var(--muted);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+  .ttl{fill:var(--ink);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:600}
+  .val{fill:var(--accent);font-size:11px;letter-spacing:.04em;font-weight:600}
+  .axis{stroke:var(--line);stroke-width:1}
+  .frame{fill:none;stroke:var(--line);stroke-width:1}
+</style>
+</head>
+<body>
+<svg id="art" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet"
+     role="img"
+     aria-label="Inductive graph neural network for single-cell RNA-seq: a sparse gene-by-cell count matrix with dropout zeros is imputed, an LTMG left-truncated mixture-of-Gaussians fits a gene's expression histogram, a VGAE GCN encoder maps the cell graph to a latent Gaussian with reparameterization z equals mu plus sigma times epsilon and decodes adjacency, and a minimum spanning tree forms clusters as a silhouette score rises.">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <!-- panel dividers -->
+  <line x1="400" y1="24" x2="400" y2="476" class="axis" opacity="0.5"/>
+  <line x1="24" y1="250" x2="776" y2="250" class="axis" opacity="0.5"/>
+
+  <g id="pA"></g>
+  <g id="pB"></g>
+  <g id="pC"></g>
+  <g id="pD"></g>
+</svg>
+
+<script>
+(function(){
+  var SVGNS="http://www.w3.org/2000/svg";
+  function E(tag,attrs,parent){
+    var el=document.createElementNS(SVGNS,tag);
+    if(attrs)for(var k in attrs)el.setAttribute(k,attrs[k]);
+    if(parent)parent.appendChild(el);
+    return el;
+  }
+  // theme
+  var theme=(new URLSearchParams(location.search)).get('theme');
+  if(theme==='teal'||theme==='ivory')document.documentElement.classList.add(theme);
+
+  var pA=document.getElementById('pA'),pB=document.getElementById('pB'),
+      pC=document.getElementById('pC'),pD=document.getElementById('pD');
+
+  // small seeded rng for stable layout
+  var seed=20260615;
+  function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}
+  function gauss(){ // box-muller
+    var u=Math.random()||1e-9,v=Math.random();
+    return Math.sqrt(-2*Math.log(u))*Math.cos(6.28318*v);
+  }
+  function smooth(t){t=t<0?0:t>1?1:t;return t*t*(3-2*t);}
+
+  /* ================= PANEL A : DROPOUT / IMPUTE matrix ================= */
+  E('text',{x:34,y:40,class:'ttl'},pA).textContent='Dropout / Impute';
+  var sparkTxt=E('text',{x:366,y:40,'text-anchor':'end',class:'val'},pA);
+  var Acols=13,Arows=8,cw=23,ch=18,Ax=58,Ay=58;
+  E('text',{x:Ax+Acols*cw/2,y:Ay+Arows*ch+18,'text-anchor':'middle',class:'lab'},pA).textContent='Cells →';
+  var gl=E('text',{x:42,y:Ay+Arows*ch/2,'text-anchor':'middle',class:'lab'},pA);
+  gl.setAttribute('transform','rotate(-90 42 '+(Ay+Arows*ch/2)+')');gl.textContent='Genes';
+  var cells=[];
+  for(var r=0;r<Arows;r++)for(var c=0;c<Acols;c++){
+    var v=rnd(), drop=rnd()<0.55;
+    var rect=E('rect',{x:Ax+c*cw+1,y:Ay+r*ch+1,width:cw-2,height:ch-2,rx:2,
+      style:'fill:var(--accent)'},pA);
+    cells.push({el:rect,v:0.25+0.75*v,drop:drop,th:0.08+rnd()*0.82});
+  }
+  E('rect',{x:Ax,y:Ay,width:Acols*cw,height:Arows*ch,class:'frame'},pA);
+
+  /* ================= PANEL B : LTMG (MoG) histogram ================= */
+  E('text',{x:434,y:40,class:'ttl'},pB).textContent='LTMG (MoG)';
+  E('text',{x:766,y:40,'text-anchor':'end',class:'lab'},pB).textContent='Reg. states';
+  var Bx0=472,Bx1=766,Bbase=202,Btop=64,Bw=Bx1-Bx0;
+  E('line',{x1:Bx0,y1:Bbase,x2:Bx1,y2:Bbase,class:'axis'},pB);
+  E('line',{x1:Bx0,y1:Bbase,x2:Bx0,y2:Btop,class:'axis'},pB);
+  E('text',{x:(Bx0+Bx1)/2,y:Bbase+18,'text-anchor':'middle',class:'lab'},pB).textContent='Expression';
+  var comps=[{m:0.12,s:0.065,w:0.52},{m:0.46,s:0.085,w:0.30},{m:0.79,s:0.075,w:0.22}];
+  function pdf(x){var s=0;for(var i=0;i<comps.length;i++){var c=comps[i];s+=c.w*Math.exp(-(x-c.m)*(x-c.m)/(2*c.s*c.s))/(c.s*2.5066);}return s;}
+  // truncation at x<0.04
+  var pmax=0;for(var x=0;x<=1;x+=0.005){if(x<0.04)continue;var p=pdf(x);if(p>pmax)pmax=p;}
+  var hsc=(Bbase-Btop)/pmax*0.95;
+  function ypx(p){return Bbase-p*hsc;}
+  function xpx(x){return Bx0+x*Bw;}
+  // histogram bars
+  var nb=24,bw=Bw/nb;
+  for(var b=0;b<nb;b++){
+    var xc=(b+0.5)/nb;if(xc<0.035){continue;}
+    var h=pdf(xc)*(0.82+0.36*rnd());
+    var hp=Math.max(0,Math.min(pmax,h));
+    E('rect',{x:xpx(b/nb)+1,y:ypx(hp),width:bw-2,height:Bbase-ypx(hp),
+      style:'fill:var(--muted)','opacity':0.32},pB);
+  }
+  // truncation marker
+  E('line',{x1:xpx(0.04),y1:Btop,x2:xpx(0.04),y2:Bbase,'stroke-dasharray':'2 3',
+    style:'stroke:var(--line)','stroke-width':1},pB);
+  // component curves + envelope
+  var compPaths=[];
+  for(var i=0;i<comps.length;i++){
+    var c=comps[i],d='';
+    for(var x=Math.max(0.04,c.m-3.2*c.s);x<=Math.min(1,c.m+3.2*c.s);x+=0.01){
+      var p=c.w*Math.exp(-(x-c.m)*(x-c.m)/(2*c.s*c.s))/(c.s*2.5066);
+      d+=(d?'L':'M')+xpx(x).toFixed(1)+' '+ypx(p).toFixed(1)+' ';
+    }
+    var pth=E('path',{d:d,fill:'none','stroke-width':1.6,filter:'url(#glow)',
+      style:'stroke:'+(i==1?'var(--accent2)':'var(--accent)')},pB);
+    var len=pth.getTotalLength();
+    pth.setAttribute('stroke-dasharray',len);
+    compPaths.push({el:pth,len:len,delay:i*0.18});
+  }
+  var env='';
+  for(var x=0.04;x<=1;x+=0.01){env+=(env?'L':'M')+xpx(x).toFixed(1)+' '+ypx(pdf(x)).toFixed(1)+' ';}
+  E('path',{d:env,fill:'none','stroke-width':1,style:'stroke:var(--ink)','opacity':0.5,'stroke-dasharray':'1 3'},pB);
+
+  /* ================= PANEL C : VGAE ================= */
+  E('text',{x:34,y:286,class:'ttl'},pC).textContent='VGAE  μ/σ';
+  // encoder graph
+  var gnodes=[[70,360],[58,400],[96,388],[88,346],[64,332],[100,420]];
+  var gedges=[[0,1],[0,2],[0,3],[3,4],[1,5],[2,5],[2,3]];
+  gedges.forEach(function(e){
+    E('line',{x1:gnodes[e[0]][0],y1:gnodes[e[0]][1],x2:gnodes[e[1]][0],y2:gnodes[e[1]][1],
+      style:'stroke:var(--line)','stroke-width':1.4,class:'gedge'},pC);
+  });
+  var gnodeEls=gnodes.map(function(n){return E('circle',{cx:n[0],cy:n[1],r:4.2,
+    style:'fill:var(--muted)',filter:'url(#glow)'},pC);});
+  E('text',{x:78,y:444,'text-anchor':'middle',class:'lab'},pC).textContent='GCN encoder';
+  // arrow to latent
+  E('line',{x1:118,y1:380,x2:158,y2:380,'marker-end':'url(#arrow)',style:'stroke:var(--muted)','stroke-width':1.2},pC);
+  // latent gaussian
+  var Lcx=205,Lcy=372;
+  var sigEll=E('ellipse',{cx:Lcx,cy:Lcy,rx:34,ry:24,fill:'none','stroke-width':1.3,
+    style:'stroke:var(--accent2)','opacity':0.85},pC);
+  E('ellipse',{cx:Lcx,cy:Lcy,rx:20,ry:14,fill:'none','stroke-width':0.9,
+    style:'stroke:var(--accent2)','opacity':0.4},pC);
+  var muDot=E('circle',{cx:Lcx,cy:Lcy,r:3,style:'fill:var(--ink)'},pC);
+  E('text',{x:Lcx,y:Lcy-30,'text-anchor':'middle',class:'lab'},pC).textContent='μ, σ';
+  var zDot=E('circle',{cx:Lcx,cy:Lcy,r:4.5,style:'fill:var(--accent)',filter:'url(#glow)'},pC);
+  var epsLine=E('line',{x1:Lcx,y1:Lcy,x2:Lcx,y2:Lcy,style:'stroke:var(--accent)','stroke-width':1,'opacity':0.7},pC);
+  var reparTxt=E('text',{x:205,y:444,'text-anchor':'middle',class:'val'},pC);
+  reparTxt.textContent='z = μ + σε';
+  // arrow to decoder
+  E('line',{x1:248,y1:372,x2:286,y2:372,'marker-end':'url(#arrow)',style:'stroke:var(--muted)','stroke-width':1.2},pC);
+  // decoder adjacency grid
+  var Dn=4,dcw=15,Dx=296,Dy=344;
+  var adj=[];
+  for(var r=0;r<Dn;r++)for(var c=0;c<Dn;c++){
+    var rc=E('rect',{x:Dx+c*dcw,y:Dy+r*dcw,width:dcw-2,height:dcw-2,rx:1.5,
+      style:'fill:var(--accent)'},pC);
+    adj.push({el:rc,base:(r==c?0.95:0.15+rnd()*0.7),ph:rnd()*6.28});
+  }
+  E('rect',{x:Dx,y:Dy,width:Dn*dcw,height:Dn*dcw,class:'frame'},pC);
+  E('text',{x:Dx+Dn*dcw/2,y:Dy+Dn*dcw+16,'text-anchor':'middle',class:'lab'},pC).textContent='Â = σ(ZZᵀ)';
+
+  /* ================= PANEL D : MST + clusters + silhouette ================= */
+  E('text',{x:434,y:286,class:'ttl'},pD).textContent='MST clusters';
+  var ctrs=[[498,338],[612,330],[548,448]];
+  var perC=6, pts=[];
+  for(var k=0;k<ctrs.length;k++)for(var j=0;j<perC;j++){
+    var ang=rnd()*6.28,rad=rnd()*20;
+    pts.push({
+      cl:k,
+      tx:ctrs[k][0]+Math.cos(ang)*rad,
+      ty:ctrs[k][1]+Math.sin(ang)*rad*0.85,
+      sx:455+rnd()*180,
+      sy:300+rnd()*150
+    });
+  }
+  // Prim MST over target positions
+  var N=pts.length,inT=[0],edges=[],used={0:1};
+  while(inT.length<N){
+    var best=null;
+    for(var a=0;a<inT.length;a++){var u=inT[a];
+      for(var w=0;w<N;w++){if(used[w])continue;
+        var dx=pts[u].tx-pts[w].tx,dy=pts[u].ty-pts[w].ty,dd=dx*dx+dy*dy;
+        if(!best||dd<best.d)best={u:u,v:w,d:dd};}}
+    edges.push([best.u,best.v]);used[best.v]=1;inT.push(best.v);
+  }
+  var mstEls=edges.map(function(e){
+    return {el:E('line',{x1:0,y1:0,x2:0,y2:0,style:'stroke:var(--accent2)','stroke-width':1.1,'opacity':0},pD),e:e};
+  });
+  var ptEls=pts.map(function(p){
+    return E('circle',{cx:p.sx,cy:p.sy,r:3.4,
+      style:'fill:'+(p.cl==1?'var(--accent2)':'var(--accent)'),filter:'url(#glow)'},pD);
+  });
+  // silhouette gauge
+  var Gcx=712,Gcy=400,Gr=46;
+  function gpt(score,rr){var a=(210-240*score)*Math.PI/180;return [Gcx+rr*Math.cos(a),Gcy-rr*Math.sin(a)];}
+  function arc(s0,s1,rr){var p0=gpt(s0,rr),p1=gpt(s1,rr);
+    var large=(Math.abs((s1-s0))>0.5)?1:0;
+    return 'M'+p0[0].toFixed(1)+' '+p0[1].toFixed(1)+' A'+rr+' '+rr+' 0 '+large+' 1 '+p1[0].toFixed(1)+' '+p1[1].toFixed(1);}
+  E('path',{d:arc(0,1,Gr),fill:'none','stroke-width':5,style:'stroke:var(--line)','stroke-linecap':'round'},pD);
+  var gaugeFill=E('path',{d:arc(0,0.001,Gr),fill:'none','stroke-width':5,style:'stroke:var(--accent)','stroke-linecap':'round',filter:'url(#glow)'},pD);
+  var needle=E('line',{x1:Gcx,y1:Gcy,x2:Gcx,y2:Gcy-Gr+8,style:'stroke:var(--ink)','stroke-width':1.6},pD);
+  E('circle',{cx:Gcx,cy:Gcy,r:3,style:'fill:var(--ink)'},pD);
+  E('text',{x:Gcx,y:Gcy+22,'text-anchor':'middle',class:'lab'},pD).textContent='Silhouette ↑';
+  var silTxt=E('text',{x:Gcx,y:Gcy-2,'text-anchor':'middle',class:'val','font-size':13},pD);
+
+  /* ================= ANIMATION ================= */
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var t0=null,P=10.0,SILMAX=0.69;
+
+  function frame(now){
+    if(t0===null)t0=now;
+    var t=(now-t0)/1000;
+    var tt=(t%P)/P;            // 0..1 cycle
+    render(t,tt);
+    requestAnimationFrame(frame);
+  }
+
+  function render(t,tt){
+    // ---- A : imputation ----
+    var imp=smooth(tt/0.85);
+    var zeros=0;
+    for(var i=0;i<cells.length;i++){var cc=cells[i];
+      var op;
+      if(!cc.drop){op=0.30+0.70*cc.v;}
+      else{
+        var rev=smooth((imp-cc.th)/0.18);
+        op=0.06+rev*(0.30+0.70*cc.v-0.06);
+        if(rev<0.5)zeros++;
+      }
+      cc.el.setAttribute('opacity',op.toFixed(3));
+    }
+    var spar=Math.round(100*zeros/cells.length);
+    sparkTxt.textContent='sparsity '+spar+'%';
+
+    // ---- B : MoG draw-on + breathe ----
+    for(var i=0;i<compPaths.length;i++){var cp=compPaths[i];
+      var dp=smooth((tt-cp.delay)/0.4);
+      cp.el.setAttribute('stroke-dashoffset',(cp.len*(1-dp)).toFixed(1));
+      cp.el.setAttribute('opacity',(0.45+0.55*dp).toFixed(2));
+    }
+
+    // ---- C : encoder pulse, reparam jitter, decoder ----
+    for(var i=0;i<gnodeEls.length;i++){
+      var pu=0.5+0.5*Math.sin(t*3+i);
+      gnodeEls[i].setAttribute('r',(3.6+1.2*pu).toFixed(2));
+      gnodeEls[i].setAttribute('opacity',(0.6+0.4*pu).toFixed(2));
+    }
+    sigEll.setAttribute('rx',(34+2*Math.sin(t*2)).toFixed(1));
+    sigEll.setAttribute('ry',(24+1.5*Math.sin(t*2+1)).toFixed(1));
+    // resample epsilon a few times per second
+    if(!render.es||t-render.es>0.28){render.es=t;
+      var ex=gauss()*0.55,ey=gauss()*0.55;
+      render.zx=Lcx+ex*30;render.zy=Lcy+ey*20;
+    }
+    zDot.setAttribute('cx',render.zx.toFixed(1));
+    zDot.setAttribute('cy',render.zy.toFixed(1));
+    epsLine.setAttribute('x2',render.zx.toFixed(1));
+    epsLine.setAttribute('y2',render.zy.toFixed(1));
+    for(var i=0;i<adj.length;i++){var a=adj[i];
+      var rec=smooth(tt/0.7);
+      var v=a.base*(0.7+0.3*Math.sin(t*2.5+a.ph));
+      a.el.setAttribute('opacity',(0.12+rec*v*0.85).toFixed(3));
+    }
+
+    // ---- D : clustering + MST + gauge ----
+    var clp=smooth((tt-0.08)/0.7);
+    for(var i=0;i<pts.length;i++){var p=pts[i];
+      var jx=Math.sin(t*2+i)*1.2*(1-clp), jy=Math.cos(t*2.3+i)*1.2*(1-clp);
+      var cx=p.sx+(p.tx-p.sx)*clp+jx, cy=p.sy+(p.ty-p.sy)*clp+jy;
+      p.cx=cx;p.cy=cy;
+      ptEls[i].setAttribute('cx',cx.toFixed(1));
+      ptEls[i].setAttribute('cy',cy.toFixed(1));
+    }
+    for(var i=0;i<mstEls.length;i++){var m=mstEls[i];
+      var a=pts[m.e[0]],b=pts[m.e[1]];
+      m.el.setAttribute('x1',a.cx.toFixed(1));m.el.setAttribute('y1',a.cy.toFixed(1));
+      m.el.setAttribute('x2',b.cx.toFixed(1));m.el.setAttribute('y2',b.cy.toFixed(1));
+      m.el.setAttribute('opacity',(smooth((clp-0.3)/0.5)*0.8).toFixed(2));
+    }
+    var sil=SILMAX*clp;
+    gaugeFill.setAttribute('d',arc(0,Math.max(0.001,sil),Gr));
+    var np=gpt(sil,Gr-8);
+    needle.setAttribute('x2',np[0].toFixed(1));needle.setAttribute('y2',np[1].toFixed(1));
+    silTxt.textContent=sil.toFixed(2);
+  }
+
+  if(reduce){render(2.2,0.82);} else {requestAnimationFrame(frame);}
+})();
+</script>
+</body>
+</html>
