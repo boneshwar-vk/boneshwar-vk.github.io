@@ -48,7 +48,29 @@
   <main class="container">
     <div class="accordion">
 
-<div class="acc-item reveal">
+      <div class="acc-item reveal">
+        <button class="acc-head" aria-expanded="false">
+          <div class="acc-titles">
+            <p class="acc-title">On-Device Real-Time Voicebot (&lt; 1.5s Latency)</p>
+            <p class="acc-sub">Cascaded STT &rarr; LLM &rarr; TTS pipeline running on CPU and mobile</p>
+          </div>
+          <span class="acc-when">May 2026 &ndash; Jun 2026</span>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="acc-body"><div><div class="acc-content">
+          Built a fully on-device conversational voicebot with end-to-end response latency under 1.5 seconds,
+          designed to run without a GPU or cloud connection. The system is a cascaded architecture chaining three
+          independently optimized low-latency modules: speech-to-text (STT) for transcription, a compact large
+          language model (LLM) for reasoning and response generation, and text-to-speech (TTS) for natural voice
+          output. Each stage is selected and tuned for minimal inference time &mdash; quantized models, streaming
+          and chunked processing, and pipelined execution so modules overlap rather than run strictly in sequence.
+          The result deploys on commodity hardware such as laptop CPUs and mobile phones, keeping conversations
+          private, offline-capable, and responsive.
+          <div class="hl"><span>&lt; 1.5s latency</span><span>On-device · CPU &amp; mobile</span><span>STT · LLM · TTS</span></div>
+        </div></div></div>
+      </div>
+
+      <div class="acc-item reveal">
         <button class="acc-head" aria-expanded="false">
           <div class="acc-titles">
             <p class="acc-title">MaskedAlign: Multiple Sequence Alignment with Transformers</p>
