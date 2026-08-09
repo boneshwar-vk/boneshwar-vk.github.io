@@ -145,8 +145,8 @@
   min-height: max(100svh, 420px);
   display: flex;
   align-items: center;
-  padding: clamp(24px, 5vw, 64px);
-  max-width: min(40ch, 38vw);
+  padding: clamp(20px, 3.5vw, 48px);
+  max-width: min(34ch, 29vw);
 }
 
 .tts-panel-inner {
@@ -497,18 +497,23 @@
 .tts-audio {
   position: absolute;
   left: 50%;
-  bottom: clamp(48px, 9vh, 92px);
+  bottom: clamp(44px, 8vh, 84px);
   transform: translateX(-50%);
-  width: min(760px, 84vw);
+  width: min(820px, 86vw);
   z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   visibility: hidden;
   opacity: 0;
   --draw: 0%;
 }
 
+.tts-wave { width: 100%; }
+
 .tts-wave {
   position: relative;
-  height: clamp(64px, 12vh, 104px);
+  height: clamp(84px, 15vh, 132px);
   /* Drawn left to right as the signal resolves. */
   clip-path: inset(0 calc(100% - var(--draw)) 0 0);
 }
@@ -535,9 +540,9 @@
 .tts-transport {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: clamp(14px, 2vw, 26px);
   flex-wrap: wrap;
-  margin-top: 14px;
 }
 
 .tts-play {

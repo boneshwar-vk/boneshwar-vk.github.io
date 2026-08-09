@@ -22,8 +22,8 @@ const KEYS = [
   { at: 0.64, pos: [0.95, 0.2, 11.3], target: [0.6, 0.02, 0], fov: 36 },
   { at: 0.8, pos: [0.7, 0.25, 11.5], target: [0.5, 0.05, 0], fov: 36 },
   // settle square on for the acoustic block and the waveform below it
-  { at: 0.92, pos: [0, 0.25, 8.6], target: [0, 0.35, 0], fov: 32 },
-  { at: 1.0, pos: [0, 0.3, 8.2], target: [0, 0.45, 0], fov: 31 },
+  { at: 0.92, pos: [0, 0.35, 10.8], target: [0, 0.42, 0], fov: 33 },
+  { at: 1.0, pos: [0, 0.4, 10.2], target: [0, 0.5, 0], fov: 32 },
 ];
 
 /** Where the camera parks when the reader has asked for reduced motion. */

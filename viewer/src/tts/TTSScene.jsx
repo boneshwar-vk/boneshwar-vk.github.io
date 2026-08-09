@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
 import { smootherstep } from '../anim.js';
-import { CYCLES, LOOP_FROM, LOOP_TO, TOKEN_LABELS, loopState, returnPath } from './loop.js';
+import { CYCLES, TOKEN_LABELS, loopState, pulseTrack, returnPath } from './loop.js';
 import {
   EMIT_Y,
   SEQ_Y,
@@ -15,7 +15,6 @@ import {
   TOKEN_H,
   TOKEN_W,
   WORDS,
-  arrowGeometry,
   glyphFace,
   outlineGeometry,
   pathTube,
@@ -29,6 +28,35 @@ import {
 
 const ramp = (p, a, b) => smootherstep((p - a) / Math.max(1e-6, b - a));
 const band = (p, a, b, f = 0.035) => ramp(p, a, a + f) * (1 - ramp(p, b - f, b));
+const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+
+/** Where the pulse enters the stack. */
+const STACK_TOP_Y = STACK[0] + STACK_H / 2 + 0.55;
+
+/**
+ * Fade for solid bodies.
+ *
+ * Transparent boxes with depth writes punch rectangular holes in one another
+ * and show their own back faces as offset ghosts, which is exactly the artefact
+ * in the screenshots. The rule: fully opaque whenever possible, and while
+ * actually fading, no depth writes so nothing can occlude-clip a neighbour.
+ */
+function fadeBody(mesh, o) {
+  if (!mesh) return;
+  const m = mesh.material;
+  const solid = o >= 0.97;
+  m.opacity = solid ? 1 : o;
+  m.transparent = !solid;
+  m.depthWrite = solid;
+  mesh.visible = o > 0.004;
+}
+
+/** Fade for overlays that stay transparent (edges, face textures). */
+function fadeOverlay(mesh, o) {
+  if (!mesh) return;
+  mesh.material.opacity = o;
+  mesh.visible = o > 0.004;
+}
 
 /** Shared outline geometries, keyed by size. Not a hook. */
 const outlines = new Map();
@@ -38,38 +66,9 @@ function outline(w, h) {
   return outlines.get(k);
 }
 
-/** A labelled block: solid body, crisp edge, and a face texture. */
-function Block({ w, h, d, color, edge, texture, opacity = 1, meshRef, faceRef, edgeRef }) {
-  return (
-    <group>
-      <mesh ref={meshRef}>
-        <boxGeometry args={[w, h, d]} />
-        <meshStandardMaterial
-          color={color}
-          roughness={0.52}
-          metalness={0.06}
-          transparent
-          opacity={opacity}
-        />
-      </mesh>
-      <lineSegments ref={edgeRef} geometry={outline(w, h)} position={[0, 0, d / 2 + 0.002]}>
-        <lineBasicMaterial color={edge} transparent opacity={opacity} />
-      </lineSegments>
-      {texture && (
-        <mesh ref={faceRef} position={[0, 0, d / 2 + 0.006]}>
-          <planeGeometry args={[w * 0.9, h * 0.9]} />
-          <meshBasicMaterial map={texture} transparent depthWrite={false} toneMapped={false} />
-        </mesh>
-      )}
-    </group>
-  );
-}
-
 /**
- * Scroll 1 and 2: the token blocks.
- *
- * They start as a row of words, gain their numbers, then gather into the single
- * block that represents the text side of the conditioned input.
+ * Scroll 1 and 2: the token blocks. A row of words that gains numbers, then
+ * gathers into the text side of the conditioned input.
  */
 function TokenBlocks({ progressRef, palette }) {
   const faces = useMemo(
@@ -79,7 +78,7 @@ function TokenBlocks({ progressRef, palette }) {
   const groups = useRef([]);
   const bodies = useRef([]);
   const edges = useRef([]);
-  const facesRef = useRef([]);
+  const faceMeshes = useRef([]);
 
   useEffect(() => () => faces.forEach((t) => t.dispose()), [faces]);
 
@@ -88,28 +87,26 @@ function TokenBlocks({ progressRef, palette }) {
 
   useFrame(() => {
     const p = progressRef.current;
-    // The 2D sentence holds the frame first; the blocks take over from it.
     const intro = ramp(p, 0.025, 0.085);
-    const separate = ramp(p, 0.08, 0.19);   // sentence opens into tokens
-    const gather = ramp(p, 0.3, 0.4);       // tokens collapse into one block
-    const visible = intro * (1 - ramp(p, 0.38, 0.44));
+    const separate = ramp(p, 0.08, 0.19);
+    const gather = ramp(p, 0.3, 0.4);
+    const o = intro * (1 - ramp(p, 0.38, 0.44));
 
     groups.current.forEach((g, i) => {
       if (!g) return;
       const x = rowTight[i] + (rowWide[i] - rowTight[i]) * separate;
-      // Gather toward the left, where the conditioned input forms.
       g.position.set(
         THREE.MathUtils.lerp(x, -2.35, gather),
         THREE.MathUtils.lerp(0, 0.75, gather),
-        THREE.MathUtils.lerp(0, -0.02 * i, gather),
+        // Fan the depth slightly DURING gather only, so stacking order is
+        // deterministic while blocks overlap and flat the rest of the time.
+        -0.05 * i * gather,
       );
-      g.scale.setScalar(THREE.MathUtils.lerp(1, 0.42, gather));
-      g.visible = visible > 0.002;
-
-      const o = visible;
-      if (bodies.current[i]) bodies.current[i].material.opacity = o * 0.95;
-      if (edges.current[i]) edges.current[i].material.opacity = o * 0.65;
-      if (facesRef.current[i]) facesRef.current[i].material.opacity = o * (1 - gather * 0.85);
+      g.scale.setScalar(THREE.MathUtils.lerp(1, 0.4, gather));
+      g.visible = o > 0.004;
+      fadeBody(bodies.current[i], o);
+      fadeOverlay(edges.current[i], o * 0.7);
+      fadeOverlay(faceMeshes.current[i], o * (1 - gather));
     });
   });
 
@@ -117,33 +114,39 @@ function TokenBlocks({ progressRef, palette }) {
     <group>
       {WORDS.map((w, i) => (
         <group key={w + i} ref={(el) => { groups.current[i] = el; }}>
-          <Block
-            w={TOKEN_W}
-            h={TOKEN_H}
-            d={TOKEN_D}
-            color={palette.text}
-            edge={palette.textEdge}
-            texture={faces[i]}
-            meshRef={(el) => { bodies.current[i] = el; }}
-            edgeRef={(el) => { edges.current[i] = el; }}
-            faceRef={(el) => { facesRef.current[i] = el; }}
-          />
+          <mesh ref={(el) => { bodies.current[i] = el; }} renderOrder={1}>
+            <boxGeometry args={[TOKEN_W, TOKEN_H, TOKEN_D]} />
+            <meshStandardMaterial color={palette.text} roughness={0.55} metalness={0.05} />
+          </mesh>
+          <lineSegments
+            ref={(el) => { edges.current[i] = el; }}
+            geometry={outline(TOKEN_W, TOKEN_H)}
+            position={[0, 0, TOKEN_D / 2 + 0.004]}
+            renderOrder={6}
+          >
+            <lineBasicMaterial color={palette.textEdge} transparent depthWrite={false} />
+          </lineSegments>
+          <mesh
+            ref={(el) => { faceMeshes.current[i] = el; }}
+            position={[0, 0, TOKEN_D / 2 + 0.008]}
+            renderOrder={7}
+          >
+            <planeGeometry args={[TOKEN_W * 0.94, TOKEN_H * 0.94]} />
+            <meshBasicMaterial map={faces[i]} transparent depthWrite={false} toneMapped={false} />
+          </mesh>
         </group>
       ))}
     </group>
   );
 }
 
-/**
- * Scroll 2: one speaker block arrives from the right and merges with the text
- * side. Its colour is deliberately distinct so the merge is legible.
- */
+/** Scroll 2: the single speaker block, arriving from the right. */
 function SpeakerBlock({ progressRef, palette }) {
   const face = useMemo(() => speakerFace(palette), [palette]);
   const group = useRef(null);
   const body = useRef(null);
   const edge = useRef(null);
-  const faceRef = useRef(null);
+  const faceMesh = useRef(null);
 
   useEffect(() => () => face.dispose(), [face]);
 
@@ -151,257 +154,220 @@ function SpeakerBlock({ progressRef, palette }) {
     const p = progressRef.current;
     const arrive = ramp(p, 0.24, 0.32);
     const merge = ramp(p, 0.34, 0.42);
-    const gone = ramp(p, 0.4, 0.45);
-    const o = arrive * (1 - gone);
+    const o = arrive * (1 - ramp(p, 0.4, 0.45));
 
     const g = group.current;
     if (g) {
       g.position.set(
-        THREE.MathUtils.lerp(3.5, -2.35, merge),
-        THREE.MathUtils.lerp(-0.1, -0.75, merge),
-        0,
+        THREE.MathUtils.lerp(3.6, -2.35, merge),
+        THREE.MathUtils.lerp(-0.1, 0.75, merge),
+        -0.4 * merge,
       );
-      g.scale.setScalar(THREE.MathUtils.lerp(1, 0.42, merge));
-      g.visible = o > 0.002;
+      g.scale.setScalar(THREE.MathUtils.lerp(1, 0.4, merge));
+      g.visible = o > 0.004;
     }
-    if (body.current) body.current.material.opacity = o * 0.95;
-    if (edge.current) edge.current.material.opacity = o * 0.7;
-    if (faceRef.current) faceRef.current.material.opacity = o * (1 - merge * 0.85);
+    fadeBody(body.current, o);
+    fadeOverlay(edge.current, o * 0.75);
+    fadeOverlay(faceMesh.current, o * (1 - merge));
   });
 
   return (
     <group ref={group}>
-      <Block
-        w={1.75}
-        h={1.75}
-        d={0.34}
-        color={palette.speaker}
-        edge={palette.speakerEdge}
-        texture={face}
-        meshRef={(el) => { body.current = el; }}
-        edgeRef={(el) => { edge.current = el; }}
-        faceRef={(el) => { faceRef.current = el; }}
-      />
+      <mesh ref={body} renderOrder={1}>
+        <boxGeometry args={[1.75, 1.75, 0.34]} />
+        <meshStandardMaterial color={palette.speaker} roughness={0.5} metalness={0.05} />
+      </mesh>
+      <lineSegments geometry={outline(1.75, 1.75)} position={[0, 0, 0.175]} ref={edge} renderOrder={6}>
+        <lineBasicMaterial color={palette.speakerEdge} transparent depthWrite={false} />
+      </lineSegments>
+      <mesh ref={faceMesh} position={[0, 0, 0.18]} renderOrder={7}>
+        <planeGeometry args={[1.6, 1.6]} />
+        <meshBasicMaterial map={face} transparent depthWrite={false} toneMapped={false} />
+      </mesh>
     </group>
   );
 }
 
 /**
- * The conditioned input. Its colour sits between the text and speaker hues,
- * which is the whole point: it is both.
+ * The conditioned input. Forms where text and speaker met, takes its place at
+ * the head of the input sequence, and stays there for the whole loop.
  */
-function ConditionedInput({ progressRef, palette, headRef }) {
+function ConditionedInput({ progressRef, palette }) {
   const face = useMemo(
-    () => plateFace('CONDITIONED INPUT', 'text + speaker', palette, { w: 600, h: 200, size: 38 }),
+    () => plateFace('CONDITIONED INPUT', 'text + speaker', palette, { w: 620, h: 210, size: 40 }),
     [palette],
   );
   const group = useRef(null);
   const body = useRef(null);
   const edge = useRef(null);
-  const faceRef = useRef(null);
+  const faceMesh = useRef(null);
 
   useEffect(() => () => face.dispose(), [face]);
 
   useFrame(() => {
     const p = progressRef.current;
     const form = ramp(p, 0.4, 0.46);
-    const s = loopState(p);
-    // Once the loop starts it takes its place at the head of the sequence row.
     const toSeq = ramp(p, 0.44, 0.5);
-    const fade = ramp(p, 0.86, 0.93);
-    const o = form * (1 - fade);
+    // Converges into the acoustic representation with the rest of the sequence.
+    const converge = ramp(p, 0.845, 0.9);
+    const o = form * (1 - converge);
 
     const g = group.current;
     if (g) {
+      const x = THREE.MathUtils.lerp(-2.35, seqX(0) - 0.62, toSeq);
+      const y = THREE.MathUtils.lerp(0.75, SEQ_Y, toSeq);
       g.position.set(
-        THREE.MathUtils.lerp(-2.35, seqX(0) - 0.55, toSeq),
-        THREE.MathUtils.lerp(0, SEQ_Y, toSeq),
+        THREE.MathUtils.lerp(x, 0, converge),
+        THREE.MathUtils.lerp(y, 0.5, converge),
         0,
       );
-      g.scale.setScalar(THREE.MathUtils.lerp(1, 0.62, toSeq));
-      g.visible = o > 0.002;
-      // Dips with the sequence as it enters the stack.
-      g.position.y -= s.active ? s.descend * (1 - s.settle) * 0.28 : 0;
+      g.scale.setScalar(THREE.MathUtils.lerp(1, 0.62, toSeq) * (1 - 0.35 * converge));
+      g.visible = o > 0.004;
     }
-    if (body.current) body.current.material.opacity = o * 0.95;
-    if (edge.current) edge.current.material.opacity = o * 0.75;
-    if (faceRef.current) faceRef.current.material.opacity = o;
-    if (headRef) headRef.current = g;
+    fadeBody(body.current, o);
+    fadeOverlay(edge.current, o * 0.8);
+    fadeOverlay(faceMesh.current, o);
   });
 
   return (
     <group ref={group}>
-      <Block
-        w={2.6}
-        h={0.98}
-        d={0.34}
-        color={palette.conditioned}
-        edge={palette.conditionedEdge}
-        texture={face}
-        meshRef={(el) => { body.current = el; }}
-        edgeRef={(el) => { edge.current = el; }}
-        faceRef={(el) => { faceRef.current = el; }}
-      />
+      <mesh ref={body} renderOrder={1}>
+        <boxGeometry args={[2.6, 0.98, 0.34]} />
+        <meshStandardMaterial color={palette.conditioned} roughness={0.5} metalness={0.05} />
+      </mesh>
+      <lineSegments geometry={outline(2.6, 0.98)} position={[0, 0, 0.175]} ref={edge} renderOrder={6}>
+        <lineBasicMaterial color={palette.conditionedEdge} transparent depthWrite={false} />
+      </lineSegments>
+      <mesh ref={faceMesh} position={[0, 0, 0.18]} renderOrder={7}>
+        <planeGeometry args={[2.4, 0.81]} />
+        <meshBasicMaterial map={face} transparent depthWrite={false} toneMapped={false} />
+      </mesh>
     </group>
   );
 }
 
 /**
- * Scroll 3: three transformer layers and the loop around them.
+ * Scroll 3: the autoregressive circuit, in one component so every part reads
+ * the same clock.
  *
- * The camera never goes inside. What matters is the circuit: the sequence drops
- * in at the top, one token comes out at the bottom, travels back around, and
- * joins the sequence, which is then one token longer.
+ * Each cycle: a pulse representing the CURRENT INPUT SEQUENCE slides from the
+ * row to the top of the stack and travels down THROUGH every layer, lighting
+ * each one as it passes. Only when it has come out of the bottom does the next
+ * token appear, and that token follows the return wire back up and joins the
+ * sequence. Nothing skips the transformer.
  */
-function Transformer({ progressRef, palette }) {
+function Autoregression({ progressRef, palette }) {
   const layerFaces = useMemo(
     () => STACK.map((_, i) => plateFace(`Transformer layer ${i + 1}`, '', palette, {
-      w: 600, h: 150, size: 34, titleColor: palette.ink,
+      w: 620, h: 130, size: 36, titleColor: palette.ink,
     })),
     [palette],
   );
-  const bodies = useRef([]);
-  const edges = useRef([]);
-  const faces = useRef([]);
-  const arrowRefs = useRef([]);
-
-  const arrow = useMemo(() => arrowGeometry(0.42), []);
-
-  useEffect(() => () => {
-    layerFaces.forEach((t) => t.dispose());
-    arrow.dispose();
-  }, [layerFaces, arrow]);
-
-  useFrame(() => {
-    const p = progressRef.current;
-    const on = band(p, 0.42, 0.88, 0.04);
-    const s = loopState(p);
-
-    STACK.forEach((y, i) => {
-      // Each layer lights briefly as the sequence passes through it.
-      const at = (i + 0.5) / STACK.length;
-      const near = 1 - Math.min(1, Math.abs(s.descend - at) * 3.2);
-      const lit = s.active ? Math.max(0, near) : 0;
-      if (bodies.current[i]) {
-        bodies.current[i].material.opacity = on * (0.5 + 0.35 * lit);
-        bodies.current[i].material.emissiveIntensity = 0.05 + 0.35 * lit;
-      }
-      if (edges.current[i]) edges.current[i].material.opacity = on * (0.5 + 0.5 * lit);
-      if (faces.current[i]) faces.current[i].material.opacity = on * 0.9;
-    });
-    arrowRefs.current.forEach((a) => {
-      if (a) a.material.opacity = on * 0.4;
-    });
-  });
-
-  return (
-    <group>
-      {STACK.map((y, i) => (
-        <group key={y} position={[0, y, 0]}>
-          <mesh ref={(el) => { bodies.current[i] = el; }}>
-            <boxGeometry args={[STACK_W, STACK_H, STACK_D]} />
-            <meshStandardMaterial
-              color={palette.stack}
-              emissive={palette.stackGlow}
-              emissiveIntensity={0.05}
-              roughness={0.6}
-              metalness={0.04}
-              transparent
-              opacity={0}
-            />
-          </mesh>
-          <lineSegments
-            ref={(el) => { edges.current[i] = el; }}
-            geometry={outline(STACK_W, STACK_H)}
-            position={[0, 0, STACK_D / 2 + 0.002]}
-          >
-            <lineBasicMaterial color={palette.stackEdge} transparent opacity={0} />
-          </lineSegments>
-          <mesh ref={(el) => { faces.current[i] = el; }} position={[0, 0, STACK_D / 2 + 0.006]}>
-            <planeGeometry args={[STACK_W * 0.86, STACK_W * 0.86 * 0.25]} />
-            <meshBasicMaterial map={layerFaces[i]} transparent depthWrite={false} toneMapped={false} />
-          </mesh>
-          {i < STACK.length - 1 && (
-            <lineSegments
-              ref={(el) => { arrowRefs.current[i] = el; }}
-              geometry={arrow}
-              position={[0, -STACK_H / 2 - 0.02, STACK_D / 2]}
-            >
-              <lineBasicMaterial color={palette.stackEdge} transparent opacity={0} />
-            </lineSegments>
-          )}
-        </group>
-      ))}
-    </group>
-  );
-}
-
-/**
- * The generated tokens and the path they take back to the sequence.
- *
- * Token i is emitted below the stack on cycle i, follows the return curve, and
- * then stays put at position i of the sequence for the rest of the piece.
- */
-function Generated({ progressRef, palette }) {
-  const labels = useMemo(
+  const glyphs = useMemo(
     () => TOKEN_LABELS.map((l) => glyphFace(l, palette.onAccent)),
     [palette],
   );
-  const groups = useRef([]);
-  const bodies = useRef([]);
-  const edges = useRef([]);
-  const faces = useRef([]);
 
-  const { geometry: pathGeo, curve } = useMemo(
-    () => pathTube(returnPath(seqX(CYCLES))),
+  const layerBodies = useRef([]);
+  const layerEdges = useRef([]);
+  const layerFaceMeshes = useRef([]);
+
+  const pulseGroup = useRef(null);
+  const pulseBody = useRef(null);
+  const pulseEdge = useRef(null);
+
+  const tokenGroups = useRef([]);
+  const tokenBodies = useRef([]);
+  const tokenEdges = useRef([]);
+  const tokenFaceMeshes = useRef([]);
+
+  const wireRef = useRef(null);
+
+  // The drawn wire and the per-cycle travel curves share control points, so a
+  // token visibly rides the wire it is drawn against.
+  const wire = useMemo(() => pathTube(returnPath(seqX(CYCLES), EMIT_Y, SEQ_Y), 0.016), []);
+  const curves = useMemo(
+    () => TOKEN_LABELS.map((_, i) => new THREE.CatmullRomCurve3(
+      returnPath(seqX(1 + i), EMIT_Y, SEQ_Y).map((q) => new THREE.Vector3(...q)),
+      false,
+      'centripetal',
+      0.4,
+    )),
     [],
   );
-  const pathRef = useRef(null);
   const tmp = useMemo(() => new THREE.Vector3(), []);
 
   useEffect(() => () => {
-    labels.forEach((t) => t.dispose());
-    pathGeo.dispose();
-  }, [labels, pathGeo]);
+    layerFaces.forEach((t) => t.dispose());
+    glyphs.forEach((t) => t.dispose());
+    wire.geometry.dispose();
+  }, [layerFaces, glyphs, wire]);
 
   useFrame(() => {
     const p = progressRef.current;
     const s = loopState(p);
-    const on = band(p, 0.44, 0.9, 0.04);
-    if (pathRef.current) pathRef.current.material.opacity = on * 0.3;
+    const stackOn = band(p, 0.42, 0.88, 0.04);
+    const wireOn = band(p, 0.46, 0.86, 0.04);
 
+    fadeOverlay(wireRef.current, wireOn * 0.32);
+
+    // ---- the pulse: the input sequence passing through the stack ----------
+    const headX = seqX(Math.max(0, s.sequence - 0.5));
+    const t = pulseTrack(s.enter, headX, STACK_TOP_Y, EMIT_Y);
+    const pulseAlive = s.active && s.enter > 0.02 && s.emit < 0.5;
+    const pulseO = pulseAlive ? Math.min(1, s.enter / 0.08) * (1 - s.emit) : 0;
+    if (pulseGroup.current) {
+      // Rides down the FRONT face of the stack so the descent is visible the
+      // whole way; the layers lighting in sequence carry the "through" reading.
+      pulseGroup.current.position.set(t.x, t.y, STACK_D / 2 + 0.15);
+      pulseGroup.current.visible = pulseO > 0.004;
+    }
+    fadeBody(pulseBody.current, pulseO * 0.96);
+    fadeOverlay(pulseEdge.current, pulseO * 0.85);
+
+    // ---- layers light while the pulse is inside them ----------------------
+    STACK.forEach((ly, i) => {
+      const inside = pulseAlive ? clamp01(1 - Math.abs(t.y - ly) / 1.0) : 0;
+      const bodyMesh = layerBodies.current[i];
+      if (bodyMesh) {
+        fadeBody(bodyMesh, stackOn);
+        bodyMesh.material.emissiveIntensity = 0.04 + 0.5 * inside;
+      }
+      fadeOverlay(layerEdges.current[i], stackOn * (0.45 + 0.55 * inside));
+      fadeOverlay(layerFaceMeshes.current[i], stackOn * 0.92);
+    });
+
+    // ---- generated tokens -------------------------------------------------
+    const converge = ramp(p, 0.845, 0.9);
     TOKEN_LABELS.forEach((_, i) => {
-      const g = groups.current[i];
+      const g = tokenGroups.current[i];
       if (!g) return;
 
       let x = seqX(1 + i);
       let y = SEQ_Y;
       let z = 0;
-      let scale = 1;
       let o = 0;
+      let scale = 0.62;
 
-      if (i < s.cycle || (!s.active && p > LOOP_TO)) {
-        // Already part of the sequence.
+      const doneAll = p >= 0.84;
+
+      if (i < s.completed || doneAll) {
         o = 1;
       } else if (i === s.cycle && s.active) {
-        if (s.emit <= 0.001) {
-          o = 0;
-        } else if (s.ret <= 0.001) {
-          // Emerging below the stack.
+        if (s.emit > 0.001 && s.ret <= 0.001) {
+          // Emerging exactly where the pulse arrived, then easing onto the
+          // wire's plane as it grows to full size.
           x = 0;
           y = EMIT_Y;
+          z = (STACK_D / 2 + 0.15) * (1 - s.emit);
           o = s.emit;
-          scale = 0.7 + 0.3 * s.emit;
-        } else if (s.settle <= 0.001) {
-          // Travelling the return path.
-          curve.getPointAt(Math.min(0.999, s.ret), tmp);
-          x = tmp.x;
-          y = tmp.y;
-          z = tmp.z;
+          scale = 0.62 * (0.7 + 0.3 * s.emit);
+        } else if (s.ret > 0.001 && s.settle <= 0.001) {
+          curves[i].getPointAt(Math.min(0.999, s.ret), tmp);
+          x = tmp.x; y = tmp.y; z = tmp.z;
           o = 1;
-        } else {
-          // Settling into its slot.
-          curve.getPointAt(0.999, tmp);
+        } else if (s.settle > 0.001) {
+          curves[i].getPointAt(0.999, tmp);
           x = THREE.MathUtils.lerp(tmp.x, seqX(1 + i), s.settle);
           y = THREE.MathUtils.lerp(tmp.y, SEQ_Y, s.settle);
           z = THREE.MathUtils.lerp(tmp.z, 0, s.settle);
@@ -409,37 +375,98 @@ function Generated({ progressRef, palette }) {
         }
       }
 
-      // Sequence members dip with the rest as they enter the stack.
-      if (o > 0 && i < s.cycle && s.active) y -= s.descend * (1 - s.settle) * 0.28;
+      // Settled tokens converge into the acoustic representation at the end.
+      if (o > 0 && converge > 0 && (i < s.completed || doneAll)) {
+        x = THREE.MathUtils.lerp(x, 0, converge);
+        y = THREE.MathUtils.lerp(y, 0.5, converge);
+        scale *= 1 - 0.4 * converge;
+        o *= 1 - converge;
+      }
 
       g.position.set(x, y, z);
-      g.scale.setScalar(scale * 0.7);
-      g.visible = o * on > 0.002;
-      const a = o * on;
-      if (bodies.current[i]) bodies.current[i].material.opacity = a * 0.98;
-      if (edges.current[i]) edges.current[i].material.opacity = a;
-      if (faces.current[i]) faces.current[i].material.opacity = a;
+      g.scale.setScalar(scale);
+      g.visible = o > 0.004;
+      fadeBody(tokenBodies.current[i], o);
+      fadeOverlay(tokenEdges.current[i], o);
+      fadeOverlay(tokenFaceMeshes.current[i], o);
     });
   });
 
   return (
     <group>
-      <mesh ref={pathRef} geometry={pathGeo}>
+      {STACK.map((y, i) => (
+        <group key={y} position={[0, y, 0]}>
+          <mesh ref={(el) => { layerBodies.current[i] = el; }} renderOrder={1}>
+            <boxGeometry args={[STACK_W, STACK_H, STACK_D]} />
+            <meshStandardMaterial
+              color={palette.stack}
+              emissive={palette.stackGlow}
+              emissiveIntensity={0.04}
+              roughness={0.6}
+              metalness={0.04}
+            />
+          </mesh>
+          <lineSegments
+            ref={(el) => { layerEdges.current[i] = el; }}
+            geometry={outline(STACK_W, STACK_H)}
+            position={[0, 0, STACK_D / 2 + 0.004]}
+            renderOrder={6}
+          >
+            <lineBasicMaterial color={palette.stackEdge} transparent depthWrite={false} />
+          </lineSegments>
+          <mesh
+            ref={(el) => { layerFaceMeshes.current[i] = el; }}
+            position={[0, 0, STACK_D / 2 + 0.008]}
+            renderOrder={7}
+          >
+            <planeGeometry args={[STACK_W * 0.84, STACK_W * 0.84 * 0.21]} />
+            <meshBasicMaterial map={layerFaces[i]} transparent depthWrite={false} toneMapped={false} />
+          </mesh>
+        </group>
+      ))}
+
+      <mesh ref={wireRef} geometry={wire.geometry} renderOrder={0}>
         <meshBasicMaterial color={palette.accent} transparent opacity={0} depthWrite={false} />
       </mesh>
-      {TOKEN_LABELS.map((l, i) => (
-        <group key={l} ref={(el) => { groups.current[i] = el; }}>
-          <Block
-            w={0.92}
-            h={0.92}
-            d={0.32}
-            color={palette.accent}
-            edge={palette.accentEdge}
-            texture={labels[i]}
-            meshRef={(el) => { bodies.current[i] = el; }}
-            edgeRef={(el) => { edges.current[i] = el; }}
-            faceRef={(el) => { faces.current[i] = el; }}
+
+      <group ref={pulseGroup}>
+        <mesh ref={pulseBody} renderOrder={1}>
+          <boxGeometry args={[1.15, 0.5, 0.26]} />
+          <meshStandardMaterial
+            color={palette.conditioned}
+            emissive={palette.conditionedEdge}
+            emissiveIntensity={0.25}
+            roughness={0.45}
+            metalness={0.05}
           />
+        </mesh>
+        <lineSegments geometry={outline(1.15, 0.5)} position={[0, 0, 0.135]} ref={pulseEdge} renderOrder={6}>
+          <lineBasicMaterial color={palette.conditionedEdge} transparent depthWrite={false} />
+        </lineSegments>
+      </group>
+
+      {TOKEN_LABELS.map((l, i) => (
+        <group key={l} ref={(el) => { tokenGroups.current[i] = el; }}>
+          <mesh ref={(el) => { tokenBodies.current[i] = el; }} renderOrder={1}>
+            <boxGeometry args={[1.05, 1.05, 0.34]} />
+            <meshStandardMaterial color={palette.accent} roughness={0.42} metalness={0.08} />
+          </mesh>
+          <lineSegments
+            geometry={outline(1.05, 1.05)}
+            position={[0, 0, 0.175]}
+            ref={(el) => { tokenEdges.current[i] = el; }}
+            renderOrder={6}
+          >
+            <lineBasicMaterial color={palette.accentEdge} transparent depthWrite={false} />
+          </lineSegments>
+          <mesh
+            position={[0, 0, 0.18]}
+            ref={(el) => { tokenFaceMeshes.current[i] = el; }}
+            renderOrder={7}
+          >
+            <planeGeometry args={[0.86, 0.86]} />
+            <meshBasicMaterial map={glyphs[i]} transparent depthWrite={false} toneMapped={false} />
+          </mesh>
         </group>
       ))}
     </group>
@@ -447,50 +474,48 @@ function Generated({ progressRef, palette }) {
 }
 
 /**
- * Scroll 4: the finished sequence becomes one acoustic block, which then hands
- * off to the 2D waveform drawn over the canvas.
+ * Scroll 4: the converged sequence as one compact acoustic representation.
+ * The waveform below it is strictly 2D and lives in the DOM.
  */
 function AcousticBlock({ progressRef, palette }) {
   const face = useMemo(
-    () => plateFace('ACOUSTIC REPRESENTATION', '', palette, { w: 700, h: 160, size: 36 }),
+    () => plateFace('ACOUSTIC REPRESENTATION', '', palette, { w: 640, h: 120, size: 34 }),
     [palette],
   );
   const group = useRef(null);
   const body = useRef(null);
   const edge = useRef(null);
-  const faceRef = useRef(null);
+  const faceMesh = useRef(null);
 
   useEffect(() => () => face.dispose(), [face]);
 
   useFrame(() => {
     const p = progressRef.current;
-    const form = ramp(p, 0.86, 0.92);
-    const gone = ramp(p, 0.95, 1.0);
-    const o = form * (1 - gone);
+    const form = ramp(p, 0.885, 0.93);
     const g = group.current;
     if (g) {
-      g.position.set(0, THREE.MathUtils.lerp(SEQ_Y, 0.4, form), 0);
-      g.scale.setScalar(THREE.MathUtils.lerp(0.6, 1, form));
-      g.visible = o > 0.002;
+      g.position.set(0, 0.5, 0);
+      g.scale.setScalar(0.85 + 0.15 * form);
+      g.visible = form > 0.004;
     }
-    if (body.current) body.current.material.opacity = o * 0.95;
-    if (edge.current) edge.current.material.opacity = o * 0.8;
-    if (faceRef.current) faceRef.current.material.opacity = o;
+    fadeBody(body.current, form);
+    fadeOverlay(edge.current, form * 0.85);
+    fadeOverlay(faceMesh.current, form);
   });
 
   return (
     <group ref={group}>
-      <Block
-        w={3.6}
-        h={0.86}
-        d={0.34}
-        color={palette.acoustic}
-        edge={palette.accentEdge}
-        texture={face}
-        meshRef={(el) => { body.current = el; }}
-        edgeRef={(el) => { edge.current = el; }}
-        faceRef={(el) => { faceRef.current = el; }}
-      />
+      <mesh ref={body} renderOrder={1}>
+        <boxGeometry args={[2.9, 0.62, 0.3]} />
+        <meshStandardMaterial color={palette.stack} roughness={0.5} metalness={0.06} />
+      </mesh>
+      <lineSegments geometry={outline(2.9, 0.62)} position={[0, 0, 0.155]} ref={edge} renderOrder={6}>
+        <lineBasicMaterial color={palette.accentEdge} transparent depthWrite={false} />
+      </lineSegments>
+      <mesh ref={faceMesh} position={[0, 0, 0.16]} renderOrder={7}>
+        <planeGeometry args={[2.6, 0.49]} />
+        <meshBasicMaterial map={face} transparent depthWrite={false} toneMapped={false} />
+      </mesh>
     </group>
   );
 }
@@ -519,7 +544,7 @@ function LabelProjector({ progressRef, labelRefs, labels }) {
       const y = (-v.y * 0.5 + 0.5) * size.height;
       el.style.visibility = 'visible';
       el.style.opacity = String(on);
-      el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+      el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translateX(-50%)`;
     });
   });
 
@@ -527,68 +552,28 @@ function LabelProjector({ progressRef, labelRefs, labels }) {
 }
 
 export const LABELS = [
-  { key: 'tok', text: 'Tokens', note: 'illustrative values', at: [0, -1.35, 0], show: [0.08, 0.3] },
-  { key: 'what', text: 'What is said', note: '', at: [-2.35, 1.6, 0], show: [0.3, 0.42] },
-  { key: 'how', text: 'How it sounds', note: '', at: [3.5, 1.35, 0], show: [0.26, 0.36] },
-  { key: 'seq', text: 'Input sequence', note: 'grows every step', at: [-2.6, 3.35, 0], show: [0.46, 0.86] },
-  { key: 'gen', text: 'Generated token', note: '', at: [0, -3.25, 0], show: [0.47, 0.85] },
-  { key: 'back', text: 'Fed back in', note: '', at: [4.1, 0.1, 0], show: [0.5, 0.85] },
+  { key: 'tok', text: 'Tokens', note: 'illustrative values', at: [0, -1.4, 0], show: [0.09, 0.29] },
+  { key: 'what', text: 'What is said', note: '', at: [-2.35, 2.0, 0], show: [0.31, 0.42] },
+  { key: 'how', text: 'How it sounds', note: '', at: [3.6, 1.4, 0], show: [0.25, 0.36] },
+  { key: 'seq', text: 'Input sequence', note: 'grows every step', at: [-2.4, SEQ_Y + 0.85, 0], show: [0.46, 0.84] },
+  { key: 'gen', text: 'Generated token', note: 'from the last layer', at: [0, EMIT_Y - 0.85, 0], show: [0.48, 0.84] },
+  { key: 'back', text: 'Fed back in', note: '', at: [4.5, -0.2, 0], show: [0.5, 0.84] },
 ];
 
-/**
- * Debug-only: reports what is actually on screen at the current progress.
- * Rendering correctly is not the same as compiling, and a scene that throws or
- * silently leaves everything at zero opacity looks identical to a blank canvas.
- */
-function Probe({ progressRef, root }) {
-  const three = useThree();
-  useEffect(() => {
-    window.__ttsProbe = () => {
-      const out = [];
-      root.current?.traverse((o) => {
-        if (!o.isMesh && !o.isLineSegments) return;
-        const m = o.material;
-        if (!m) return;
-        const op = m.opacity ?? 1;
-        if (!o.visible || op < 0.02) return;
-        const wp = new THREE.Vector3();
-        o.getWorldPosition(wp);
-        out.push({
-          type: o.isMesh ? 'mesh' : 'line',
-          op: +op.toFixed(2),
-          at: [+wp.x.toFixed(2), +wp.y.toFixed(2), +wp.z.toFixed(2)],
-        });
-      });
-      return {
-        progress: +progressRef.current.toFixed(3),
-        visible: out.length,
-        calls: three.gl.info.render.calls,
-        tris: three.gl.info.render.triangles,
-        objects: out,
-      };
-    };
-  }, [three, root, progressRef]);
-  return null;
-}
-
-export function TTSScene({ progressRef, palette, labelRefs, reducedMotion, debug }) {
+export function TTSScene({ progressRef, palette, labelRefs, reducedMotion }) {
   const root = useRef(null);
-  const headRef = useRef(null);
 
   useFrame((st) => {
     if (!root.current || reducedMotion) return;
-    // Idle motion only: a slow, small breath. Nothing rotates.
-    root.current.position.y = Math.sin(st.clock.elapsedTime * 0.28) * 0.018;
+    root.current.position.y = Math.sin(st.clock.elapsedTime * 0.28) * 0.015;
   });
 
   return (
     <group ref={root}>
-      {debug && <Probe progressRef={progressRef} root={root} />}
       <TokenBlocks progressRef={progressRef} palette={palette} />
       <SpeakerBlock progressRef={progressRef} palette={palette} />
-      <ConditionedInput progressRef={progressRef} palette={palette} headRef={headRef} />
-      <Transformer progressRef={progressRef} palette={palette} />
-      <Generated progressRef={progressRef} palette={palette} />
+      <ConditionedInput progressRef={progressRef} palette={palette} />
+      <Autoregression progressRef={progressRef} palette={palette} />
       <AcousticBlock progressRef={progressRef} palette={palette} />
       <LabelProjector progressRef={progressRef} labelRefs={labelRefs} labels={LABELS} />
     </group>

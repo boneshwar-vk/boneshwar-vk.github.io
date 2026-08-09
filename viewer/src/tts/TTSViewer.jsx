@@ -183,14 +183,14 @@ function DomDriver({ progressRef, refs }) {
     }
     // The waveform draws in left to right once the acoustic block resolves.
     if (r.wave) {
-      const on = smoothstep((p - 0.92) / 0.05);
-      const draw = smoothstep((p - 0.93) / 0.06);
+      const on = smoothstep((p - 0.9) / 0.03);
+      const draw = smoothstep((p - 0.905) / 0.05);
       r.wave.style.opacity = String(on);
       r.wave.style.visibility = on > 0.01 ? 'visible' : 'hidden';
       r.wave.style.setProperty('--draw', `${(draw * 100).toFixed(1)}%`);
     }
     if (r.legend) {
-      const on = smoothstep((p - 0.05) / 0.05) * (1 - smoothstep((p - 0.93) / 0.04));
+      const on = smoothstep((p - 0.05) / 0.05) * (1 - smoothstep((p - 0.88) / 0.04));
       r.legend.style.opacity = String(on * 0.95);
     }
   });
@@ -204,10 +204,10 @@ const smoothstep = (t) => {
 
 /** Keeps the scene clear of the caption column, responsively. */
 function useFrameOffset() {
-  const [o, setO] = useState({ x: 0.13, y: 0 });
+  const [o, setO] = useState({ x: 0.22, y: 0 });
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 900px)');
-    const apply = () => setO(mq.matches ? { x: 0, y: -0.12 } : { x: 0.13, y: 0 });
+    const apply = () => setO(mq.matches ? { x: 0, y: -0.12 } : { x: 0.22, y: 0 });
     apply();
     mq.addEventListener('change', apply);
     return () => mq.removeEventListener('change', apply);
