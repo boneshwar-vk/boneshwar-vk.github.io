@@ -91,16 +91,70 @@ export function pulseTrack(enter, headX, topY, emitY) {
 }
 
 /**
- * Return path control points: out from under the stack, round the right, and
- * back up to the end of the sequence row.
+ * The return path, as a fixed schematic trace: straight runs joined by
+ * quarter-circle corners, the way a feedback wire is drawn in a circuit
+ * diagram. Out from under the stack, right, up, and left along the sequence
+ * row. The wire and every token sample the same polyline, so a token can
+ * never leave the drawn line.
  */
-export function returnPath(seqEndX, emitY, seqY) {
-  return [
-    [0, emitY, 0],
-    [2.4, emitY + 0.15, 0.3],
-    [4.3, emitY * 0.35, 0.45],
-    [4.3, seqY * 0.55, 0.3],
-    [seqEndX + 1.1, seqY, 0.1],
-    [seqEndX, seqY, 0],
-  ];
+export function buildReturnPath({ emitY, seqY, xRight = 4.45, xEnd, r = 0.55, step = 0.04 }) {
+  const pts = [];
+  const push = (x, y) => pts.push([x, y, 0]);
+
+  // straight: under the stack, heading right
+  for (let x = 0; x < xRight - r; x += step) push(x, emitY);
+  // corner: right -> up
+  const c1 = [xRight - r, emitY + r];
+  for (let a = -Math.PI / 2; a < 0; a += step / r) {
+    push(c1[0] + r * Math.cos(a), c1[1] + r * Math.sin(a));
+  }
+  // straight: climbing the right side
+  for (let y = emitY + r; y < seqY - r; y += step) push(xRight, y);
+  // corner: up -> left
+  const c2 = [xRight - r, seqY - r];
+  for (let a = 0; a < Math.PI / 2; a += step / r) {
+    push(c2[0] + r * Math.cos(a), c2[1] + r * Math.sin(a));
+  }
+  // straight: along the sequence row, right to left
+  for (let x = xRight - r; x > xEnd; x -= step) push(x, seqY);
+  push(xEnd, seqY);
+
+  // cumulative arc length, for even-speed travel and per-slot stops
+  const lens = [0];
+  for (let k = 1; k < pts.length; k++) {
+    const dx = pts[k][0] - pts[k - 1][0];
+    const dy = pts[k][1] - pts[k - 1][1];
+    lens.push(lens[k - 1] + Math.hypot(dx, dy));
+  }
+  const total = lens[lens.length - 1];
+
+  /** Fraction of the path at which the top run reaches x (a sequence slot). */
+  const stopAt = (x) => {
+    for (let k = pts.length - 1; k > 0; k--) {
+      if (pts[k][1] === seqY && pts[k][0] >= x) return lens[k] / total;
+    }
+    return 1;
+  };
+
+  return { pts, lens, total, stopAt };
+}
+
+/** Point at fraction t of the path's arc length. */
+export function pathAt(path, t, out = [0, 0, 0]) {
+  const { pts, lens, total } = path;
+  const target = Math.max(0, Math.min(1, t)) * total;
+  let lo = 0;
+  let hi = lens.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (lens[mid] < target) lo = mid + 1;
+    else hi = mid;
+  }
+  const k = Math.max(1, lo);
+  const seg = lens[k] - lens[k - 1] || 1;
+  const f = (target - lens[k - 1]) / seg;
+  out[0] = pts[k - 1][0] + (pts[k][0] - pts[k - 1][0]) * f;
+  out[1] = pts[k - 1][1] + (pts[k][1] - pts[k - 1][1]) * f;
+  out[2] = 0;
+  return out;
 }

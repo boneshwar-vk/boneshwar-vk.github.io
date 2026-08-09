@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
 import { smootherstep } from '../anim.js';
-import { CYCLES, TOKEN_LABELS, loopState, pulseTrack, returnPath } from './loop.js';
+import { TOKEN_LABELS, buildReturnPath, loopState, pathAt, pulseTrack } from './loop.js';
 import {
   EMIT_Y,
   SEQ_Y,
@@ -17,7 +17,6 @@ import {
   WORDS,
   glyphFace,
   outlineGeometry,
-  pathTube,
   plateFace,
   seqX,
   speakerFace,
@@ -283,24 +282,32 @@ function Autoregression({ progressRef, palette }) {
 
   const wireRef = useRef(null);
 
-  // The drawn wire and the per-cycle travel curves share control points, so a
-  // token visibly rides the wire it is drawn against.
-  const wire = useMemo(() => pathTube(returnPath(seqX(CYCLES), EMIT_Y, SEQ_Y), 0.016), []);
-  const curves = useMemo(
-    () => TOKEN_LABELS.map((_, i) => new THREE.CatmullRomCurve3(
-      returnPath(seqX(1 + i), EMIT_Y, SEQ_Y).map((q) => new THREE.Vector3(...q)),
-      false,
-      'centripetal',
-      0.4,
-    )),
+  // One fixed schematic trace. The wire geometry and every token sample the
+  // same polyline, and each token simply stops where the top run crosses its
+  // own slot, so the feedback line never changes shape.
+  const path = useMemo(
+    () => buildReturnPath({ emitY: EMIT_Y, seqY: SEQ_Y, xEnd: seqX(1) }),
     [],
   );
-  const tmp = useMemo(() => new THREE.Vector3(), []);
+  const wire = useMemo(() => {
+    class Trace extends THREE.Curve {
+      getPoint(t, target = new THREE.Vector3()) {
+        const q = pathAt(path, t);
+        return target.set(q[0], q[1], q[2]);
+      }
+    }
+    return new THREE.TubeGeometry(new Trace(), 260, 0.016, 6, false);
+  }, [path]);
+  const stops = useMemo(
+    () => TOKEN_LABELS.map((_, i) => path.stopAt(seqX(1 + i))),
+    [path],
+  );
+  const tmp = useMemo(() => [0, 0, 0], []);
 
   useEffect(() => () => {
     layerFaces.forEach((t) => t.dispose());
     glyphs.forEach((t) => t.dispose());
-    wire.geometry.dispose();
+    wire.dispose();
   }, [layerFaces, glyphs, wire]);
 
   useFrame(() => {
@@ -362,15 +369,11 @@ function Autoregression({ progressRef, palette }) {
           z = (STACK_D / 2 + 0.15) * (1 - s.emit);
           o = s.emit;
           scale = 0.62 * (0.7 + 0.3 * s.emit);
-        } else if (s.ret > 0.001 && s.settle <= 0.001) {
-          curves[i].getPointAt(Math.min(0.999, s.ret), tmp);
-          x = tmp.x; y = tmp.y; z = tmp.z;
-          o = 1;
-        } else if (s.settle > 0.001) {
-          curves[i].getPointAt(0.999, tmp);
-          x = THREE.MathUtils.lerp(tmp.x, seqX(1 + i), s.settle);
-          y = THREE.MathUtils.lerp(tmp.y, SEQ_Y, s.settle);
-          z = THREE.MathUtils.lerp(tmp.z, 0, s.settle);
+        } else if (s.ret > 0.001) {
+          // Ride the fixed trace and stop where it crosses this token's slot;
+          // arrival IS the slot, so settling needs no extra move.
+          pathAt(path, Math.min(1, s.ret) * stops[i], tmp);
+          x = tmp[0]; y = tmp[1]; z = tmp[2];
           o = 1;
         }
       }
@@ -425,7 +428,7 @@ function Autoregression({ progressRef, palette }) {
         </group>
       ))}
 
-      <mesh ref={wireRef} geometry={wire.geometry} renderOrder={0}>
+      <mesh ref={wireRef} geometry={wire} renderOrder={0}>
         <meshBasicMaterial color={palette.accent} transparent opacity={0} depthWrite={false} />
       </mesh>
 
@@ -557,7 +560,7 @@ export const LABELS = [
   { key: 'how', text: 'How it sounds', note: '', at: [3.6, 1.4, 0], show: [0.25, 0.36] },
   { key: 'seq', text: 'Input sequence', note: 'grows every step', at: [-2.4, SEQ_Y + 0.85, 0], show: [0.46, 0.84] },
   { key: 'gen', text: 'Generated token', note: 'from the last layer', at: [0, EMIT_Y - 0.85, 0], show: [0.48, 0.84] },
-  { key: 'back', text: 'Fed back in', note: '', at: [4.5, -0.2, 0], show: [0.5, 0.84] },
+  { key: 'back', text: 'Fed back in', note: '', at: [4.95, 0.0, 0], show: [0.5, 0.84] },
 ];
 
 export function TTSScene({ progressRef, palette, labelRefs, reducedMotion }) {

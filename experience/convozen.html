@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/site.css" />
-  <link rel="stylesheet" href="../assets/scenes/tts.css?v=4" />
+  <link rel="stylesheet" href="../assets/scenes/tts.css?v=5" />
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -53,7 +53,7 @@
   </header>
 
   <!-- ===== Scroll-driven TTS pipeline ===== -->
-  <section class="tts-section" data-tts-section aria-labelledby="tts-heading">
+  <section class="tts-section" data-tts-section data-audio="../assets/audio/tts-sample.mp3" aria-labelledby="tts-heading">
     <h2 id="tts-heading" class="sr-only">How a neural text-to-speech system generates speech</h2>
 
     <div class="tts-sticky">
@@ -130,13 +130,13 @@
       <p>Three dimensions are used only for the blocks and the path between them, where depth helps you follow
         the flow. The sentence, the labels, the numbers, the waveform and the player are all flat, because
         flattening them makes them easier to read rather than harder.</p>
-      <p>The waveform is drawn from the same samples the play button uses, so the picture and the sound are one
-        piece of data. The signal is synthesised in the browser from a formant model and labelled as such. It is
-        not the output of a neural vocoder.</p>
+      <p>The waveform is drawn from the same samples the play button plays, so the picture and the sound are one
+        piece of data. The sample is generated speech from a commercial neural text-to-speech system. If the file
+        cannot be loaded the page falls back to a signal synthesised in the browser and says so.</p>
       <dl class="tts-spec">
         <dt>Pipeline</dt><dd>Text, tokens, vectors, speaker conditioning, autoregressive generation, acoustics, audio</dd>
         <dt>Generation</dt><dd>Four steps shown, each one appended to the input of the next</dd>
-        <dt>Signal</dt><dd>22.05&nbsp;kHz mono, synthesised in the browser from a formant model</dd>
+        <dt>Signal</dt><dd>Generated speech sample, analysed at 22.05&nbsp;kHz mono</dd>
         <dt>Scene</dt><dd>Seven token blocks, one speaker block, three transformer layers, four generated tokens</dd>
       </dl>
     </section>
@@ -168,6 +168,6 @@
   </footer>
 
   <script src="../assets/site.js"></script>
-  <script type="module" src="../assets/scenes/tts.js?v=4"></script>
+  <script type="module" src="../assets/scenes/tts.js?v=5"></script>
 </body>
 </html>
