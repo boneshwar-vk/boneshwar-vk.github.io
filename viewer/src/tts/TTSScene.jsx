@@ -47,7 +47,12 @@ function WordCards({ progressRef, palette }) {
     }));
   }, [palette]);
 
+  // Three parallel ref arrays rather than stashing children on the parent's
+  // userData: React assigns child refs before the parent's, so a child callback
+  // that reads the parent ref always sees null and the link is never made.
   const refs = useRef([]);
+  const wordRefs = useRef([]);
+  const vecRefs = useRef([]);
   const bodyMat = useMemo(
     () => new THREE.MeshStandardMaterial({
       color: new THREE.Color(palette.card),
@@ -97,8 +102,10 @@ function WordCards({ progressRef, palette }) {
       const gy = gather * ((i - (WORDS.length - 1) / 2) * 0.34);
       g.position.set(gx, gy, gather * 0.4);
       g.scale.setScalar(1 - 0.18 * gather);
-      g.userData.word.material.opacity = (1 - toVector) * visible;
-      g.userData.vec.material.opacity = toVector * visible;
+      const wm = wordRefs.current[i];
+      const vm = vecRefs.current[i];
+      if (wm) wm.material.opacity = (1 - toVector) * visible;
+      if (vm) vm.material.opacity = toVector * visible;
       g.visible = visible > 0.001;
     });
   });
@@ -111,21 +118,11 @@ function WordCards({ progressRef, palette }) {
             <boxGeometry args={[c.width, CARD_H, 0.12]} />
           </mesh>
           <lineSegments material={edgeMat} geometry={getOutline(c.width, CARD_H)} position={[0, 0, 0.062]} />
-          <mesh
-            position={[0, 0.02, 0.07]}
-            ref={(el) => {
-              if (el && refs.current[i]) refs.current[i].userData.word = el;
-            }}
-          >
+          <mesh position={[0, 0.02, 0.07]} ref={(el) => { wordRefs.current[i] = el; }}>
             <planeGeometry args={[c.width * 0.92, c.width * 0.92 * 0.3125]} />
-            <meshBasicMaterial map={c.wordTex} transparent depthWrite={false} toneMapped={false} />
+            <meshBasicMaterial map={c.wordTex} transparent depthWrite={false} toneMapped={false} opacity={1} />
           </mesh>
-          <mesh
-            position={[0, 0, 0.071]}
-            ref={(el) => {
-              if (el && refs.current[i]) refs.current[i].userData.vec = el;
-            }}
-          >
+          <mesh position={[0, 0, 0.071]} ref={(el) => { vecRefs.current[i] = el; }}>
             <planeGeometry args={[c.width * 0.72, (c.width * 0.72) * 0.625]} />
             <meshBasicMaterial map={c.vecTex} transparent depthWrite={false} toneMapped={false} opacity={0} />
           </mesh>
