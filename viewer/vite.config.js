@@ -34,8 +34,12 @@ export default defineConfig({
       },
       output: {
         format: 'es',
+        // Entries keep stable names because the HTML references them and
+        // busts cache with ?v=. Lazy chunks are content-hashed: they are
+        // fetched by dynamic import, so a fixed name means a browser that
+        // cached a broken build keeps serving it.
         entryFileNames: '[name].js',
-        chunkFileNames: '[name].js',
+        chunkFileNames: '[name]-[hash].js',
         assetFileNames: '[name].[ext]',
         // Without this the shared chunk gets named after whichever module
         // happened to be first into it.
