@@ -6,19 +6,21 @@ import { clamp, spring } from '../anim.js';
 import { usePointerControls, useStoryDriver } from '../useStoryDriver.js';
 import { CameraPath } from './CameraPath.jsx';
 import { LABELS, TTSScene } from './TTSScene.jsx';
-import {
-  SAMPLE_RATE,
-  decimate,
-  loadAudio,
-  spectrogram,
-  synthesizeUtterance,
-  toAudioBuffer,
-} from './speech.js';
+import { SENTENCE } from './scene.js';
+import { SAMPLE_RATE, decimate, loadAudio, synthesizeUtterance, toAudioBuffer } from './speech.js';
 
 /** Scroll positions of the four narrative stages. */
 export const STAGES = [0.12, 0.38, 0.64, 0.9];
 
-/** Reads the site's CSS custom properties so the scene tracks the theme. */
+/**
+ * Semantic palette.
+ *
+ * Colour is doing work here rather than decoration: text and speaker get
+ * distinct hues, the conditioned input sits visibly between them, generated
+ * tokens take the warm accent, and the transformer stays structurally neutral
+ * so it never competes with the data moving through it. The legend on the page
+ * is the key to the same scheme.
+ */
 function usePalette() {
   const read = () => {
     const cs = getComputedStyle(document.documentElement);
@@ -26,17 +28,28 @@ function usePalette() {
     const paper = new THREE.Color(v('--paper', '#0f3a37'));
     const lum = 0.2126 * paper.r + 0.7152 * paper.g + 0.0722 * paper.b;
     const isLight = lum > 0.5;
+    const accent = v('--accent', '#d3a05f');
     return {
       isLight,
-      accent: v('--accent', '#d3a05f'),
-      ink: isLight ? '#26302f' : '#e8e2d4',
-      dim: isLight ? '#7d8a87' : '#8ea19d',
-      card: isLight ? '#e6e9e4' : '#25403d',
-      speaker: isLight ? '#dfe6e4' : '#1f3a45',
-      layer: isLight ? '#9fb0ad' : '#7fa7a6',
-      decoder: isLight ? '#b9c6c2' : '#39605c',
-      surface: isLight ? '#93a7a3' : '#4f716d',
-      edge: isLight ? '#9aa8a4' : '#5c8480',
+      accent,
+      accentEdge: v('--accent-deep', '#e7bd80'),
+      onAccent: v('--on-accent', '#0f3a37'),
+      ink: isLight ? '#242e2d' : '#ece6da',
+      dim: isLight ? '#75837f' : '#8c9d99',
+      // what is said
+      text: isLight ? '#7ba39d' : '#4d7975',
+      textEdge: isLight ? '#4d716c' : '#9cc4bf',
+      // how it should sound
+      speaker: isLight ? '#8f9cc4' : '#4a5c86',
+      speakerEdge: isLight ? '#5b6a97' : '#9fb0da',
+      // both at once, deliberately between the two hues above
+      conditioned: isLight ? '#84a3b4' : '#4a6d80',
+      conditionedEdge: isLight ? '#4f7288' : '#a2c4d3',
+      // structure, kept quiet
+      stack: isLight ? '#c3cdca' : '#2c4746',
+      stackEdge: isLight ? '#8c9a97' : '#6f918d',
+      stackGlow: accent,
+      acoustic: isLight ? '#c8996a' : '#7a5a33',
     };
   };
   const [pal, setPal] = useState(read);
@@ -150,12 +163,51 @@ function ProgressDriver({ driver, progressRef, reducedMotion, onProgress }) {
   return null;
 }
 
+/**
+ * Drives the 2D overlays from the same progress value the 3D reads.
+ *
+ * Lives inside the canvas so it runs on the render loop, but only ever writes
+ * styles on DOM nodes, which keeps the sentence, the waveform and the legend
+ * in step without a single React re-render.
+ */
+function DomDriver({ progressRef, refs }) {
+  useFrame(() => {
+    const p = progressRef.current;
+    const r = refs.current;
+    // The sentence is 2D type. It hands over to the token blocks and leaves.
+    if (r.sentence) {
+      const on = 1 - smoothstep((p - 0.02) / 0.06);
+      r.sentence.style.opacity = String(on);
+      r.sentence.style.visibility = on > 0.01 ? 'visible' : 'hidden';
+      r.sentence.style.letterSpacing = `${(0.02 + 0.22 * (1 - on)).toFixed(3)}em`;
+    }
+    // The waveform draws in left to right once the acoustic block resolves.
+    if (r.wave) {
+      const on = smoothstep((p - 0.92) / 0.05);
+      const draw = smoothstep((p - 0.93) / 0.06);
+      r.wave.style.opacity = String(on);
+      r.wave.style.visibility = on > 0.01 ? 'visible' : 'hidden';
+      r.wave.style.setProperty('--draw', `${(draw * 100).toFixed(1)}%`);
+    }
+    if (r.legend) {
+      const on = smoothstep((p - 0.05) / 0.05) * (1 - smoothstep((p - 0.93) / 0.04));
+      r.legend.style.opacity = String(on * 0.95);
+    }
+  });
+  return null;
+}
+
+const smoothstep = (t) => {
+  const x = t < 0 ? 0 : t > 1 ? 1 : t;
+  return x * x * (3 - 2 * x);
+};
+
 /** Keeps the scene clear of the caption column, responsively. */
 function useFrameOffset() {
-  const [o, setO] = useState({ x: 0.18, y: 0 });
+  const [o, setO] = useState({ x: 0.13, y: 0 });
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 900px)');
-    const apply = () => setO(mq.matches ? { x: 0, y: -0.14 } : { x: 0.18, y: 0 });
+    const apply = () => setO(mq.matches ? { x: 0, y: -0.12 } : { x: 0.13, y: 0 });
     apply();
     mq.addEventListener('change', apply);
     return () => mq.removeEventListener('change', apply);
@@ -199,6 +251,9 @@ export default function TTSViewer({ scrollElement = null, audioUrl = null, onPro
   const progressRef = useRef(0);
   const labelRefs = useRef([]);
   const playRef = useRef({ playing: false });
+  const domRefs = useRef({});
+  const waveCanvas = useRef(null);
+  const playheadRef = useRef(null);
 
   const sectionRef = useRef(null);
   sectionRef.current = scrollElement ?? stageRef.current?.parentElement ?? null;
@@ -241,11 +296,9 @@ export default function TTSViewer({ scrollElement = null, audioUrl = null, onPro
 
   const data = useMemo(() => {
     if (!signal) return null;
-    const spec = spectrogram(signal.signal, { bins: isCoarse ? 40 : 56 });
-    const wave = decimate(signal.signal, 420);
     return {
-      spec,
-      wave,
+      // The waveform is drawn in 2D from the same samples the play button uses.
+      wave: decimate(signal.signal, isCoarse ? 520 : 900),
       source: signal.source,
       seconds: signal.signal.length / SAMPLE_RATE,
     };
@@ -314,6 +367,60 @@ export default function TTSViewer({ scrollElement = null, audioUrl = null, onPro
     a.ctx?.close?.();
   }, []);
 
+  // Draw the 2D waveform once, from the same samples the button plays.
+  useEffect(() => {
+    const cv = waveCanvas.current;
+    if (!cv || !data) return;
+    const w = 1200;
+    const h = 200;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = w * dpr;
+    cv.height = h * dpr;
+    const ctx = cv.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, w, h);
+
+    const wave = data.wave;
+    const mid = h / 2;
+    ctx.strokeStyle = palette.dim;
+    ctx.globalAlpha = 0.35;
+    ctx.beginPath();
+    ctx.moveTo(0, mid);
+    ctx.lineTo(w, mid);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    ctx.strokeStyle = palette.accent;
+    ctx.lineWidth = 1.4;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    for (let i = 0; i < wave.length; i++) {
+      const x = (i / (wave.length - 1)) * w;
+      const y = mid - wave[i] * (h * 0.44);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }, [data, palette]);
+
+  // Playhead follows the audio clock while something is playing.
+  useEffect(() => {
+    if (!playing || !data) return undefined;
+    const a = audio.current;
+    const start = a.ctx ? a.ctx.currentTime : 0;
+    let raf = 0;
+    const tick = () => {
+      const el = playheadRef.current;
+      if (el && a.ctx) {
+        const t = Math.min(1, (a.ctx.currentTime - start) / data.seconds);
+        el.style.left = `${(t * 100).toFixed(2)}%`;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(raf);
+  }, [playing, data]);
+
   return (
     <div className="tts-mount" ref={stageRef} data-ready={ready ? 'true' : 'false'}>
       <div className="tts-canvas">
@@ -352,18 +459,23 @@ export default function TTSViewer({ scrollElement = null, audioUrl = null, onPro
             <TTSScene
               progressRef={progressRef}
               palette={palette}
-              spec={data.spec}
-              wave={data.wave}
               labelRefs={labelRefs}
-              playRef={playRef}
               reducedMotion={reducedMotion}
+              debug={debug}
             />
+            <DomDriver progressRef={progressRef} refs={domRefs} />
           </Canvas>
         )}
       </div>
 
-      {/* Annotations live in the DOM and are positioned from 3D each frame, so
-          the type stays crisp at any resolution. */}
+      {/* The sentence is 2D type, as it should be. It hands over to the
+          token blocks and gets out of the way. */}
+      <div className="tts-sentence" ref={(el) => { domRefs.current.sentence = el; }} aria-hidden="true">
+        {SENTENCE}
+      </div>
+
+      {/* Annotations are positioned from 3D each frame but stay real DOM text,
+          so the type is crisp and the numbers stay legible. */}
       <div className="tts-annotations" aria-hidden="true">
         {LABELS.map((l, i) => (
           <span
@@ -377,27 +489,43 @@ export default function TTSViewer({ scrollElement = null, audioUrl = null, onPro
         ))}
       </div>
 
+      {/* The key to the colour scheme. */}
+      <ul className="tts-legend" ref={(el) => { domRefs.current.legend = el; }} aria-hidden="true">
+        <li><span className="sw sw-text" /> Text token</li>
+        <li><span className="sw sw-speaker" /> Speaker</li>
+        <li><span className="sw sw-cond" /> Conditioned</li>
+        <li><span className="sw sw-gen" /> Generated</li>
+      </ul>
+
+      {/* Final output: a strictly 2D waveform, drawn from the samples the play
+          button uses. */}
       {data && (
-        <div className="tts-transport" data-visible={ready}>
-          <button type="button" className="tts-play" onClick={play} aria-pressed={playing}>
-            {playing ? (
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <rect x="6.5" y="5" width="3.6" height="14" rx="1" />
-                <rect x="13.9" y="5" width="3.6" height="14" rx="1" />
-              </svg>
-            ) : (
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6L19 12z" /></svg>
-            )}
-            {playing ? 'Stop' : 'Play'}
-          </button>
-          <dl className="tts-meta">
-            <div>
-              <dt>Signal</dt>
-              <dd>{data.source === 'file' ? 'Generated sample' : 'Synthesised in browser'}</dd>
-            </div>
-            <div><dt>Rate</dt><dd>{(SAMPLE_RATE / 1000).toFixed(2)} kHz mono</dd></div>
-            <div><dt>Length</dt><dd>{data.seconds.toFixed(2)} s</dd></div>
-          </dl>
+        <div className="tts-audio" ref={(el) => { domRefs.current.wave = el; }}>
+          <div className="tts-wave">
+            <canvas ref={waveCanvas} />
+            <span className="tts-playhead" ref={playheadRef} data-on={playing} />
+          </div>
+          <div className="tts-transport">
+            <button type="button" className="tts-play" onClick={play} aria-pressed={playing}>
+              {playing ? (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="6.5" y="5" width="3.6" height="14" rx="1" />
+                  <rect x="13.9" y="5" width="3.6" height="14" rx="1" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6L19 12z" /></svg>
+              )}
+              {playing ? 'Stop' : 'Play'}
+            </button>
+            <dl className="tts-meta">
+              <div>
+                <dt>Signal</dt>
+                <dd>{data.source === 'file' ? 'Generated sample' : 'Synthesised in browser'}</dd>
+              </div>
+              <div><dt>Rate</dt><dd>{(SAMPLE_RATE / 1000).toFixed(2)} kHz mono</dd></div>
+              <div><dt>Length</dt><dd>{data.seconds.toFixed(2)} s</dd></div>
+            </dl>
+          </div>
         </div>
       )}
 

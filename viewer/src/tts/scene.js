@@ -1,72 +1,50 @@
 import * as THREE from 'three';
 
 /**
- * Layout constants and texture builders for the TTS scene.
+ * Layout and texture builders.
  *
- * Everything visible is a small, named object with a job. There is no particle
- * field: seven word cards, four speaker features, six encoder layers, one
- * decoder, one acoustic surface, one waveform.
+ * Every object in the scene is one of five things: a token block, the speaker
+ * block, the conditioned input, a transformer layer, or a generated token.
+ * Colour carries the distinction, so the legend on the page is enough to read
+ * the whole diagram.
  */
 
 export const SENTENCE = 'The future of artificial intelligence is spoken.';
 
-/** Card width tracks word length, so the row reads as the sentence it is. */
-export const WORDS = [
-  { text: 'The', w: 0.54 },
-  { text: 'future', w: 0.88 },
-  { text: 'of', w: 0.43 },
-  { text: 'artificial', w: 1.23 },
-  { text: 'intelligence', w: 1.5 },
-  { text: 'is', w: 0.39 },
-  { text: 'spoken', w: 0.95 },
-];
+export const WORDS = ['The', 'future', 'of', 'artificial', 'intelligence', 'is', 'spoken'];
 
-export const CARD_H = 0.95;
+/** Listed on the single speaker block. Illustrative, not a full embedding. */
+export const SPEAKER_FEATURES = ['Pitch', 'Timbre', 'Energy', 'Speaking style'];
 
-/** Illustrative acoustic/speaker features. Not a complete speaker embedding. */
-export const SPEAKER = [
-  { key: 'Pitch', unit: 'F0', value: '112 Hz' },
-  { key: 'Timbre', unit: 'spectral envelope', value: '0.41' },
-  { key: 'Energy', unit: 'RMS', value: '0.68' },
-  { key: 'Rhythm', unit: 'speaking rate', value: '4.1 syl/s' },
-];
+// ---- layout ----------------------------------------------------------------
 
-export const LAYERS = 6;
-export const LAYER_GAP = 1.65;
-/** z of encoder layer i, running away from the reader. */
-export const layerZ = (i) => -1.2 - i * LAYER_GAP;
-export const DECODER_Z = layerZ(LAYERS - 1) - 2.2;
-export const ACOUSTIC_Z = DECODER_Z - 2.6;
+export const TOKEN_W = 1.02;
+export const TOKEN_H = 1.02;
+export const TOKEN_D = 0.3;
+const TOKEN_GAP = 0.16;
 
-const CARD_GAP = 0.16;
-
-/** Word card x positions, centred on the origin. */
-export function wordLayout(spread = 1) {
-  const gap = CARD_GAP * spread;
-  const total = WORDS.reduce((s, w) => s + w.w, 0) + gap * (WORDS.length - 1);
-  const out = [];
-  let x = -total / 2;
-  for (const w of WORDS) {
-    out.push(x + w.w / 2);
-    x += w.w + gap;
-  }
-  return out;
+/** Row of token blocks, centred, for scroll 1. */
+export function tokenRow(n = WORDS.length, spread = 1) {
+  const step = TOKEN_W + TOKEN_GAP * spread;
+  return Array.from({ length: n }, (_, i) => (i - (n - 1) / 2) * step);
 }
 
-/** Stable pseudo-random dimensions per word, so the numbers never re-roll. */
-export function vectorFor(index, n = 4) {
-  let a = (index + 1) * 0x9e3779b1;
-  const out = [];
-  for (let i = 0; i < n; i++) {
-    a ^= a << 13; a >>>= 0;
-    a ^= a >> 17;
-    a ^= a << 5; a >>>= 0;
-    out.push(((a / 4294967296) * 2 - 1) * 0.98);
-  }
-  return out;
-}
+/** Stack of three transformer layers, front and centre. */
+export const STACK = [0.82, 0, -0.82];
+export const STACK_W = 2.9;
+export const STACK_H = 0.62;
+export const STACK_D = 1.15;
 
-// ------------------------------------------------------------------ textures
+/** Where the growing sequence sits, above the stack. */
+export const SEQ_Y = 2.5;
+export const SEQ_X0 = -2.5;
+export const SEQ_STEP = 0.78;
+export const seqX = (i) => SEQ_X0 + i * SEQ_STEP;
+
+/** Where a freshly generated token appears, below the stack. */
+export const EMIT_Y = -2.45;
+
+// ---- textures --------------------------------------------------------------
 
 const DPR = 2;
 
@@ -87,103 +65,131 @@ function finish(c) {
   return t;
 }
 
-/** A word, set in the site serif, as a transparent texture. */
-export function wordTexture(text, color) {
-  const W = 512;
-  const H = 160;
-  const { c, ctx } = makeCanvas(W, H);
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = color;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  let size = 86;
-  ctx.font = `500 ${size}px "EB Garamond", Georgia, serif`;
-  while (ctx.measureText(text).width > W - 40 && size > 20) {
-    size -= 3;
-    ctx.font = `500 ${size}px "EB Garamond", Georgia, serif`;
+/** Stable illustrative numbers per token, so they never re-roll. */
+export function vectorFor(index, n = 4) {
+  let a = ((index + 1) * 0x9e3779b1) >>> 0;
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    a ^= a << 13; a >>>= 0;
+    a ^= a >> 17;
+    a ^= a << 5; a >>>= 0;
+    out.push(((a / 4294967296) * 2 - 1) * 0.95);
   }
-  ctx.fillText(text, W / 2, H / 2 + 2);
-  return finish(c);
+  return out;
 }
 
 /**
- * The numeric face of a card: a few representative dimensions with an explicit
- * ellipsis, so it never reads as the whole vector.
+ * The face of a token block: the word it came from, then a few illustrative
+ * dimensions. Keeping the word on the block is what makes the sequence
+ * readable once the numbers appear.
  */
-export function vectorTexture(values, color, dim, accent) {
-  const W = 512;
-  const H = 320;
+export function tokenFace(word, values, { ink, dim, accent }) {
+  const W = 360;
+  const H = 360;
   const { c, ctx } = makeCanvas(W, H);
   ctx.clearRect(0, 0, W, H);
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
 
-  ctx.font = '600 30px ui-monospace, SFMono-Regular, Menlo, monospace';
-  ctx.fillStyle = dim;
-  ctx.fillText('[', 44, 40);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = ink;
+  let size = 62;
+  ctx.font = `500 ${size}px "EB Garamond", Georgia, serif`;
+  while (ctx.measureText(word).width > W - 48 && size > 18) {
+    size -= 2;
+    ctx.font = `500 ${size}px "EB Garamond", Georgia, serif`;
+  }
+  ctx.fillText(word, W / 2, 88);
+
+  ctx.strokeStyle = dim;
+  ctx.globalAlpha = 0.4;
+  ctx.beginPath();
+  ctx.moveTo(52, 132);
+  ctx.lineTo(W - 52, 132);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
 
   ctx.font = '500 40px ui-monospace, SFMono-Regular, Menlo, monospace';
-  values.forEach((v, i) => {
-    ctx.fillStyle = i === 0 ? accent : color;
-    const s = (v < 0 ? '' : ' ') + v.toFixed(3);
-    ctx.fillText(s, 74, 92 + i * 52);
+  const cols = [110, 250];
+  values.slice(0, 4).forEach((v, i) => {
+    ctx.fillStyle = i === 0 ? accent : ink;
+    const s = v.toFixed(2);
+    ctx.fillText(s, cols[i % 2], 190 + Math.floor(i / 2) * 58);
   });
 
-  ctx.font = '500 40px ui-monospace, SFMono-Regular, Menlo, monospace';
   ctx.fillStyle = dim;
-  ctx.fillText('...', 74, 92 + values.length * 52);
-  ctx.font = '600 30px ui-monospace, SFMono-Regular, Menlo, monospace';
-  ctx.fillText(']', 44, 92 + values.length * 52 + 44);
+  ctx.font = '400 30px ui-monospace, SFMono-Regular, Menlo, monospace';
+  ctx.fillText('...', W / 2, 308);
 
   return finish(c);
 }
 
-/** A labelled face for the speaker feature blocks. */
-export function featureTexture(feature, color, dim, accent) {
-  const W = 512;
-  const H = 256;
+/** The single speaker block: a title and the features it stands for. */
+export function speakerFace({ ink, dim, accent }) {
+  const W = 400;
+  const H = 400;
   const { c, ctx } = makeCanvas(W, H);
   ctx.clearRect(0, 0, W, H);
-  ctx.textAlign = 'left';
+
+  ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-
-  ctx.font = '600 34px Inter, system-ui, sans-serif';
   ctx.fillStyle = accent;
-  ctx.fillText(feature.key.toUpperCase(), 40, 66);
+  ctx.font = '600 38px Inter, system-ui, sans-serif';
+  ctx.fillText('SPEAKER', W / 2, 74);
 
-  ctx.font = '500 58px ui-monospace, SFMono-Regular, Menlo, monospace';
-  ctx.fillStyle = color;
-  ctx.fillText(feature.value, 40, 138);
+  ctx.strokeStyle = dim;
+  ctx.globalAlpha = 0.4;
+  ctx.beginPath();
+  ctx.moveTo(56, 116);
+  ctx.lineTo(W - 56, 116);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
 
-  ctx.font = '400 28px Inter, system-ui, sans-serif';
-  ctx.fillStyle = dim;
-  ctx.fillText(feature.unit, 40, 196);
+  ctx.textAlign = 'left';
+  ctx.fillStyle = ink;
+  ctx.font = '400 34px Inter, system-ui, sans-serif';
+  SPEAKER_FEATURES.forEach((f, i) => {
+    ctx.fillText(f, 74, 170 + i * 56);
+  });
 
   return finish(c);
 }
 
-/** A plain caption plate, used on the architecture blocks. */
-export function plateTexture(title, sub, color, dim, accent) {
-  const W = 512;
-  const H = 160;
+/** A plain titled plate, used for the conditioned input and the layers. */
+export function plateFace(title, sub, { ink, dim, accent }, opts = {}) {
+  const W = opts.w ?? 512;
+  const H = opts.h ?? 200;
   const { c, ctx } = makeCanvas(W, H);
   ctx.clearRect(0, 0, W, H);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = '600 40px Inter, system-ui, sans-serif';
-  ctx.fillStyle = accent;
-  ctx.fillText(title, W / 2, 58);
+  ctx.fillStyle = opts.titleColor ?? accent;
+  ctx.font = `600 ${opts.size ?? 42}px Inter, system-ui, sans-serif`;
+  ctx.fillText(title, W / 2, sub ? H / 2 - 26 : H / 2);
   if (sub) {
-    ctx.font = '400 28px Inter, system-ui, sans-serif';
+    ctx.font = '400 30px Inter, system-ui, sans-serif';
     ctx.fillStyle = dim;
-    ctx.fillText(sub, W / 2, 108);
+    ctx.fillText(sub, W / 2, H / 2 + 30);
   }
   return finish(c);
 }
 
-// ------------------------------------------------------------------ geometry
+/** A single large glyph, for the generated token blocks. */
+export function glyphFace(label, color) {
+  const W = 256;
+  const H = 256;
+  const { c, ctx } = makeCanvas(W, H);
+  ctx.clearRect(0, 0, W, H);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = color;
+  ctx.font = '600 118px Inter, system-ui, sans-serif';
+  ctx.fillText(label, W / 2, H / 2 + 6);
+  return finish(c);
+}
 
-/** Rectangle outline in the XY plane, for layer edges. */
+// ---- geometry --------------------------------------------------------------
+
+/** Rectangle outline in the XY plane. */
 export function outlineGeometry(w, h) {
   const x = w / 2;
   const y = h / 2;
@@ -198,55 +204,26 @@ export function outlineGeometry(w, h) {
   return g;
 }
 
-/**
- * The acoustic surface. X is time, Z is frequency, Y is intensity.
- *
- * The brief lists intensity on Z; a surface you look across needs intensity to
- * be height, so the axis legend on the page states the mapping explicitly.
- */
-export function spectrogramGeometry(spec, { w = 9, d = 3.4, h = 1.5, cols = 150 } = {}) {
-  const nx = Math.min(cols, spec.frames);
-  const nz = spec.bins;
-  const g = new THREE.PlaneGeometry(w, d, nx - 1, nz - 1);
-  g.rotateX(-Math.PI / 2);
-  const pos = g.attributes.position;
-  for (let i = 0; i < pos.count; i++) {
-    const ci = i % nx;
-    const ri = Math.floor(i / nx);
-    const f = Math.min(spec.frames - 1, Math.round((ci / (nx - 1)) * (spec.frames - 1)));
-    const e = spec.data[f * spec.bins + Math.min(spec.bins - 1, ri)];
-    pos.setY(i, e * e * h);
-  }
-  pos.needsUpdate = true;
-  g.computeVertexNormals();
-  return g;
+/** A tube along a set of control points, used for the return path. */
+export function pathTube(points, radius = 0.018) {
+  const curve = new THREE.CatmullRomCurve3(
+    points.map((p) => new THREE.Vector3(...p)),
+    false,
+    'centripetal',
+    0.4,
+  );
+  return { geometry: new THREE.TubeGeometry(curve, 80, radius, 6, false), curve };
 }
 
-/** The waveform as a tube through the decimated signal. */
-export function waveformGeometry(wave, { w = 9, amp = 0.85, radius = 0.028 } = {}) {
-  const n = Math.min(wave.length, 480);
-  const pts = [];
-  for (let i = 0; i < n; i++) {
-    const u = i / (n - 1);
-    const k = Math.floor(u * (wave.length - 1));
-    pts.push(new THREE.Vector3((u - 0.5) * w, wave[k] * amp, 0));
-  }
-  const curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal', 0.25);
-  return new THREE.TubeGeometry(curve, n * 2, radius, 8, false);
-}
-
-/** Measured ground grid, for scale under the acoustic scenes. */
-export function gridGeometry(w = 9, d = 3.4, nx = 18, nz = 8) {
-  const v = [];
-  for (let i = 0; i <= nx; i++) {
-    const x = (i / nx - 0.5) * w;
-    v.push(x, 0, -d / 2, x, 0, d / 2);
-  }
-  for (let i = 0; i <= nz; i++) {
-    const z = (i / nz - 0.5) * d;
-    v.push(-w / 2, 0, z, w / 2, 0, z);
-  }
+/** A short arrow: shaft plus head, pointing down the negative Y axis. */
+export function arrowGeometry(len = 0.5) {
   const g = new THREE.BufferGeometry();
+  const h = 0.16;
+  const v = [
+    0, 0, 0, 0, -len, 0,
+    0, -len, 0, -h * 0.6, -len + h, 0,
+    0, -len, 0, h * 0.6, -len + h, 0,
+  ];
   g.setAttribute('position', new THREE.Float32BufferAttribute(v, 3));
   return g;
 }

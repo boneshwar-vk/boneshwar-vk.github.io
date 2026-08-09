@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/site.css" />
-  <link rel="stylesheet" href="../assets/scenes/tts.css?v=2" />
+  <link rel="stylesheet" href="../assets/scenes/tts.css?v=3" />
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -65,57 +65,51 @@
         <span class="tts-readout" data-tts-readout>0%</span>
       </div>
 
-      <div class="tts-axes" aria-hidden="true">
-        <span><b>X</b> time</span>
-        <span><b>Z</b> frequency</span>
-        <span><b>Y</b> intensity</span>
-      </div>
     </div>
 
     <div class="tts-panels">
 
       <article class="tts-panel" data-stage="0" data-active="true">
         <div class="tts-panel-inner">
-          <p class="tts-step"><span class="num">01</span> Text to vector</p>
+          <p class="tts-step"><span class="num">01</span> Text to vectors</p>
           <h3>Words become numbers</h3>
-          <p>The sentence is split into tokens, and each token is mapped to a vector the model can work with. Every
-            card keeps its own word, so nothing loses its identity in the transformation.</p>
-          <p class="tts-caveat">Four dimensions are shown per token. A real representation has several hundred, so
-            this is an illustrative projection rather than the vector itself.</p>
+          <p>The sentence is split into tokens, and each token becomes a compact block of numbers the model
+            can work with. The word stays printed on its block so you can follow it through the rest of the
+            pipeline.</p>
+          <p class="tts-caveat">Four values are shown per token. A real representation has several hundred, so
+            these are illustrative.</p>
         </div>
       </article>
 
       <article class="tts-panel" data-stage="1">
         <div class="tts-panel-inner">
           <p class="tts-step"><span class="num">02</span> Speaker conditioning</p>
-          <h3>Who is speaking, and how</h3>
-          <p>Text alone does not determine a voice. Speaker and delivery characteristics arrive separately and
-            combine with the text representation to form a single conditioned representation.</p>
-          <p class="tts-caveat">Pitch, timbre, energy and speaking rate are illustrative acoustic and speaker
-            features. They do not constitute a complete speaker embedding.</p>
+          <h3>What is said, and how it sounds</h3>
+          <p>Text alone does not decide a voice. A speaker representation carrying pitch, timbre, energy and
+            speaking style joins the text, and the two merge into a single conditioned input.</p>
+          <p class="tts-caveat">These four features are illustrative. They are not a complete speaker
+            embedding.</p>
         </div>
       </article>
 
       <article class="tts-panel" data-stage="2">
         <div class="tts-panel-inner">
-          <p class="tts-step"><span class="num">03</span> Neural generation</p>
-          <h3>Through the generator</h3>
-          <p>The conditioned representation passes through a stack of transformer layers and then a generative
-            decoder, which predicts an acoustic representation rather than audio directly.</p>
-          <p class="tts-caveat">The architecture is drawn in the spirit of modern neural TTS systems. It is a
-            simplified illustrative architecture, not a literal diagram of any specific model.</p>
+          <p class="tts-step"><span class="num">03</span> Autoregressive generation</p>
+          <h3>Generate one step, then feed it back</h3>
+          <p>The conditioned input passes through the transformer layers and produces a single new token. That
+            token travels back to the input and joins the sequence, which is now one token longer, and the model
+            runs again.</p>
+          <p>Four steps are shown here. A real utterance takes hundreds, and every one of them sees everything
+            generated before it.</p>
         </div>
       </article>
 
       <article class="tts-panel" data-stage="3">
         <div class="tts-panel-inner">
-          <p class="tts-step"><span class="num">04</span> Acoustics to speech</p>
-          <h3>A surface, then a signal</h3>
-          <p>The acoustic representation is energy across time and frequency. The ridges running left to right are
-            formants, the resonances that give a vowel its identity. The frequency axis then folds away and what
-            remains is pressure over time, which is what a speaker reproduces.</p>
-          <p class="tts-caveat">This surface and the waveform are measured from the same signal the play button
-            uses, so both are views of one piece of data.</p>
+          <p class="tts-step"><span class="num">04</span> Acoustics to audio</p>
+          <h3>The sequence becomes sound</h3>
+          <p>The finished sequence is an acoustic representation, which a vocoder turns into pressure over time.
+            That is the waveform below, and it is the signal the play button uses.</p>
         </div>
       </article>
 
@@ -126,24 +120,24 @@
   <main class="container">
     <section class="tts-notes">
       <h2>About this visualisation</h2>
-      <p>The four stages are one continuous transformation rather than four diagrams. The same word cards become
-        the vectors, the vectors gather into the conditioned representation, and that single object travels the
-        length of the generator before the acoustic surface forms in front of it. Scroll position is the only
-        animation parameter, and the camera moves between chosen vantage points instead of orbiting the scene.</p>
-      <p>Every object is generated in the browser. The typography is drawn to canvas textures and mapped onto
-        geometry, and the layers, blocks and surfaces are built from primitives. There are no downloaded models
-        and no particle systems standing in for detail.</p>
-      <p>The acoustic stage is the part with real numbers underneath it. The surface is a short-time Fourier
-        transform on a mel scale, and the waveform is the same signal decimated for display. Playing the sample
-        plays exactly the signal both were measured from.</p>
-      <p>The earlier stages are conceptual and are labelled where that matters. The vector cards show four
-        representative dimensions of a much larger vector, the speaker features are illustrative rather than a
-        complete embedding, and the generator is a simplified architecture rather than a specific published model.</p>
+      <p>The point of the diagram is the loop. Most explanations of text to speech stop at a stack of layers with
+        an arrow through it, which hides the part that actually matters at inference time: the model produces one
+        step, that step becomes part of its own input, and it runs again. Watching a generated block travel back
+        around and join the sequence makes that concrete in a way a static diagram does not.</p>
+      <p>Colour carries the meaning. Text tokens and the speaker representation have their own hues, the
+        conditioned input sits deliberately between the two because it is both, generated tokens take the warm
+        accent, and the transformer layers stay neutral so they never compete with the data moving through them.</p>
+      <p>Three dimensions are used only for the blocks and the path between them, where depth helps you follow
+        the flow. The sentence, the labels, the numbers, the waveform and the player are all flat, because
+        flattening them makes them easier to read rather than harder.</p>
+      <p>The waveform is drawn from the same samples the play button uses, so the picture and the sound are one
+        piece of data. The signal is synthesised in the browser from a formant model and labelled as such. It is
+        not the output of a neural vocoder.</p>
       <dl class="tts-spec">
-        <dt>Pipeline</dt><dd>Text, tokens, vectors, speaker conditioning, neural generation, acoustics, waveform</dd>
-        <dt>Acoustic surface</dt><dd>1024-point STFT, 256-sample hop, mel-spaced bands, 70&nbsp;dB range</dd>
+        <dt>Pipeline</dt><dd>Text, tokens, vectors, speaker conditioning, autoregressive generation, acoustics, audio</dd>
+        <dt>Generation</dt><dd>Four steps shown, each one appended to the input of the next</dd>
         <dt>Signal</dt><dd>22.05&nbsp;kHz mono, synthesised in the browser from a formant model</dd>
-        <dt>Scene</dt><dd>Seven word cards, four speaker features, six layers, one decoder, one surface</dd>
+        <dt>Scene</dt><dd>Seven token blocks, one speaker block, three transformer layers, four generated tokens</dd>
       </dl>
     </section>
   </main>
@@ -174,6 +168,6 @@
   </footer>
 
   <script src="../assets/site.js"></script>
-  <script type="module" src="../assets/scenes/tts.js?v=2"></script>
+  <script type="module" src="../assets/scenes/tts.js?v=3"></script>
 </body>
 </html>
