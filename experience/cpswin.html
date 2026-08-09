@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0f3a37" />
   <script>try{var t=localStorage.getItem('theme')||'teal';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','teal')}</script>
-  <title>Boneshwar V K · Curriculum Vitae</title>
-  <meta name="description" content="Curriculum Vitae of Boneshwar V K, computational biology and AI for healthcare." />
+  <title>Boneshwar V K · Research Intern, CPSWin Lab, Kansas State University</title>
+  <meta name="description" content="VAE + LTMG framework for glioblastoma imputation and clustering — Research Intern at CPSWin Lab, Kansas State University, May 2024 to Jul 2024." />
+  <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/site.css" />
+  <link rel="stylesheet" href="../assets/site.css" />
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -19,14 +20,14 @@
 
   <nav class="nav" aria-label="Primary">
     <div class="nav-inner">
-      <a class="brand" href="index.html"><span class="brand-mark">BV</span> Boneshwar&nbsp;V&nbsp;K</a>
+      <a class="brand" href="../index.html"><span class="brand-mark">BV</span> Boneshwar&nbsp;V&nbsp;K</a>
       <div class="nav-right">
         <ul class="nav-links">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="publications.html">Publications</a></li>
-          <li><a href="projects.html">Projects</a></li>
-          <li><a href="experience.html">Experience</a></li>
-          <li><a href="cv.html" class="active">CV</a></li>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../publications.html">Publications</a></li>
+          <li><a href="../projects.html">Projects</a></li>
+          <li><a href="../experience.html" class="active">Experience</a></li>
+          <li><a href="../cv.html">CV</a></li>
         </ul>
         <div class="theme-switch" role="group" aria-label="Color theme">
           <button class="swatch swatch--charcoal" data-set-theme="charcoal" aria-label="Charcoal and ivory theme" aria-pressed="false"></button>
@@ -39,25 +40,28 @@
   </nav>
 
   <header class="page-hero container">
-    <p class="eyebrow reveal"><span class="spark" aria-hidden="true">✦</span> Document</p>
-    <h1 class="reveal">Curriculum Vitae</h1>
-    <p class="lead reveal">A complete record of my education, research, publications, and experience.</p>
-    <div class="hero-actions reveal">
-      <a class="btn btn-primary" href="./assets/cv_2025.pdf?v=20250927" download>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
-        Download PDF
-      </a>
-      <a class="btn btn-ghost" href="./assets/cv_2025.pdf?v=20250927" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3h7v7M21 3l-9 9M19 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h5"/></svg>
-        Open in new tab
-      </a>
-    </div>
+    <a class="back-link reveal" href="../experience.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5m0 0l6-6m-6 6l6 6"/></svg>
+      Experience
+    </a>
+    <p class="eyebrow reveal"><span class="spark" aria-hidden="true">✦</span> CPSWin Lab · Kansas State University · May 2024 &ndash; Jul 2024</p>
+    <h1 class="reveal">Research Intern</h1>
+    <p class="lead reveal">VAE + LTMG framework for glioblastoma imputation and clustering</p>
   </header>
 
   <main class="container">
-    <div class="doc-frame reveal">
-      <iframe title="Curriculum Vitae of Boneshwar V K" src="./assets/cv_2025.pdf?v=20250927#toolbar=0&navpanes=0"></iframe>
-    </div>
+    <section class="role-body reveal">
+      <figure class="media media--anim">
+        <iframe class="anim" data-anim data-src="../assets/anim/cpswin.html" src="../assets/anim/cpswin.html?theme=teal" loading="lazy" title="Animation: VAE + LTMG framework for glioblastoma imputation and clustering"></iframe>
+      </figure>
+      <p class="role-lead">Created an inductive GNN framework for scRNA-seq imputation and clustering that retains cellular manifold structure and boosts downstream metrics (+60% Silhouette, +14.9% ARI) while cutting runtime. Extended the pipeline for GBM-specific analysis with VGAE + LTMG preprocessing and MST-based ensemble embeddings, improving heterogeneity analysis accuracy on test data.</p>
+      <ul class="tl-tags"><li>GNNs</li><li>VGAE</li><li>+60% Silhouette</li></ul>
+
+      <div class="role-stub">
+        <p>A fuller write-up of this role is still to come &mdash; what the problem actually was, what I tried,
+          and what held up.</p>
+      </div>
+    </section>
   </main>
 
   <footer class="footer">
@@ -85,6 +89,6 @@
     </div>
   </footer>
 
-  <script src="assets/site.js"></script>
+  <script src="../assets/site.js"></script>
 </body>
 </html>

@@ -5,16 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0f3a37" />
   <script>try{var t=localStorage.getItem('theme')||'teal';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','teal')}</script>
-  <title>Boneshwar V K · Structure — how a T cell reads a cell's interior</title>
-  <meta name="description" content="An interactive 3D walkthrough of a peptide–MHC class I complex: HLA-A*0201, beta-2-microglobulin, and the MART-1 melanoma epitope ELAGLGINTV. Built from PDB 3MRP." />
-  <meta property="og:title" content="Structure · Peptide–MHC class I, in three dimensions" />
-  <meta property="og:description" content="HLA-A*0201, beta-2-microglobulin, and the MART-1 melanoma epitope ELAGLGINTV — a scroll-driven structural walkthrough." />
+  <title>Boneshwar V K · Machine Learning Scientist, PopVax</title>
+  <meta name="description" content="Machine Learning Scientist at PopVax — machine learning for cancer therapeutic discovery, generative models for design, and treatments built to reach populations." />
+  <meta name="robots" content="noindex" />
+  <meta property="og:title" content="Machine Learning Scientist · PopVax" />
+  <meta property="og:description" content="Machine learning for cancer therapeutic discovery at PopVax." />
   <meta property="og:type" content="article" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/site.css" />
-  <link rel="stylesheet" href="assets/pmhc/pmhc.css?v=1" />
+  <link rel="stylesheet" href="../assets/site.css" />
+  <link rel="stylesheet" href="../assets/pmhc/pmhc.css?v=2" />
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -23,15 +24,14 @@
 
   <nav class="nav" aria-label="Primary">
     <div class="nav-inner">
-      <a class="brand" href="index.html"><span class="brand-mark">BV</span> Boneshwar&nbsp;V&nbsp;K</a>
+      <a class="brand" href="../index.html"><span class="brand-mark">BV</span> Boneshwar&nbsp;V&nbsp;K</a>
       <div class="nav-right">
         <ul class="nav-links">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="publications.html">Publications</a></li>
-          <li><a href="projects.html">Projects</a></li>
-          <li><a href="structure.html" class="active">Structure</a></li>
-          <li><a href="experience.html">Experience</a></li>
-          <li><a href="cv.html">CV</a></li>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../publications.html">Publications</a></li>
+          <li><a href="../projects.html">Projects</a></li>
+          <li><a href="../experience.html" class="active">Experience</a></li>
+          <li><a href="../cv.html">CV</a></li>
         </ul>
         <div class="theme-switch" role="group" aria-label="Color theme">
           <button class="swatch swatch--charcoal" data-set-theme="charcoal" aria-label="Charcoal and ivory theme" aria-pressed="false"></button>
@@ -44,11 +44,14 @@
   </nav>
 
   <header class="page-hero container">
-    <p class="eyebrow reveal"><span class="spark" aria-hidden="true">✦</span> Structure in three dimensions</p>
-    <h1 class="reveal">How a T&nbsp;cell reads a cell's interior</h1>
-    <p class="lead reveal">Every nucleated cell in your body continuously shreds a sample of its own proteins and
-      displays the fragments on its surface. This is the machine that does the displaying — and the tumour fragment
-      it is holding up. Scroll to move through the structure; drag to look around.</p>
+    <a class="back-link reveal" href="../experience.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5m0 0l6-6m-6 6l6 6"/></svg>
+      Experience
+    </a>
+    <p class="eyebrow reveal"><span class="spark" aria-hidden="true">✦</span> PopVax · Hyderabad · Jun 2026 &ndash; present</p>
+    <h1 class="reveal">Machine Learning Scientist</h1>
+    <p class="lead reveal">Machine learning for cancer therapeutics — from target to designed molecule, built to
+      reach the people who need it. Scroll through the structure; drag to look around.</p>
   </header>
 
   <!-- ===== Scroll-driven pMHC viewer ===== -->
@@ -56,12 +59,12 @@
     <h2 id="pmhc-heading" class="sr-only">Peptide–MHC class I complex, PDB 3MRP</h2>
 
     <div class="pmhc-sticky">
-      <div class="pmhc-stage" data-pmhc-stage data-model="public/models/pmhc.glb"></div>
+      <div class="pmhc-stage" data-pmhc-stage data-beats="brief" data-model="../public/models/pmhc.glb"></div>
 
       <ul class="pmhc-legend" aria-hidden="true">
         <li><span class="dot dot-hla"></span><span>HLA-A*0201 heavy chain</span></li>
         <li><span class="dot dot-b2m"></span><span>β<sub>2</sub>-microglobulin</span></li>
-        <li><span class="dot dot-pep"></span><span>MART-1 peptide</span></li>
+        <li><span class="dot dot-pep"></span><span>Tumour peptide</span></li>
       </ul>
 
       <div class="pmhc-hint" aria-hidden="true">
@@ -74,64 +77,27 @@
 
       <article class="pmhc-panel" data-beat="0" data-active="true">
         <div class="pmhc-panel-inner">
-          <p class="eyebrow">01 · The complex</p>
-          <h3>A molecular display case</h3>
-          <p>This is a peptide–MHC class I complex: three chains that only make sense together. A long
-            <strong>heavy chain</strong> does the presenting, a small <strong>light chain</strong> holds it
-            stable, and clamped between them sits a ten-residue fragment of a protein from inside the cell.</p>
-          <p>Passing T&nbsp;cells inspect it. If the fragment looks foreign — viral, or mutated — the cell is
-            marked for destruction.</p>
+          <p class="eyebrow">01</p>
+          <h3>AI for cancer drug discovery</h3>
+          <p>Machine learning applied to therapeutic discovery for solid tumours that have resisted everything
+            else.</p>
         </div>
       </article>
 
       <article class="pmhc-panel" data-beat="1">
         <div class="pmhc-panel-inner">
-          <p class="eyebrow">02 · The groove</p>
-          <h3>Eight strands and two helices</h3>
-          <p>The α1 and α2 domains of the heavy chain fold into one continuous platform: a floor of eight
-            antiparallel β-strands, walled by two long α-helices. The cleft between those helices is the
-            peptide-binding groove.</p>
-          <p>Unlike class&nbsp;II, this groove is <em>closed at both ends</em>. That is why class&nbsp;I peptides
-            are short — typically eight to ten residues, pinned at the termini and bulging in the middle.</p>
+          <p class="eyebrow">02</p>
+          <h3>Frontier generative models</h3>
+          <p>Building generative models and the pipelines around them — design, screening, and the search for what
+            is worth targeting.</p>
         </div>
       </article>
 
       <article class="pmhc-panel" data-beat="2">
         <div class="pmhc-panel-inner">
-          <p class="eyebrow">03 · The scaffold</p>
-          <h3>β<sub>2</sub>-microglobulin, underneath</h3>
-          <p>The small chain below never touches the peptide. It is invariant — the same 100-residue
-            immunoglobulin fold on every class&nbsp;I molecule you make — and it binds non-covalently beneath the
-            platform.</p>
-          <p>Without it the heavy chain does not fold correctly and never reaches the cell surface. Cells that
-            lose it go effectively invisible to cytotoxic T&nbsp;cells, which is one route by which tumours
-            escape.</p>
-        </div>
-      </article>
-
-      <article class="pmhc-panel" data-beat="3">
-        <div class="pmhc-panel-inner">
-          <p class="eyebrow">04 · The T cell's view</p>
-          <h3>Looking down into the cleft</h3>
-          <p>This is roughly what an approaching T-cell receptor sees: two helical ridges, and the peptide lying
-            between them. The receptor reads both at once — part MHC surface, part peptide — which is why
-            recognition is restricted to a particular HLA type.</p>
-          <p>Only the upward-facing side chains are legible. The rest of the peptide is buried in the pockets
-            below.</p>
-        </div>
-      </article>
-
-      <article class="pmhc-panel" data-beat="4">
-        <div class="pmhc-panel-inner">
-          <p class="eyebrow">05 · The epitope</p>
-          <h3><span class="seq">ELAGLGINTV</span></h3>
-          <p>A decapeptide from <strong>MART-1 / Melan-A</strong>, a protein made by melanocytes and by most
-            melanomas. Its second residue (leucine) and its last (valine) drop into the B and F pockets of the
-            groove — the canonical anchor preferences of HLA-A*0201, the most common class&nbsp;I allele in
-            people of European descent.</p>
-          <p>That combination made this epitope one of the most intensively studied targets in cancer
-            immunotherapy. The peptide crystallised here is an engineered variant, modified to sit in the groove
-            more tightly than the natural sequence does.</p>
+          <p class="eyebrow">03</p>
+          <h3>Curing for populations</h3>
+          <p>Designed so a treatment can reach a population, not a handful of patients.</p>
         </div>
       </article>
 
@@ -141,15 +107,15 @@
   <!-- ===== Notes ===== -->
   <main class="container">
     <section class="pmhc-notes">
-      <h2>About this model</h2>
-      <p>Geometry generated directly from <strong>PDB&nbsp;3MRP</strong> — <em>Crystal structure of MHC class I
-        HLA-A2 complexed with a Melan-A/MART-1 decapeptide variant</em>. The heavy chain (chain&nbsp;A, 275
-        residues, HLA-A*0201) and β<sub>2</sub>-microglobulin (chain&nbsp;B, 100 residues) are drawn as cartoon
-        ribbons built by splining the Cα trace, with helices and β-strands taken from the deposited secondary
-        structure records. The peptide (chain&nbsp;P) is drawn in ball-and-stick. Waters are omitted.</p>
-      <p>The ribbons, spheres and bonds were tessellated offline, packed into a single glTF binary with three
-        named nodes, and compressed with meshopt — about 293&nbsp;KB in total, fetched only once you scroll near
-        it. The heavy chain carries the A245V substitution present in the deposited construct.</p>
+      <h2>About the structure</h2>
+      <p>The molecule above is a peptide–MHC class I complex, built from <strong>PDB&nbsp;3MRP</strong>: an
+        HLA-A*0201 heavy chain (chain&nbsp;A, 275 residues) and β<sub>2</sub>-microglobulin (chain&nbsp;B, 100
+        residues) drawn as cartoon ribbons, holding up a ten-residue tumour-antigen fragment (chain&nbsp;P) in
+        ball-and-stick. It is the interface a T&nbsp;cell reads when it decides whether a cell is healthy — and the
+        interface a cancer immunotherapy has to design against.</p>
+      <p>Ribbons are splined through the Cα trace with helices and β-strands taken from the deposited secondary
+        structure records; waters are omitted. Geometry was tessellated offline, packed into a single glTF binary
+        with three named nodes, and meshopt-compressed to about 265&nbsp;KB, fetched only once you scroll near it.</p>
       <p class="pmhc-credit">
         Structure data: <a href="https://doi.org/10.2210/pdb3mrp/pdb" target="_blank" rel="noopener">RCSB PDB
         3MRP</a> · <span>10.2210/pdb3mrp/pdb</span>
@@ -182,7 +148,7 @@
     </div>
   </footer>
 
-  <script src="assets/site.js"></script>
-  <script type="module" src="assets/pmhc/pmhc.js?v=1"></script>
+  <script src="../assets/site.js"></script>
+  <script type="module" src="../assets/pmhc/pmhc.js?v=2"></script>
 </body>
 </html>

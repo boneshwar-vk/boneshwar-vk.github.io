@@ -1,7 +1,7 @@
 # pMHC viewer
 
 Scroll-driven 3D viewer for the peptide–MHC class I complex on
-[`structure.html`](../structure.html). Built from **PDB 3MRP** — HLA-A\*0201
+[`experience/popvax.html`](../experience/popvax.html). Built from **PDB 3MRP** — HLA-A\*0201
 heavy chain, β2-microglobulin, and the MART-1 decapeptide `ELAGLGINTV`.
 
 ## Layout

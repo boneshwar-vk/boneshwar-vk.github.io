@@ -12,20 +12,38 @@ import { clamp, damp, sampleTrack, sampleTrackVec3, spring } from './anim.js';
  * smootherstep between beats, so the camera settles at each one and glides
  * between — never a linear ramp, never an overshoot.
  *
- * `at` values line up with the narrative panels in structure.html.
+ * `at` values line up with the narrative panels on the page using the set.
  */
-export const BEATS = [
-  // 0 — the whole complex, three-quarter view, standing upright
-  { at: 0.0, azimuth: -0.62, polar: 1.44, radius: 4.35, fov: 32, focus: 0.0, target: [0, 0, 0] },
-  // 1 — swing round the alpha1/alpha2 platform
-  { at: 0.26, azimuth: 0.72, polar: 1.30, radius: 3.55, fov: 32, focus: 0.12, target: [0, 0.16, 0] },
-  // 2 — drop to beta2M sitting underneath as the scaffold
-  { at: 0.5, azimuth: 1.85, polar: 1.58, radius: 4.05, fov: 32, focus: 0.0, target: [0, -0.22, 0] },
-  // 3 — rise over the groove: the T-cell receptor's eye view
-  { at: 0.76, azimuth: 3.05, polar: 0.62, radius: 2.15, fov: 30, focus: 0.82, target: 'peptide' },
-  // 4 — settle in close on the epitope itself
-  { at: 1.0, azimuth: 3.72, polar: 0.95, radius: 1.35, fov: 27, focus: 1.0, target: 'peptide' },
-];
+export const BEAT_SETS = {
+  /** Five beats — the full structural-biology walkthrough. */
+  full: [
+    // 0 — the whole complex, three-quarter view, standing upright
+    { at: 0.0, azimuth: -0.62, polar: 1.44, radius: 4.35, fov: 32, focus: 0.0, target: [0, 0, 0] },
+    // 1 — swing round the alpha1/alpha2 platform
+    { at: 0.26, azimuth: 0.72, polar: 1.3, radius: 3.55, fov: 32, focus: 0.12, target: [0, 0.16, 0] },
+    // 2 — drop to beta2M sitting underneath as the scaffold
+    { at: 0.5, azimuth: 1.85, polar: 1.58, radius: 4.05, fov: 32, focus: 0.0, target: [0, -0.22, 0] },
+    // 3 — rise over the groove: the T-cell receptor's eye view
+    { at: 0.76, azimuth: 3.05, polar: 0.62, radius: 2.15, fov: 30, focus: 0.82, target: 'peptide' },
+    // 4 — settle in close on the epitope itself
+    { at: 1.0, azimuth: 3.72, polar: 0.95, radius: 1.35, fov: 27, focus: 1.0, target: 'peptide' },
+  ],
+
+  /** Three beats — one continuous arc from the whole complex down onto the
+   *  epitope, for pages whose copy is three cards rather than five. */
+  brief: [
+    { at: 0.0, azimuth: -0.58, polar: 1.42, radius: 4.3, fov: 32, focus: 0.0, target: [0, 0, 0] },
+    { at: 0.5, azimuth: 1.15, polar: 1.16, radius: 3.15, fov: 31, focus: 0.3, target: [0, 0.2, 0] },
+    { at: 1.0, azimuth: 3.0, polar: 0.72, radius: 1.6, fov: 28, focus: 1.0, target: 'peptide' },
+  ],
+};
+
+/** Default set, kept as a named export so callers can stay unaware of presets. */
+export const BEATS = BEAT_SETS.full;
+
+/** Resolve a preset name (or a literal array) to a beat list. */
+export const resolveBeats = (nameOrArray) =>
+  Array.isArray(nameOrArray) ? nameOrArray : BEAT_SETS[nameOrArray] ?? BEAT_SETS.full;
 
 const IDLE_SPIN = 0.052;        // rad/s — "very slow continuous rotation"
 const BREATH_RATE = 0.185;      // rad/s of the breathing sine
@@ -51,6 +69,7 @@ export function CameraRig({
   reducedMotion,
   onProgress,
   frameOffset = { x: 0, y: 0 },
+  beats = BEATS,
 }) {
   const camera = useThree((s) => s.camera);
 
@@ -85,14 +104,14 @@ export function CameraRig({
     driver.activity = damp(driver.activity, 0, 1.9, dt);
 
     // ---- 2. sample the beat tracks ----------------------------------------
-    const azTrack = sampleTrack(BEATS, 'azimuth', progress);
-    const polTrack = sampleTrack(BEATS, 'polar', progress);
-    const radTrack = sampleTrack(BEATS, 'radius', progress);
-    const fovTrack = sampleTrack(BEATS, 'fov', progress);
-    focusRef.current = sampleTrack(BEATS, 'focus', progress);
+    const azTrack = sampleTrack(beats, 'azimuth', progress);
+    const polTrack = sampleTrack(beats, 'polar', progress);
+    const radTrack = sampleTrack(beats, 'radius', progress);
+    const fovTrack = sampleTrack(beats, 'fov', progress);
+    focusRef.current = sampleTrack(beats, 'focus', progress);
 
     // Beat targets resolve 'peptide' to the epitope centroid measured from the GLB.
-    resolveTarget(BEATS, progress, peptideCenter, rig.beatTarget);
+    resolveTarget(beats, progress, peptideCenter, rig.beatTarget);
 
     // ---- 3. idle layer -----------------------------------------------------
     if (!reducedMotion) {

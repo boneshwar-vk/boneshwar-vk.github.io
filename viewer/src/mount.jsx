@@ -7,14 +7,15 @@
  */
 import { createRoot } from 'react-dom/client';
 
-import PMHCViewer, { BEATS } from './PMHCViewer.jsx';
+import PMHCViewer from './PMHCViewer.jsx';
+import { resolveBeats } from './CameraRig.jsx';
 
 /** Nearest beat to the current eased progress — drives panel highlighting. */
-function activeBeat(p) {
+function activeBeat(beats, p) {
   let best = 0;
   let bestDist = Infinity;
-  for (let i = 0; i < BEATS.length; i++) {
-    const d = Math.abs(BEATS[i].at - p);
+  for (let i = 0; i < beats.length; i++) {
+    const d = Math.abs(beats[i].at - p);
     if (d < bestDist) {
       bestDist = d;
       best = i;
@@ -26,12 +27,16 @@ function activeBeat(p) {
 function mount(stageEl) {
   const section = stageEl.closest('[data-pmhc-section]') ?? stageEl.parentElement;
   const modelUrl = stageEl.dataset.model || undefined;
+  // `data-beats` picks the camera path preset; it must match the number of
+  // narrative panels the page actually renders.
+  const beatSet = stageEl.dataset.beats || 'full';
+  const beats = resolveBeats(beatSet);
   const panels = section ? [...section.querySelectorAll('[data-beat]')] : [];
 
   let lastBeat = -1;
   const onProgress = (p) => {
     if (section) section.style.setProperty('--pmhc-progress', p.toFixed(4));
-    const beat = activeBeat(p);
+    const beat = activeBeat(beats, p);
     if (beat === lastBeat) return;
     lastBeat = beat;
     if (section) section.dataset.activeBeat = String(beat);
@@ -48,6 +53,7 @@ function mount(stageEl) {
       scrollElement={section}
       onProgress={onProgress}
       pinnedProgress={pinned}
+      beats={beatSet}
     />,
   );
 
@@ -59,4 +65,4 @@ export function mountAll() {
   document.querySelectorAll('[data-pmhc-stage]').forEach(mount);
 }
 
-export { PMHCViewer, BEATS };
+export { PMHCViewer };

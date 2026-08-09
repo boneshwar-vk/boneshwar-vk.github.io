@@ -107,4 +107,30 @@
   } else {
     reveals.forEach(function (el) { el.classList.add("in"); });
   }
+
+  /* Experience timeline: draw the rule as the reader descends.
+     Measured off the rect on scroll rather than via IntersectionObserver, so
+     it tracks position continuously instead of firing once at a threshold. */
+  var timeline = document.querySelector(".timeline");
+  if (timeline) {
+    if (reduceMotion) {
+      timeline.style.setProperty("--tl-progress", "1");
+    } else {
+      var raf = 0;
+      var draw = function () {
+        raf = 0;
+        var r = timeline.getBoundingClientRect();
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        /* 0 when the top of the list reaches the middle of the screen,
+           1 once its bottom has passed it. */
+        var span = r.height || 1;
+        var p = (vh * 0.55 - r.top) / span;
+        timeline.style.setProperty("--tl-progress", Math.max(0, Math.min(1, p)).toFixed(4));
+      };
+      var schedule = function () { if (!raf) raf = requestAnimationFrame(draw); };
+      draw();
+      window.addEventListener("scroll", schedule, { passive: true });
+      window.addEventListener("resize", schedule, { passive: true });
+    }
+  }
 })();

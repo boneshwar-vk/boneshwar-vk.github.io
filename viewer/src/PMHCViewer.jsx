@@ -2,7 +2,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
-import { BEATS, CameraRig } from './CameraRig.jsx';
+import { BEATS, BEAT_SETS, CameraRig, resolveBeats } from './CameraRig.jsx';
 import { Molecule } from './Molecule.jsx';
 import { Environment, Lights } from './Stage.jsx';
 import { usePointerControls, useStoryDriver } from './useStoryDriver.js';
@@ -74,6 +74,7 @@ function Scene({
   onLoaded,
   maxDpr,
   frameOffset,
+  beats,
 }) {
   const [peptideCenter, setPeptideCenter] = useState(() => new THREE.Vector3(0, 0.6, 0));
 
@@ -97,6 +98,7 @@ function Scene({
         reducedMotion={reducedMotion}
         onProgress={onProgress}
         frameOffset={frameOffset}
+        beats={beats}
       />
       <Suspense fallback={null}>
         <Molecule url={url} theme={theme} focusRef={focusRef} onReady={handleReady} />
@@ -125,7 +127,9 @@ export default function PMHCViewer({
   scrollElement = null,
   onProgress,
   pinnedProgress = null,
+  beats: beatsProp = 'full',
 }) {
+  const beats = useMemo(() => resolveBeats(beatsProp), [beatsProp]);
   const stageRef = useRef(null);
   const focusRef = useRef(0);
 
@@ -212,7 +216,7 @@ export default function PMHCViewer({
               powerPreference: 'high-performance',
               stencil: false,
             }}
-            camera={{ fov: BEATS[0].fov, near: 0.05, far: 60, position: [0, 0, 4.35] }}
+            camera={{ fov: beats[0].fov, near: 0.05, far: 60, position: [0, 0, 4.35] }}
             onCreated={({ gl }) => {
               gl.toneMapping = THREE.ACESFilmicToneMapping;
               gl.toneMappingExposure = 1.05;
@@ -229,6 +233,7 @@ export default function PMHCViewer({
               onLoaded={handleLoaded}
               maxDpr={maxDpr}
               frameOffset={frameOffset}
+              beats={beats}
             />
           </Canvas>
         )}
@@ -241,4 +246,4 @@ export default function PMHCViewer({
   );
 }
 
-export { BEATS };
+export { BEATS, BEAT_SETS };
