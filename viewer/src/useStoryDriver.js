@@ -117,6 +117,10 @@ export function usePointerControls(elementRef, driver, { enabled = true } = {}) 
 
     const onDown = (e) => {
       if (pointerId !== null) return;
+      // Buttons and links inside the stage must keep their clicks: capturing
+      // the pointer here retargets the pointerup to the stage, and the browser
+      // then never synthesises a click on the control that was pressed.
+      if (e.target.closest?.('button, a, [data-no-drag]')) return;
       pointerId = e.pointerId;
       isTouch = e.pointerType === 'touch';
       lastX = e.clientX;

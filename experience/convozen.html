@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/site.css" />
-  <link rel="stylesheet" href="../assets/scenes/tts.css?v=5" />
+  <link rel="stylesheet" href="../assets/scenes/tts.css?v=6" />
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -47,9 +47,10 @@
     </a>
     <p class="eyebrow reveal"><span class="spark" aria-hidden="true">✦</span> ConvoZen AI · NoBroker.com · May 2025 &ndash; Jun 2026</p>
     <h1 class="reveal">Associate Data Scientist</h1>
-    <p class="lead reveal">Speech denoising and a low-latency voice-bot stack, reaching about 900&nbsp;ms to first
-      byte with voice-activity false positives reduced by 13%. The visualisation below follows a sentence through a
-      neural text-to-speech system, from written words to a waveform.</p>
+    <p class="lead reveal">Research in neural text to speech, from building TTS models to studying the manifolds
+      that acoustic features occupy, how speaker identity is represented, and instant voice cloning from short
+      samples. The visualisation below follows a sentence through a neural text to speech system, from written
+      words to a waveform.</p>
   </header>
 
   <!-- ===== Scroll-driven TTS pipeline ===== -->
@@ -120,21 +121,36 @@
   <main class="container">
     <section class="tts-notes">
       <h2>About this visualisation</h2>
-      <p>The point of the diagram is the loop. Most explanations of text to speech stop at a stack of layers with
-        an arrow through it, which hides the part that actually matters at inference time: the model produces one
-        step, that step becomes part of its own input, and it runs again. Watching a generated block travel back
-        around and join the sequence makes that concrete in a way a static diagram does not.</p>
-      <p>Colour carries the meaning. Text tokens and the speaker representation have their own hues, the
-        conditioned input sits deliberately between the two because it is both, generated tokens take the warm
-        accent, and the transformer layers stay neutral so they never compete with the data moving through them.</p>
-      <p>Three dimensions are used only for the blocks and the path between them, where depth helps you follow
-        the flow. The sentence, the labels, the numbers, the waveform and the player are all flat, because
-        flattening them makes them easier to read rather than harder.</p>
+      <p>Most modern neural text to speech systems share one skeleton, and it is the one drawn above. Text is
+        tokenised and pushed through an encoder to produce linguistic features. Those features are conditioned on
+        a speaker latent, a learned representation of how a voice sounds, covering pitch, timbre, energy and
+        delivery. The conditioned representation is then decoded into an acoustic representation such as a mel
+        spectrogram or a sequence of audio codec tokens, and a neural vocoder, classically a GAN such as
+        HiFi-GAN, turns that into the waveform you hear.</p>
+      <p>Architectures differ mainly in the middle. Autoregressive systems in the style of XTTS generate the
+        acoustic representation one step at a time, feeding each step back into the input, which is the loop the
+        diagram shows. Flow matching and diffusion systems such as F5-TTS instead refine the whole representation
+        in parallel over a series of denoising steps, trading the loop for iteration in place. More recent
+        LLM-centred designs in the style of Qwen TTS predict discrete codec tokens directly and hand them to a
+        codec decoder rather than a mel vocoder. Speaker conditioning varies too, and embedding a few seconds of
+        reference audio into the speaker latent is what makes instant voice cloning possible.</p>
+      <p>The speaker latents and the manifolds they live on are what make this space interesting to study. The
+        acoustic features of human voices do not fill their space uniformly. They concentrate on a much
+        lower-dimensional manifold, and a good speaker encoder maps every voice to a point on it. Distances on
+        that manifold correspond to how similar two voices sound, moving along it changes pitch, timbre and
+        delivery smoothly, and cloning a voice from a few seconds of audio is the act of locating a new speaker
+        on a manifold learned from many others. How well a system generalises to voices it has never heard
+        depends almost entirely on how well this structure is learned.</p>
+      <p>The visualisation commits to the parts these systems share, text encoding, speaker conditioning,
+        stepwise generation and vocoding, and draws the autoregressive variant because it is the easiest to see.
+        Colour carries the meaning. Text and speaker have their own hues, the conditioned input sits between
+        them because it is both, generated steps take the warm accent, and the transformer layers stay neutral
+        so they never compete with the data moving through them.</p>
       <p>The waveform is drawn from the same samples the play button plays, so the picture and the sound are one
-        piece of data. The sample is generated speech from a commercial neural text-to-speech system. If the file
+        piece of data. The sample is generated speech from a commercial neural text to speech system. If the file
         cannot be loaded the page falls back to a signal synthesised in the browser and says so.</p>
       <dl class="tts-spec">
-        <dt>Pipeline</dt><dd>Text, tokens, vectors, speaker conditioning, autoregressive generation, acoustics, audio</dd>
+        <dt>Pipeline</dt><dd>Text encoder, speaker conditioning, autoregressive or diffusion decoder, neural vocoder</dd>
         <dt>Generation</dt><dd>Four steps shown, each one appended to the input of the next</dd>
         <dt>Signal</dt><dd>Generated speech sample, analysed at 22.05&nbsp;kHz mono</dd>
         <dt>Scene</dt><dd>Seven token blocks, one speaker block, three transformer layers, four generated tokens</dd>
@@ -168,6 +184,6 @@
   </footer>
 
   <script src="../assets/site.js"></script>
-  <script type="module" src="../assets/scenes/tts.js?v=5"></script>
+  <script type="module" src="../assets/scenes/tts.js?v=6"></script>
 </body>
 </html>

@@ -336,16 +336,22 @@ export default function TTSViewer({ scrollElement = null, audioUrl = null, onPro
     setPlaying(false);
   }, []);
 
-  const play = useCallback(() => {
+  const play = useCallback(async () => {
     if (!signal) return;
     if (playing) {
       stop();
       return;
     }
     const a = audio.current;
-    // Created on the click, which is what the autoplay policy requires.
-    if (!a.ctx) a.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    a.ctx.resume?.();
+    // Created on the click, which is what the autoplay policy requires; if the
+    // browser still hands us a suspended context, resume it and wait, because
+    // starting a source on a suspended context is silent.
+    if (!a.ctx || a.ctx.state === 'closed') {
+      a.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (a.ctx.state === 'suspended') {
+      try { await a.ctx.resume(); } catch { /* keep going; start() may still work */ }
+    }
     const node = a.ctx.createBufferSource();
     node.buffer = toAudioBuffer(a.ctx, signal.signal, SAMPLE_RATE);
     const gain = a.ctx.createGain();
