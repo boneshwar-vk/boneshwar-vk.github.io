@@ -18,37 +18,61 @@
 export const SAMPLE_RATE = 22050;
 
 /**
- * "The future is spoken." as a phoneme script.
+ * The utterance as a phoneme script.
  *
  * f1/f2/f3 are formant centre frequencies in Hz, `voiced` selects the glottal
  * source over noise, `amp` is a rough loudness, `dur` is seconds. Values are
  * standard textbook targets for a male-ish vocal tract, not measurements.
  */
 const SCRIPT = [
-  // "The"  -> ð ə
-  { p: 'dh', dur: 0.055, f1: 380, f2: 1200, f3: 2500, voiced: true, amp: 0.35 },
-  { p: 'ax', dur: 0.075, f1: 550, f2: 1450, f3: 2500, voiced: true, amp: 0.85 },
-  // "future" -> f j uw ch er
-  { p: 'f', dur: 0.075, f1: 900, f2: 2100, f3: 3400, voiced: false, amp: 0.28 },
-  { p: 'y', dur: 0.045, f1: 300, f2: 2100, f3: 2900, voiced: true, amp: 0.7 },
-  { p: 'uw', dur: 0.105, f1: 320, f2: 900, f3: 2300, voiced: true, amp: 1.0 },
-  { p: 'ch', dur: 0.06, f1: 1700, f2: 2400, f3: 3200, voiced: false, amp: 0.3 },
-  { p: 'er', dur: 0.11, f1: 480, f2: 1350, f3: 1700, voiced: true, amp: 0.8 },
-  // "is" -> ih z
-  { p: 'ih', dur: 0.07, f1: 400, f2: 1900, f3: 2550, voiced: true, amp: 0.85 },
-  { p: 'z', dur: 0.07, f1: 300, f2: 1600, f3: 2600, voiced: true, amp: 0.35 },
-  // "spoken" -> s p ow k ax n
-  { p: 's', dur: 0.1, f1: 1400, f2: 2600, f3: 4200, voiced: false, amp: 0.3 },
-  { p: 'p', dur: 0.045, f1: 400, f2: 1100, f3: 2300, voiced: false, amp: 0.12 },
-  { p: 'ow', dur: 0.13, f1: 450, f2: 850, f3: 2400, voiced: true, amp: 1.0 },
-  { p: 'k', dur: 0.05, f1: 1900, f2: 2000, f3: 3100, voiced: false, amp: 0.16 },
-  { p: 'ax', dur: 0.055, f1: 500, f2: 1500, f3: 2500, voiced: true, amp: 0.6 },
-  { p: 'n', dur: 0.1, f1: 280, f2: 1300, f3: 2600, voiced: true, amp: 0.55 },
-  { p: 'sil', dur: 0.16, f1: 500, f2: 1500, f3: 2500, voiced: false, amp: 0.0 },
+  // "The"
+  { dur: 0.05, f1: 350, f2: 1200, f3: 2500, voiced: true, amp: 0.35 },
+  { dur: 0.06, f1: 500, f2: 1500, f3: 2500, voiced: true, amp: 0.8 },
+  // "future"
+  { dur: 0.07, f1: 900, f2: 2100, f3: 3400, voiced: false, amp: 0.26 },
+  { dur: 0.04, f1: 300, f2: 2100, f3: 2900, voiced: true, amp: 0.7 },
+  { dur: 0.09, f1: 300, f2: 870, f3: 2240, voiced: true, amp: 1.0 },
+  { dur: 0.055, f1: 1700, f2: 2400, f3: 3200, voiced: false, amp: 0.28 },
+  { dur: 0.09, f1: 490, f2: 1350, f3: 1690, voiced: true, amp: 0.75 },
+  // "of"
+  { dur: 0.07, f1: 640, f2: 1190, f3: 2390, voiced: true, amp: 0.8 },
+  { dur: 0.05, f1: 400, f2: 1400, f3: 2400, voiced: true, amp: 0.3 },
+  // "artificial"
+  { dur: 0.09, f1: 730, f2: 1090, f3: 2440, voiced: true, amp: 0.95 },
+  { dur: 0.06, f1: 350, f2: 1050, f3: 1600, voiced: true, amp: 0.7 },
+  { dur: 0.04, f1: 1800, f2: 2200, f3: 3200, voiced: false, amp: 0.14 },
+  { dur: 0.05, f1: 500, f2: 1500, f3: 2500, voiced: true, amp: 0.55 },
+  { dur: 0.06, f1: 900, f2: 2100, f3: 3400, voiced: false, amp: 0.24 },
+  { dur: 0.06, f1: 400, f2: 1990, f3: 2550, voiced: true, amp: 0.85 },
+  { dur: 0.085, f1: 1900, f2: 2400, f3: 3000, voiced: false, amp: 0.28 },
+  { dur: 0.05, f1: 500, f2: 1500, f3: 2500, voiced: true, amp: 0.6 },
+  { dur: 0.075, f1: 400, f2: 900, f3: 2600, voiced: true, amp: 0.7 },
+  // "intelligence"
+  { dur: 0.06, f1: 400, f2: 1990, f3: 2550, voiced: true, amp: 0.85 },
+  { dur: 0.055, f1: 280, f2: 1300, f3: 2600, voiced: true, amp: 0.5 },
+  { dur: 0.04, f1: 1800, f2: 2200, f3: 3200, voiced: false, amp: 0.14 },
+  { dur: 0.07, f1: 530, f2: 1840, f3: 2480, voiced: true, amp: 0.95 },
+  { dur: 0.06, f1: 400, f2: 900, f3: 2600, voiced: true, amp: 0.65 },
+  { dur: 0.045, f1: 500, f2: 1500, f3: 2500, voiced: true, amp: 0.5 },
+  { dur: 0.06, f1: 1700, f2: 2200, f3: 3000, voiced: true, amp: 0.4 },
+  { dur: 0.045, f1: 500, f2: 1500, f3: 2500, voiced: true, amp: 0.5 },
+  { dur: 0.055, f1: 280, f2: 1300, f3: 2600, voiced: true, amp: 0.5 },
+  { dur: 0.085, f1: 1400, f2: 2600, f3: 4200, voiced: false, amp: 0.26 },
+  // "is"
+  { dur: 0.065, f1: 400, f2: 1990, f3: 2550, voiced: true, amp: 0.85 },
+  { dur: 0.06, f1: 300, f2: 1600, f3: 2600, voiced: true, amp: 0.33 },
+  // "spoken"
+  { dur: 0.095, f1: 1400, f2: 2600, f3: 4200, voiced: false, amp: 0.3 },
+  { dur: 0.045, f1: 400, f2: 1100, f3: 2300, voiced: false, amp: 0.12 },
+  { dur: 0.12, f1: 450, f2: 900, f3: 2400, voiced: true, amp: 1.0 },
+  { dur: 0.05, f1: 1900, f2: 2000, f3: 3100, voiced: false, amp: 0.16 },
+  { dur: 0.05, f1: 500, f2: 1500, f3: 2500, voiced: true, amp: 0.6 },
+  { dur: 0.1, f1: 280, f2: 1300, f3: 2600, voiced: true, amp: 0.55 },
+  { dur: 0.18, f1: 500, f2: 1500, f3: 2500, voiced: false, amp: 0.0 },
 ];
 
 /** Word boundaries as fractions of the utterance, for labelling the surface. */
-export const UTTERANCE = 'The future is spoken.';
+export const UTTERANCE = 'The future of artificial intelligence is spoken.';
 
 /** Two-pole resonator. Standard Klatt formant filter. */
 function resonator(freq, bandwidth, sr) {
@@ -103,7 +127,7 @@ export function synthesizeUtterance(sr = SAMPLE_RATE) {
 
   // Falling F0 contour with a little declination and vibrato — a statement,
   // not a question.
-  const f0At = (t) => 118 - 26 * t + 2.2 * Math.sin(2 * Math.PI * 4.5 * t);
+  const f0At = (t) => 122 - 30 * t + 2.4 * Math.sin(2 * Math.PI * 3.2 * t);
 
   let phase = 0;
   let noiseState = 0;
@@ -315,4 +339,40 @@ export function decimate(signal, points = 1024) {
     out[i] = peak * 0.65 + (acc / Math.max(1, b - a)) * 0.35;
   }
   return out;
+}
+
+
+/**
+ * Wrap a signal as a playable AudioBuffer. Kept separate from synthesis so the
+ * same path serves a decoded file and a generated one.
+ */
+export function toAudioBuffer(ctx, signal, sr = SAMPLE_RATE) {
+  const buf = ctx.createBuffer(1, signal.length, sr);
+  buf.copyToChannel(signal, 0);
+  return buf;
+}
+
+/**
+ * Decode an audio file to mono at our working rate.
+ *
+ * This is the hook for a real TTS sample: point the section's data-audio at a
+ * file and every acoustic scene is measured from it instead of the synthetic
+ * signal, with no other change.
+ */
+export async function loadAudio(url, sr = SAMPLE_RATE) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`audio ${res.status}`);
+  const bytes = await res.arrayBuffer();
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  const probe = new Ctx();
+  const decoded = await probe.decodeAudioData(bytes);
+  probe.close?.();
+  const off = new Offline(1, Math.max(1, Math.ceil(decoded.duration * sr)), sr);
+  const src = off.createBufferSource();
+  src.buffer = decoded;
+  src.connect(off.destination);
+  src.start();
+  const rendered = await off.startRendering();
+  return rendered.getChannelData(0).slice();
 }

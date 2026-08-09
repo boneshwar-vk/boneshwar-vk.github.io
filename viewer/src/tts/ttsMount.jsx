@@ -7,14 +7,13 @@
  */
 import { createRoot } from 'react-dom/client';
 
-import TTSViewer from './TTSViewer.jsx';
-import { STAGE_AT } from './stages.js';
+import TTSViewer, { STAGES } from './TTSViewer.jsx';
 
 function nearestStage(p) {
   let best = 0;
   let dist = Infinity;
-  for (let i = 0; i < STAGE_AT.length; i++) {
-    const d = Math.abs(STAGE_AT[i] - p);
+  for (let i = 0; i < STAGES.length; i++) {
+    const d = Math.abs(STAGES[i] - p);
     if (d < dist) {
       dist = d;
       best = i;
@@ -27,6 +26,7 @@ function mount(stageEl) {
   const section = stageEl.closest('[data-tts-section]') ?? stageEl.parentElement;
   const panels = section ? [...section.querySelectorAll('[data-stage]')] : [];
   const readout = section?.querySelector('[data-tts-readout]') ?? null;
+  const audioUrl = section?.dataset.audio || null;
 
   let lastStage = -1;
   const onProgress = (p) => {
@@ -42,7 +42,7 @@ function mount(stageEl) {
   };
 
   createRoot(stageEl).render(
-    <TTSViewer scrollElement={section} onProgress={onProgress} />,
+    <TTSViewer scrollElement={section} audioUrl={audioUrl} onProgress={onProgress} />,
   );
 
   section?.setAttribute('data-tts-ready', 'true');
