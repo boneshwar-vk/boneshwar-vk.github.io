@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0f3a37" />
   <script>try{var t=localStorage.getItem('theme')||'teal';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','teal')}</script>
-  <title>Boneshwar V K · Associate Data Scientist, ConvoZen AI, NoBroker.com</title>
-  <meta name="description" content="Speech denoising and low-latency voice-bot stack — Associate Data Scientist at ConvoZen AI, NoBroker.com, May 2025 to Jun 2026." />
+  <title>Boneshwar V K · Associate Data Scientist, ConvoZen AI</title>
+  <meta name="description" content="Associate Data Scientist at ConvoZen AI, NoBroker.com — speech denoising and a low-latency voice-bot stack, with an interactive walkthrough of how a neural text-to-speech system turns text into sound." />
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/site.css" />
+  <link rel="stylesheet" href="../assets/scenes/tts.css?v=1" />
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -46,21 +47,141 @@
     </a>
     <p class="eyebrow reveal"><span class="spark" aria-hidden="true">✦</span> ConvoZen AI · NoBroker.com · May 2025 &ndash; Jun 2026</p>
     <h1 class="reveal">Associate Data Scientist</h1>
-    <p class="lead reveal">Speech denoising and low-latency voice-bot stack</p>
+    <p class="lead reveal">Speech denoising and a low-latency voice-bot stack — about 900&nbsp;ms to first byte,
+      with VAD false positives down 13%. Below: what actually happens between a sentence and a sound.</p>
   </header>
 
-  <main class="container">
-    <section class="role-body reveal">
-      <figure class="media media--anim">
-        <iframe class="anim" data-anim data-src="../assets/anim/nobroker.html" src="../assets/anim/nobroker.html?theme=teal" loading="lazy" title="Animation: Speech denoising and low-latency voice-bot stack"></iframe>
-      </figure>
-      <p class="role-lead">Integrated DeepFilterNet v3 to denoise speech and improved VAD false positives by 13%, feeding a low-latency voice-bot (about 900 ms TTFB; about 1.6 s per turn). Prototyped speech-to-speech and TTS stacks (GPT-4o Realtime, Gemini 2.5, XTTS/FastSpeech) toward a non-cascaded pipeline.</p>
-      <ul class="tl-tags"><li>Speech AI</li><li>VAD</li><li>13% fewer false positives</li></ul>
+  <!-- ===== Scroll-driven TTS pipeline ===== -->
+  <section class="tts-section" data-tts-section aria-labelledby="tts-heading">
+    <h2 id="tts-heading" class="sr-only">How a neural text-to-speech system turns text into sound</h2>
 
-      <div class="role-stub">
-        <p>A fuller write-up of this role is still to come &mdash; what the problem actually was, what I tried,
-          and what held up.</p>
+    <div class="tts-sticky">
+      <div class="tts-stage" data-tts-stage></div>
+
+      <div class="tts-hud" aria-hidden="true">
+        <span>Pipeline</span>
+        <span class="tts-hud-track"></span>
+        <span class="tts-readout" data-tts-readout>0%</span>
       </div>
+
+      <div class="tts-axes" aria-hidden="true">
+        <span><b>X</b> time</span>
+        <span><b>Z</b> frequency</span>
+        <span><b>Y</b> energy</span>
+      </div>
+    </div>
+
+    <div class="tts-panels">
+
+      <article class="tts-panel" data-stage="0" data-active="true">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">01</span> Text</p>
+          <h3>A sentence, before it is sound</h3>
+          <p>Everything a speech model produces begins as characters. This sentence is drawn from about twenty
+            thousand points — and every one of them stays with us to the end.</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="1">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">02</span> Tokenisation</p>
+          <h3>Seven pieces, not four words</h3>
+          <p>The text is split into sub-word units: <code>The</code> <code>fut</code> <code>ure</code>
+            <code>is</code> <code>spo</code> <code>ken</code> <code>.</code></p>
+          <p>Splitting below the word is what lets a model pronounce something it has never seen before.</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="2">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">03</span> Embedding</p>
+          <h3>Each token becomes a vector</h3>
+          <p>Every token is mapped to a point in a learned space where distance carries meaning. Tokens keep their
+            colour here — the cluster that was <code>spo</code> is still <code>spo</code>.</p>
+          <p class="tts-caveat">A real embedding has hundreds of dimensions. This is three of them, arranged for
+            legibility — a projection, not the space itself.</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="3">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">04</span> Encoder</p>
+          <h3>Four layers, all-to-all</h3>
+          <p>The vectors enter a stack of transformer layers, drawn along the depth axis. Within each layer every
+            token can read every other token — the lines are that connectivity, not learned weights.</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="4">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">05</span> Attention</p>
+          <h3>Context decides delivery</h3>
+          <p>Self-attention lets each token incorporate context from the whole sentence. Here
+            <code>spo</code> is the query, and the beams show what it draws on — thickness and brightness scale
+            with weight.</p>
+          <p>This is why the same word is not spoken the same way twice: how <em>spoken</em> is realised depends on
+            what came before it.</p>
+          <p class="tts-caveat">Weights are illustrative, not read from a trained model.</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="5">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">06</span> Latent</p>
+          <h3>Linguistic, not yet acoustic</h3>
+          <p>What leaves the encoder is no longer text and not yet sound: a dense representation carrying who
+            said what, how fast, and with what emphasis. The camera passes through it.</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="6">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">07</span> Acoustic</p>
+          <h3>A mel spectrogram</h3>
+          <p>The decoder predicts a spectrogram: how much energy sits at each frequency, moment by moment. The
+            ridges running left to right are formants — the resonances that make a vowel that vowel.</p>
+          <p class="tts-caveat">Real surface: a 1024-point STFT of a formant-synthesised utterance, on a mel
+            scale. Heights are measured, not drawn.</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="7">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">08</span> Waveform</p>
+          <h3>The vocoder collapses it to a signal</h3>
+          <p>The frequency axis folds away and what is left is pressure over time — the thing a speaker can
+            actually move air with.</p>
+          <p>“The future is spoken.” — 1.31&nbsp;s at 22.05&nbsp;kHz.</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ===== Notes ===== -->
+  <main class="container">
+    <section class="tts-notes">
+      <h2>About this visualisation</h2>
+      <p>The scene is one particle system, not eight illustrations. The same points that spell the sentence become
+        the token clusters, the projected embedding field, the nodes of the encoder stack, the latent cloud, the
+        ridges of the spectrogram, and finally the waveform. Each point keeps its token identity the whole way
+        through, which is the only reason the transitions mean anything.</p>
+      <p>Geometry is generated in the browser: the letterforms are sampled from glyphs rasterised on a canvas, and
+        every other layout is computed. Nothing is a downloaded model. Positions for two adjacent stages live in
+        vertex attributes and a single uniform crossfades between them, so scrolling costs one uniform write per
+        frame rather than a geometry rebuild.</p>
+      <p>The acoustic scenes are the one part with real numbers underneath. A small Klatt-style formant
+        synthesiser renders the sentence from a phoneme script — glottal source, three formant resonators,
+        fricative noise — and the surface is a genuine short-time Fourier transform of that signal on a mel scale.
+        The waveform is the same signal. Nothing plays; the audio exists only as data.</p>
+      <p>The encoder, embedding and attention scenes are conceptual by contrast, and the captions say so where it
+        matters. They show the shape of the computation, not the parameters of any particular model.</p>
+      <dl class="tts-spec">
+        <dt>Representation</dt><dd>Sub-word tokens → encoder stack → mel spectrogram → waveform</dd>
+        <dt>Spectrogram</dt><dd>1024-point STFT, 256-sample hop, 64 mel bands, 70&nbsp;dB range</dd>
+        <dt>Signal</dt><dd>22.05&nbsp;kHz mono, 1.31&nbsp;s, formant-synthesised in-browser</dd>
+        <dt>Scene</dt><dd>20,000 points desktop / 7,000 mobile, one draw call</dd>
+      </dl>
     </section>
   </main>
 
@@ -90,5 +211,6 @@
   </footer>
 
   <script src="../assets/site.js"></script>
+  <script type="module" src="../assets/scenes/tts.js?v=1"></script>
 </body>
 </html>

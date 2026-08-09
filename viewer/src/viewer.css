@@ -9,17 +9,6 @@
   --pmhc-progress: 0;
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
 
 /* The pinned stage. `svh` keeps it stable while mobile browser chrome
    collapses — `vh` makes the model jump on every address-bar transition. */
@@ -27,6 +16,10 @@
   position: sticky;
   top: 0;
   height: 100svh;
+  /* If svh ever resolves to 0 — a zero-height viewport, a backgrounded tab —
+     the canvas container measures 0x0 and the WebGL scene never initialises.
+     A floor costs nothing when svh is healthy and prevents that dead end. */
+  min-height: 420px;
   z-index: 0;
   overflow: hidden;
 }
@@ -133,7 +126,7 @@
 }
 
 .pmhc-panel {
-  min-height: 100svh;
+  min-height: max(100svh, 420px);
   display: flex;
   align-items: center;
   padding: clamp(24px, 5vw, 64px);
