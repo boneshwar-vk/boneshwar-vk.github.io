@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f3a37" />
+  <script>try{var t=localStorage.getItem('theme')||'teal';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','teal')}</script>
+  <title>Boneshwar V K · Structure — how a T cell reads a cell's interior</title>
+  <meta name="description" content="An interactive 3D walkthrough of a peptide–MHC class I complex: HLA-A*0201, beta-2-microglobulin, and the MART-1 melanoma epitope ELAGLGINTV. Built from PDB 3MRP." />
+  <meta property="og:title" content="Structure · Peptide–MHC class I, in three dimensions" />
+  <meta property="og:description" content="HLA-A*0201, beta-2-microglobulin, and the MART-1 melanoma epitope ELAGLGINTV — a scroll-driven structural walkthrough." />
+  <meta property="og:type" content="article" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/site.css" />
+  <link rel="stylesheet" href="assets/pmhc/pmhc.css?v=1" />
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scroll-progress" aria-hidden="true"></div>
+
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-inner">
+      <a class="brand" href="index.html"><span class="brand-mark">BV</span> Boneshwar&nbsp;V&nbsp;K</a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="publications.html">Publications</a></li>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="structure.html" class="active">Structure</a></li>
+          <li><a href="experience.html">Experience</a></li>
+          <li><a href="cv.html">CV</a></li>
+        </ul>
+        <div class="theme-switch" role="group" aria-label="Color theme">
+          <button class="swatch swatch--charcoal" data-set-theme="charcoal" aria-label="Charcoal and ivory theme" aria-pressed="false"></button>
+          <button class="swatch swatch--teal" data-set-theme="teal" aria-label="Teal and caramel theme" aria-pressed="true"></button>
+          <button class="swatch swatch--ivory" data-set-theme="ivory" aria-label="Ivory and terracotta theme" aria-pressed="false"></button>
+        </div>
+        <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="page-hero container">
+    <p class="eyebrow reveal"><span class="spark" aria-hidden="true">✦</span> Structure in three dimensions</p>
+    <h1 class="reveal">How a T&nbsp;cell reads a cell's interior</h1>
+    <p class="lead reveal">Every nucleated cell in your body continuously shreds a sample of its own proteins and
+      displays the fragments on its surface. This is the machine that does the displaying — and the tumour fragment
+      it is holding up. Scroll to move through the structure; drag to look around.</p>
+  </header>
+
+  <!-- ===== Scroll-driven pMHC viewer ===== -->
+  <section class="pmhc-section" data-pmhc-section aria-labelledby="pmhc-heading">
+    <h2 id="pmhc-heading" class="sr-only">Peptide–MHC class I complex, PDB 3MRP</h2>
+
+    <div class="pmhc-sticky">
+      <div class="pmhc-stage" data-pmhc-stage data-model="public/models/pmhc.glb"></div>
+
+      <ul class="pmhc-legend" aria-hidden="true">
+        <li><span class="dot dot-hla"></span> HLA-A*0201 heavy chain</li>
+        <li><span class="dot dot-b2m"></span> β<sub>2</sub>-microglobulin</li>
+        <li><span class="dot dot-pep"></span> MART-1 peptide</li>
+      </ul>
+
+      <div class="pmhc-hint" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m0 0l-6-6m6 6l6-6"/></svg>
+        Scroll
+      </div>
+    </div>
+
+    <div class="pmhc-panels">
+
+      <article class="pmhc-panel" data-beat="0" data-active="true">
+        <div class="pmhc-panel-inner">
+          <p class="eyebrow">01 · The complex</p>
+          <h3>A molecular display case</h3>
+          <p>This is a peptide–MHC class I complex: three chains that only make sense together. A long
+            <strong>heavy chain</strong> does the presenting, a small <strong>light chain</strong> holds it
+            stable, and clamped between them sits a ten-residue fragment of a protein from inside the cell.</p>
+          <p>Passing T&nbsp;cells inspect it. If the fragment looks foreign — viral, or mutated — the cell is
+            marked for destruction.</p>
+        </div>
+      </article>
+
+      <article class="pmhc-panel" data-beat="1">
+        <div class="pmhc-panel-inner">
+          <p class="eyebrow">02 · The groove</p>
+          <h3>Eight strands and two helices</h3>
+          <p>The α1 and α2 domains of the heavy chain fold into one continuous platform: a floor of eight
+            antiparallel β-strands, walled by two long α-helices. The cleft between those helices is the
+            peptide-binding groove.</p>
+          <p>Unlike class&nbsp;II, this groove is <em>closed at both ends</em>. That is why class&nbsp;I peptides
+            are short — typically eight to ten residues, pinned at the termini and bulging in the middle.</p>
+        </div>
+      </article>
+
+      <article class="pmhc-panel" data-beat="2">
+        <div class="pmhc-panel-inner">
+          <p class="eyebrow">03 · The scaffold</p>
+          <h3>β<sub>2</sub>-microglobulin, underneath</h3>
+          <p>The small chain below never touches the peptide. It is invariant — the same 100-residue
+            immunoglobulin fold on every class&nbsp;I molecule you make — and it binds non-covalently beneath the
+            platform.</p>
+          <p>Without it the heavy chain does not fold correctly and never reaches the cell surface. Cells that
+            lose it go effectively invisible to cytotoxic T&nbsp;cells, which is one route by which tumours
+            escape.</p>
+        </div>
+      </article>
+
+      <article class="pmhc-panel" data-beat="3">
+        <div class="pmhc-panel-inner">
+          <p class="eyebrow">04 · The T cell's view</p>
+          <h3>Looking down into the cleft</h3>
+          <p>This is roughly what an approaching T-cell receptor sees: two helical ridges, and the peptide lying
+            between them. The receptor reads both at once — part MHC surface, part peptide — which is why
+            recognition is restricted to a particular HLA type.</p>
+          <p>Only the upward-facing side chains are legible. The rest of the peptide is buried in the pockets
+            below.</p>
+        </div>
+      </article>
+
+      <article class="pmhc-panel" data-beat="4">
+        <div class="pmhc-panel-inner">
+          <p class="eyebrow">05 · The epitope</p>
+          <h3><span class="seq">ELAGLGINTV</span></h3>
+          <p>A decapeptide from <strong>MART-1 / Melan-A</strong>, a protein made by melanocytes and by most
+            melanomas. Its second residue (leucine) and its last (valine) drop into the B and F pockets of the
+            groove — the canonical anchor preferences of HLA-A*0201, the most common class&nbsp;I allele in
+            people of European descent.</p>
+          <p>That combination made this epitope one of the most intensively studied targets in cancer
+            immunotherapy. The peptide crystallised here is an engineered variant, modified to sit in the groove
+            more tightly than the natural sequence does.</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ===== Notes ===== -->
+  <main class="container">
+    <section class="pmhc-notes">
+      <h2>About this model</h2>
+      <p>Geometry generated directly from <strong>PDB&nbsp;3MRP</strong> — <em>Crystal structure of MHC class I
+        HLA-A2 complexed with a Melan-A/MART-1 decapeptide variant</em>. The heavy chain (chain&nbsp;A, 275
+        residues, HLA-A*0201) and β<sub>2</sub>-microglobulin (chain&nbsp;B, 100 residues) are drawn as cartoon
+        ribbons built by splining the Cα trace, with helices and β-strands taken from the deposited secondary
+        structure records. The peptide (chain&nbsp;P) is drawn in ball-and-stick. Waters are omitted.</p>
+      <p>The ribbons, spheres and bonds were tessellated offline, packed into a single glTF binary with three
+        named nodes, and compressed with meshopt — about 293&nbsp;KB in total, fetched only once you scroll near
+        it. The heavy chain carries the A245V substitution present in the deposited construct.</p>
+      <p class="pmhc-credit">
+        Structure data: <a href="https://doi.org/10.2210/pdb3mrp/pdb" target="_blank" rel="noopener">RCSB PDB
+        3MRP</a> · <span>10.2210/pdb3mrp/pdb</span>
+      </p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-name reveal">Let's work together.</div>
+      <div class="footer-row reveal">
+        <ul class="social" aria-label="Profiles">
+          <li><a href="https://scholar.google.com/citations?user=KyuX2MYAAAAJ&hl=en" target="_blank" rel="noopener" aria-label="Google Scholar"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l11 6 9-4.9V16h2V9L12 3z"/><path d="M5 13v3c0 1.66 3.13 3 7 3s7-1.34 7-3v-3l-7 3.8L5 13z"/></svg></a></li>
+          <li><a href="https://orcid.org/0009-0006-7474-8697" target="_blank" rel="noopener" aria-label="ORCID"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 100 24 12 12 0 000-24zM7.4 18H5.6V8.5h1.8V18zm-.9-10.8a1.12 1.12 0 110-2.24 1.12 1.12 0 010 2.24zM18.4 13.3c0 2.9-1.9 4.7-5 4.7H9.9V8.5h3.5c3.12 0 5 1.9 5 4.8zm-1.85 0c0-2.1-1.3-3.1-3.32-3.1h-1.48v6.2h1.48c1.82 0 3.32-.9 3.32-3.1z"/></svg></a></li>
+          <li><a href="https://www.linkedin.com/in/boneshwar-vk-71549a234/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 110-4.14 2.07 2.07 0 010 4.14zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></a></li>
+          <li><a href="#" target="_blank" rel="noopener" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.25 2.87.12 3.17.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12.01 12.01 0 0024 12.5C24 5.87 18.63.5 12 .5z"/></svg></a></li>
+          <li><a href="mailto:boneshwar.vk20@gmail.com" aria-label="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 6l9 6 9-6"/></svg></a></li>
+        </ul>
+        <a class="btn btn-primary" href="mailto:boneshwar.vk20@gmail.com">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 6l9 6 9-6"/></svg>
+          boneshwar.vk20@gmail.com
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>© <span data-year></span> Boneshwar V K</span>
+        <span>Computational Biology · AI for Healthcare · IIT Madras</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/site.js"></script>
+  <script type="module" src="assets/pmhc/pmhc.js?v=1"></script>
+</body>
+</html>

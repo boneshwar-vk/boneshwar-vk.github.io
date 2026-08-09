@@ -1,1 +1,4 @@
 .DS_Store
+viewer/node_modules/
+viewer/build/
+__pycache__/

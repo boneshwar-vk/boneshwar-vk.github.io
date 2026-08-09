@@ -1,0 +1,29 @@
+{
+  "name": "pmhc-viewer",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Scroll-driven pMHC (HLA-A*0201 / b2M / MART-1) 3D viewer for boneshwar-vk.github.io",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "model": "node scripts/compress-model.mjs"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.0.0",
+    "@react-three/fiber": "^9.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "@gltf-transform/cli": "^4.1.0",
+    "@gltf-transform/core": "^4.4.2",
+    "@gltf-transform/extensions": "^4.4.2",
+    "@gltf-transform/functions": "^4.4.2",
+    "@vitejs/plugin-react": "^5.0.0",
+    "meshoptimizer": "^1.2.0",
+    "terser": "^5.49.2",
+    "vite": "^7.0.0"
+  }
+}

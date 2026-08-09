@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="teal">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>pMHC viewer — beat review harness</title>
+  <link rel="stylesheet" href="/assets/site.css" />
+  <link rel="stylesheet" href="/assets/pmhc/pmhc.css" />
+  <style>
+    /* Fixed pixel heights on purpose: no svh, no sticky, no scroll coupling,
+       so every beat renders deterministically in one screenshot. */
+    body { padding: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .cell { position: relative; height: 340px; border: 1px solid var(--line);
+            border-radius: 12px; overflow: hidden; background: var(--paper); }
+    .cell .pmhc-mount { position: absolute; inset: 0; }
+    .cap { position: absolute; left: 10px; top: 8px; z-index: 5;
+           font: 600 11px/1 Inter, system-ui; letter-spacing: .14em;
+           text-transform: uppercase; color: var(--accent); }
+    h1 { font-family: var(--serif); font-weight: 500; margin: 0 0 14px; color: var(--ink); }
+    .themes { margin: 16px 0 10px; display: flex; gap: 8px; }
+    .themes button { padding: 6px 12px; border-radius: 8px; cursor: pointer;
+                     border: 1px solid var(--line-strong); background: var(--surface);
+                     color: var(--ink); font: 500 13px Inter, system-ui; }
+  </style>
+</head>
+<body>
+  <h1>pMHC beat review</h1>
+  <div class="themes">
+    <button data-t="charcoal">charcoal</button>
+    <button data-t="teal">teal</button>
+    <button data-t="ivory">ivory</button>
+  </div>
+
+  <div class="grid" data-pmhc-section>
+    <div class="cell"><span class="cap">0.00 · complex</span>
+      <div class="pmhc-stage" data-pmhc-stage data-progress="0" data-model="/public/models/pmhc.glb"></div></div>
+    <div class="cell"><span class="cap">0.26 · groove</span>
+      <div class="pmhc-stage" data-pmhc-stage data-progress="0.26" data-model="/public/models/pmhc.glb"></div></div>
+    <div class="cell"><span class="cap">0.50 · β2M</span>
+      <div class="pmhc-stage" data-pmhc-stage data-progress="0.5" data-model="/public/models/pmhc.glb"></div></div>
+    <div class="cell"><span class="cap">0.76 · TCR view</span>
+      <div class="pmhc-stage" data-pmhc-stage data-progress="0.76" data-model="/public/models/pmhc.glb"></div></div>
+    <div class="cell"><span class="cap">1.00 · epitope</span>
+      <div class="pmhc-stage" data-pmhc-stage data-progress="1" data-model="/public/models/pmhc.glb"></div></div>
+    <div class="cell"><span class="cap">0.88 · between</span>
+      <div class="pmhc-stage" data-pmhc-stage data-progress="0.88" data-model="/public/models/pmhc.glb"></div></div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.themes button').forEach((b) =>
+      b.addEventListener('click', () =>
+        document.documentElement.setAttribute('data-theme', b.dataset.t)));
+  </script>
+  <script type="module" src="/assets/pmhc/pmhc.js"></script>
+</body>
+</html>
