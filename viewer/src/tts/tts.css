@@ -45,45 +45,6 @@
   height: 100% !important;
 }
 
-/* ---------- instrument chrome ---------- */
-.tts-hud {
-  position: absolute;
-  left: clamp(18px, 3vw, 40px);
-  bottom: clamp(18px, 3vw, 32px);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  z-index: 3;
-  pointer-events: none;
-  font-family: var(--sans, system-ui);
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--muted, #888);
-}
-
-.tts-hud-track {
-  position: relative;
-  width: clamp(90px, 14vw, 190px);
-  height: 1px;
-  background: var(--line-strong, #444);
-}
-
-.tts-hud-track::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--accent);
-  transform: scaleX(var(--tts-progress, 0));
-  transform-origin: 0 50%;
-}
-
-.tts-readout {
-  font-variant-numeric: tabular-nums;
-  color: var(--accent-deep);
-  min-width: 3.2em;
-}
-
 /* ---------- loading ---------- */
 .tts-loading {
   position: absolute;
@@ -146,6 +107,9 @@
   display: flex;
   align-items: center;
   padding: clamp(20px, 3.5vw, 48px);
+  /* Extra bottom padding shifts the centred card up by roughly 9svh, so it
+     reads nearer the hero copy instead of hanging low in the viewport. */
+  padding-bottom: calc(clamp(20px, 3.5vw, 48px) + 18svh);
   max-width: min(34ch, 29vw);
 }
 
@@ -266,7 +230,6 @@
   .tts-panel-inner { width: 100%; padding: 16px 18px; }
   .tts-panel h3 { font-size: 1.15rem; }
   .tts-panel p { font-size: 0.9rem; }
-  .tts-hud { bottom: auto; top: 12px; left: 14px; gap: 10px; }
   .tts-axes { top: 12px; right: 14px; bottom: auto; font-size: 0.66rem; }
 }
 
@@ -344,27 +307,6 @@
   font-family: var(--sans, system-ui);
   font-size: 0.7rem;
   color: var(--muted);
-}
-
-/* ---------- transport ---------- */
-.tts-transport {
-  position: absolute;
-  left: clamp(18px, 3vw, 40px);
-  bottom: clamp(56px, 7vw, 84px);
-  z-index: 4;
-  display: flex;
-  align-items: center;
-  gap: clamp(14px, 2vw, 26px);
-  flex-wrap: wrap;
-  opacity: 0;
-  transition: opacity 0.6s var(--ease, ease);
-  pointer-events: none;
-}
-
-/* The transport belongs to the final stage, where there is a signal to play. */
-.tts-section[data-active-stage='3'] .tts-transport {
-  opacity: 1;
-  pointer-events: auto;
 }
 
 .tts-play {
@@ -539,10 +481,10 @@
 
 .tts-transport {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: clamp(14px, 2vw, 26px);
-  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .tts-play {
@@ -566,7 +508,13 @@
 .tts-play svg { width: 16px; height: 16px; fill: currentColor; }
 .tts-play:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
 
-.tts-meta { display: flex; gap: clamp(12px, 1.8vw, 24px); margin: 0; font-family: var(--sans, system-ui); }
+.tts-meta {
+  display: flex;
+  justify-content: center;
+  gap: clamp(12px, 1.8vw, 24px);
+  margin: 0;
+  font-family: var(--sans, system-ui);
+}
 .tts-meta div { display: flex; flex-direction: column; gap: 1px; }
 .tts-meta dt {
   font-size: 0.6rem;

@@ -7,7 +7,7 @@ import { usePointerControls, useStoryDriver } from '../useStoryDriver.js';
 import { CameraPath } from './CameraPath.jsx';
 import { LABELS, TTSScene } from './TTSScene.jsx';
 import { SENTENCE } from './scene.js';
-import { SAMPLE_RATE, decimate, loadAudio, synthesizeUtterance, toAudioBuffer } from './speech.js';
+import { SAMPLE_RATE, envelope, loadAudio, synthesizeUtterance, toAudioBuffer } from './speech.js';
 
 /** Scroll positions of the four narrative stages. */
 export const STAGES = [0.12, 0.38, 0.64, 0.9];
@@ -297,8 +297,10 @@ export default function TTSViewer({ scrollElement = null, audioUrl = null, onPro
   const data = useMemo(() => {
     if (!signal) return null;
     return {
-      // The waveform is drawn in 2D from the same samples the play button uses.
-      wave: decimate(signal.signal, isCoarse ? 520 : 900),
+      // Peak envelope of the same samples the play button uses. An envelope
+      // mirrored about the midline is how recorded voice is conventionally
+      // shown, and it stays legible where a raw sample trace turns to fuzz.
+      wave: envelope(signal.signal, isCoarse ? 96 : 140),
       source: signal.source,
       seconds: signal.signal.length / SAMPLE_RATE,
     };
@@ -386,27 +388,26 @@ export default function TTSViewer({ scrollElement = null, audioUrl = null, onPro
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, w, h);
 
-    const wave = data.wave;
-    const mid = h / 2;
-    ctx.strokeStyle = palette.dim;
-    ctx.globalAlpha = 0.35;
-    ctx.beginPath();
-    ctx.moveTo(0, mid);
-    ctx.lineTo(w, mid);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
+    const env = data.wave;
+    let peak = 0;
+    for (let i = 0; i < env.length; i++) peak = Math.max(peak, env[i]);
+    const norm = peak > 0 ? 1 / peak : 1;
 
+    const mid = h / 2;
+    const step = w / env.length;
+    const barW = Math.max(2, step * 0.5);
     ctx.strokeStyle = palette.accent;
-    ctx.lineWidth = 1.4;
-    ctx.lineJoin = 'round';
-    ctx.beginPath();
-    for (let i = 0; i < wave.length; i++) {
-      const x = (i / (wave.length - 1)) * w;
-      const y = mid - wave[i] * (h * 0.44);
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
+    ctx.lineWidth = barW;
+    ctx.lineCap = 'round';
+    for (let i = 0; i < env.length; i++) {
+      const x = (i + 0.5) * step;
+      // A small floor keeps silence visible as a dotted centre line.
+      const half = Math.max(barW / 2, env[i] * norm * (h * 0.46));
+      ctx.beginPath();
+      ctx.moveTo(x, mid - half);
+      ctx.lineTo(x, mid + half);
+      ctx.stroke();
     }
-    ctx.stroke();
   }, [data, palette]);
 
   // Playhead follows the audio clock while something is playing.

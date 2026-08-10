@@ -130,6 +130,10 @@
   display: flex;
   align-items: center;
   padding: clamp(24px, 5vw, 64px);
+  /* Extra bottom padding lifts the centred card about 9svh. Layout only: the
+     section and panel heights are untouched, so the scroll-to-beat mapping
+     that drives the 3D stays exactly as it was. */
+  padding-bottom: calc(clamp(24px, 5vw, 64px) + 18svh);
   max-width: min(46ch, 42vw);
 }
 
