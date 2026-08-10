@@ -84,9 +84,16 @@ export function CameraPath({ progressRef, reducedMotion, frameOffset }) {
     }
 
     if (frameOffset.x || frameOffset.y) {
+      // The sideways offset exists to keep the scene clear of the caption
+      // column. The final stage's waveform and play button are centred DOM,
+      // so the offset eases out at the end and the acoustic block lines up
+      // with them instead of sitting right of centre.
+      const t = (p - 0.86) / 0.08;
+      const c = t < 0 ? 0 : t > 1 ? 1 : t;
+      const endCentre = 1 - c * c * (3 - 2 * c);
       const halfH = Math.tan((camera.fov * Math.PI) / 360) * rig.pos.distanceTo(rig.target);
       const halfW = halfH * camera.aspect;
-      if (frameOffset.x) camera.translateX(-frameOffset.x * halfW);
+      if (frameOffset.x) camera.translateX(-frameOffset.x * endCentre * halfW);
       if (frameOffset.y) camera.translateY(-frameOffset.y * halfH);
     }
   });
