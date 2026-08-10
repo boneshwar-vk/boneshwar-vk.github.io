@@ -207,46 +207,17 @@
     E("line",{x1:34,y1:114,x2:190,y2:114,style:"stroke:var(--line);stroke-width:1"},g1);
     txt(44,107,"CSV · DOC",7.5,MUT,"start","lbl",g1);
     E("circle",{cx:178,cy:103,r:3,style:"fill:var(--accent)",opacity:0.8},g1);
-    /* stylised scripts */
-    function devanagari(ox,oy){
-      var d="M"+ox+" "+oy+" h120 ";
-      return d+[
-        " M"+(ox+8)+" "+oy+" v16 q0 7 7 7",
-        " M"+(ox+26)+" "+oy+" v18",
-        " M"+(ox+40)+" "+oy+" c0 14 12 16 12 4 q0 -8 -6 -8",
-        " M"+(ox+62)+" "+oy+" v16 q0 8 8 6",
-        " M"+(ox+80)+" "+oy+" v17",
-        " M"+(ox+94)+" "+oy+" c0 14 12 15 12 3",
-        " M"+(ox+114)+" "+oy+" v16"
-      ].join("");
-    }
-    function tamil(ox,oy){
-      return "M"+ox+" "+oy+" q8 -12 16 0 q8 12 16 0 "
-        +"M"+(ox+38)+" "+(oy-7)+" a7 7 0 1 0 0.1 0 "
-        +"M"+(ox+54)+" "+(oy-9)+" q10 16 0 18 q-6 1 -6 -6 "
-        +"M"+(ox+72)+" "+(oy-8)+" q11 4 4 14 q-3 4 -9 1 "
-        +"M"+(ox+92)+" "+(oy-9)+" v18 q0 6 8 5 "
-        +"M"+(ox+108)+" "+(oy-9)+" q8 9 0 18";
-    }
-    function telugu(ox,oy){
-      var s="",xs=[0,22,44,66,88,108];
-      for(var q=0;q<xs.length;q++){
-        var x=ox+xs[q];
-        s+="M"+x+" "+oy+" a7 7 0 1 0 0.1 0 ";
-        s+="M"+x+" "+(oy-7)+" v-5 ";
-        if(q%2===0)s+="M"+(x+6)+" "+(oy+7)+" q4 5 0 9 ";
-      }
-      return s;
-    }
+    /* real Indic text, one line per script; system fonts shape all three */
     var rows=[
-      {name:"DEVANAGARI",path:devanagari(50,140),bx:46,by:126,bw:130,bh:28},
-      {name:"TAMIL",path:tamil(52,188),bx:46,by:170,bw:124,bh:30},
-      {name:"TELUGU",path:telugu(50,226),bx:46,by:212,bw:128,bh:28}
+      {name:"DEVANAGARI",str:"कुल बिक्री रिपोर्ट",ty:147,bx:46,by:126,bw:130,bh:28},
+      {name:"TAMIL",str:"மொத்த விற்பனை",ty:191,bx:46,by:170,bw:124,bh:30},
+      {name:"TELUGU",str:"మొత్తం అమ్మకాలు",ty:232,bx:46,by:212,bw:128,bh:28}
     ];
     var glyphNodes=[],bboxNodes=[];
     for(i=0;i<rows.length;i++){
-      glyphNodes.push(E("path",{d:rows[i].path,style:"fill:none;stroke:var(--ink);stroke-width:1.8",
-        "stroke-linecap":"round","stroke-linejoin":"round",opacity:0.92},g1));
+      var gt=txt(52,rows[i].ty,rows[i].str,11,INK,"start",null,g1);
+      gt.setAttribute("opacity",0.92);
+      glyphNodes.push(gt);
       var bb=E("rect",{x:rows[i].bx,y:rows[i].by,width:rows[i].bw,height:rows[i].bh,rx:3,
         style:"fill:none;stroke:var(--clay);stroke-width:1.4","stroke-dasharray":"4 3",opacity:0.2},g1);
       var lab=txt(rows[i].bx+rows[i].bw-2,rows[i].by-3,rows[i].name,7,AC2,"end",null,g1);
@@ -388,7 +359,7 @@
         bn.box.setAttribute("opacity",(0.2+0.75*lit).toFixed(2));
         bn.box.setAttribute("style","fill:none;stroke:"+(lit>0.5?"var(--accent)":"var(--clay)")+";stroke-width:1.4");
         bn.lab.setAttribute("opacity",(0.95*lit).toFixed(2));
-        bn.glyph.setAttribute("style","fill:none;stroke:"+(lit>0.5?"var(--accent)":"var(--ink)")+";stroke-width:1.8");
+        bn.glyph.setAttribute("style","fill:"+(lit>0.5?"var(--accent)":"var(--ink)"));
       }
 
       /* ANN: rings, links and ranking fill in */
