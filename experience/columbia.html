@@ -6,12 +6,34 @@
   <meta name="theme-color" content="#0f3a37" />
   <script>try{var t=localStorage.getItem('theme')||'teal';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','teal')}</script>
   <title>Boneshwar V K · Project Member, CRIS Lab, Columbia University</title>
-  <meta name="description" content="Knowledge-graph-grounded LLMs and topological grounding of biomedical concepts, Project Member at CRIS Lab, Columbia University, Apr 2025 to present." />
+  <meta name="description" content="Project Member at CRIS Lab, Columbia University. Knowledge-graph-grounded LLMs for hierarchical differential diagnosis, with an interactive walkthrough of ontology grounding, vector quantization, persistent homology and posterior-ranked diagnosis." />
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/site.css" />
+  <link rel="stylesheet" href="../assets/scenes/tts.css?v=8" />
+  <style>
+    /* The diagram fills the pinned viewport, kept clear of the caption column. */
+    .cris-stage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9svh 3vw 7svh clamp(0px, 24vw, 480px);
+    }
+    .cris-stage svg {
+      width: 100%;
+      height: 100%;
+      max-height: 84svh;
+    }
+    .cris-stage svg text { font-family: var(--sans, Inter, system-ui, sans-serif); letter-spacing: 0.2px; }
+    .cris-stage .lbl { text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px; }
+    @media (max-width: 900px) {
+      .cris-stage { padding: 12svh 3vw 26svh 3vw; }
+    }
+  </style>
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -46,21 +68,81 @@
     </a>
     <p class="eyebrow reveal"><span class="spark" aria-hidden="true">✦</span> CRIS Lab · Columbia University · Apr 2025 &ndash; present</p>
     <h1 class="reveal">Project Member</h1>
-    <p class="lead reveal">Knowledge-graph-grounded LLMs and topological grounding of biomedical concepts</p>
+    <p class="lead reveal">Building an interpretable, ontology-grounded LLM for hierarchical differential diagnosis,
+      tying MONDO and ORDO diseases to HPO phenotypes with MeSH-traceable evidence and clinical codes. The
+      visualisation below follows one clinical phrase from parse to ranked diagnosis.</p>
   </header>
 
-  <main class="container">
-    <section class="role-body reveal">
-      <figure class="media media--anim">
-        <iframe class="anim" data-anim data-src="../assets/anim/columbia.html" src="../assets/anim/columbia.html?theme=teal" loading="lazy" title="Animation: Knowledge-graph-grounded LLMs and topological grounding of biomedical concepts"></iframe>
-      </figure>
-      <p class="role-lead">Building an interpretable, ontology-grounded LLM/LKM for hierarchical differential diagnosis that ties MONDO/ORDO diseases to HPO phenotypes with MeSH-traceable evidence and clinical codes (LOINC, SNOMED, ICD-11). Exploring parse-tree-grounded knowledge graphs (rather than pure embeddings) and topological analysis of concept spaces to improve reasoning quality and safety for clinical decision support.</p>
-      <ul class="tl-tags"><li>LLMs</li><li>Knowledge Graphs</li><li>TDA</li><li>Clinical NLP</li></ul>
+  <!-- ===== Scroll-driven diagnosis pipeline ===== -->
+  <section class="tts-section" id="cris-section" aria-labelledby="cris-heading">
+    <h2 id="cris-heading" class="sr-only">Knowledge-graph-grounded differential diagnosis pipeline</h2>
 
-      <div class="role-stub">
-        <p>A fuller write-up of this role is still to come, covering what the problem was, what I tried, and
-          what held up.</p>
+    <div class="tts-sticky">
+      <div class="cris-stage" aria-hidden="true">
+        <svg id="cris-svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="0.7" style="fill:var(--line)"/>
+            </pattern>
+            <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.2" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <marker id="ah" markerWidth="8" markerHeight="8" refX="5.4" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" style="fill:var(--ink)"/>
+            </marker>
+            <marker id="ahA" markerWidth="8" markerHeight="8" refX="5.4" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" style="fill:var(--accent)"/>
+            </marker>
+            <marker id="ahM" markerWidth="8" markerHeight="8" refX="5.4" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" style="fill:var(--muted)"/>
+            </marker>
+          </defs>
+          <rect x="0" y="0" width="800" height="500" fill="url(#dots)" opacity="0.4"/>
+          <g id="cris-scene"></g>
+        </svg>
       </div>
+    </div>
+
+    <div class="tts-panels">
+
+      <article class="tts-panel" data-stage="0" data-active="true">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">01</span> The scaffold</p>
+          <h3>Ontology as the ground truth</h3>
+          <p>A clinical phrase is parsed, entity spans are recognised, and every concept has a home: MONDO and
+            ORDO disease classes over HPO phenotype nodes, with ICD-11, SNOMED and LOINC codes attached. Beside
+            them sit a vector-quantized codebook, a persistence panel and the differential tree, still at
+            rest.</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="1">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">02</span> Grounded inference</p>
+          <h3>Evidence flows through the graph</h3>
+          <p>Dependency arcs bind the phrase, spans ground to their HPO nodes, and is_a and has_phenotype edges
+            carry them up the DAG. Concept embeddings snap to the codebook, a Vietoris-Rips filtration sweeps
+            the persistence barcode, and the traversal ranks the differential, Ataxia-telangiectasia at
+            P&nbsp;=&nbsp;0.71.</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ===== Notes ===== -->
+  <main class="container">
+    <section class="tts-notes">
+      <h2>About this visualisation</h2>
+      <p>The pipeline drawn above: a dependency parse with NER spans, grounded to an ontology DAG of MONDO and
+        ORDO disease classes over HPO phenotypes via is_a and has_phenotype edges. Concept embeddings are
+        vector-quantized onto a discrete codebook, a Vietoris-Rips filtration yields an H0 and H1 persistence
+        barcode over the concept space, and a top-down DAG traversal ranks the differential by posterior
+        probability.</p>
+      <p>The first scroll lays out the scaffold. The second animates the inference: every arrow drawn is a
+        traceable step from evidence to diagnosis, which is the point of grounding an LLM in a knowledge graph
+        rather than letting it free-associate.</p>
     </section>
   </main>
 
@@ -90,6 +172,339 @@
   </footer>
 
   <script src="../assets/site.js"></script>
+  <script>
+  /* The same scene as assets/anim/columbia.html, scaled up and re-driven.
+     Scroll 1 shows the full scaffold at rest; scroll 2 replays the arrow
+     choreography, with scroll position as the only animation parameter. */
+  (function(){
+    "use strict";
+    var NS="http://www.w3.org/2000/svg";
+    var scene=document.getElementById("cris-scene");
+    if(!scene)return;
+    /* Labels sized up ~35% over the original card version. */
+    function F(s){return Math.round(s*13.5)/10;}
+    function E(tag,a,p){var e=document.createElementNS(NS,tag);if(a)for(var k in a)e.setAttribute(k,a[k]);(p||scene).appendChild(e);return e;}
+    function txt(x,y,s,fs,fill,anchor,cls,p){
+      var t=E("text",{x:x,y:y,"font-size":F(fs),"text-anchor":anchor||"start",style:"fill:"+fill},p);
+      if(cls)t.setAttribute("class",cls); t.textContent=s; return t;
+    }
+    function frame(x,y,w,h,title){
+      E("rect",{x:x,y:y,width:w,height:h,rx:7,style:"fill:none;stroke:var(--line);stroke-width:1"});
+      txt(x+9,y+15,title,10.5,"var(--muted)","start","lbl");
+    }
+    function cl(v,a,b){return v<a?a:v>b?b:v;}
+    function ph(t,a,b){return cl((t-a)/(b-a),0,1);}
+    function eIO(x){return x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;}
+    function eOut(x){return 1-Math.pow(1-x,2);}
+    function eBack(x){var c=1.45;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2);}
+    function lerp(a,b,t){return a+(b-a)*t;}
+    function setDash(o,p){
+      o.setAttribute("stroke-dashoffset",1-p);
+      /* Arrowhead markers render regardless of dash state, so an undrawn
+         arrow must be hidden outright. Inline style wins over presentation
+         attributes, so the gate goes through style.opacity, restoring each
+         path's own base opacity once it starts drawing. */
+      if(o.__baseOp===undefined) o.__baseOp=o.style.opacity||"1";
+      o.style.opacity = p<=0.015 ? "0" : o.__baseOp;
+    }
+    var COL={ink:"var(--ink)",mut:"var(--muted)",acc:"var(--accent)",ac2:"var(--clay)",ln:"var(--line)"};
+
+    var stages=["PARSE","GROUND","ONTOLOGY","VQ","RIPS / PERS","DDx"];
+    var chipX=[28,124,224,346,404,516], chipEl=[], chipUnd=[];
+    for(var i=0;i<stages.length;i++){
+      chipEl.push(txt(chipX[i],26,stages[i],10.5,COL.mut,"start","lbl"));
+      chipUnd.push(E("rect",{x:chipX[i],y:31,width:Math.max(48,stages[i].length*7.6),height:2,rx:1,style:"fill:var(--accent)",opacity:0}));
+    }
+    for(i=0;i<5;i++){var cxp=chipX[i+1]-12;txt(cxp,26,"›",11,COL.ln,"start",null);}
+
+    frame(20,40,254,158,"PARSE");
+    frame(288,40,280,260,"ONTOLOGY · is_a");
+    frame(20,212,254,260,"VQ CODEBOOK");
+    frame(288,312,280,160,"RIPS / PERSISTENCE");
+    frame(576,40,212,432,"DDx");
+
+    var pg=E("g",{});
+    var toks=[
+      {x:50,s:"progressive",ent:0},
+      {x:113,s:"ataxia",ent:1},
+      {x:161,s:"ocular",ent:0},
+      {x:228,s:"telangiectasia",ent:1}
+    ];
+    var TY=176;
+    for(i=0;i<toks.length;i++) txt(toks[i].x,TY,toks[i].s,8.4,toks[i].ent?COL.ink:COL.mut,"middle",null,pg);
+    var entBoxes=[];
+    var entSpec=[{x:113,w:48},{x:228,w:92}];
+    for(i=0;i<entSpec.length;i++){
+      var hw=entSpec[i].w/2;
+      entBoxes.push(E("rect",{x:entSpec[i].x-hw,y:TY+4,width:entSpec[i].w,height:11,rx:2,
+        style:"fill:none;stroke:var(--accent);stroke-width:1.2",opacity:0},pg));
+    }
+    txt(192,200,"NER span",7.5,COL.mut,"middle",null,pg);
+    function darc(x1,x2,apex,lab){
+      var mid=(x1+x2)/2;
+      var d="M"+x1+" "+(TY-11)+" Q "+mid+" "+apex+" "+x2+" "+(TY-11);
+      var path=E("path",{d:d,"pathLength":1,"stroke-dasharray":"1 1.2","stroke-dashoffset":1,
+        "marker-end":"url(#ah)",style:"fill:none;stroke:var(--ink);stroke-width:1.1"},pg);
+      var l=txt(mid,apex+3,lab,7,COL.mut,"middle",null,pg); l.setAttribute("opacity",0);
+      return {p:path,l:l};
+    }
+    var arcs=[ darc(50,113,148,"amod"), darc(161,228,148,"amod"), darc(113,228,116,"conj") ];
+
+    var og=E("g",{});
+    var oN={
+      mondo:{x:356,y:88,w:92,h:32,t1:"MONDO",t2:"0008840",k:"cls"},
+      ordo :{x:488,y:88,w:88,h:32,t1:"ORDO",t2:"100 · ataxia",k:"cls"},
+      dis  :{x:426,y:168,w:150,h:36,t1:"Ataxia-telangiectasia",t2:"ICD-11 LD90 · SNOMED",k:"dis"},
+      h1   :{x:336,y:256,r:20,t1:"Cerebellar ataxia",t2:"HP:0001251",k:"hpo"},
+      h2   :{x:452,y:268,r:20,t1:"Telangiectasia",t2:"HP:0001009",k:"hpo"},
+      h3   :{x:534,y:238,r:20,t1:"↑ AFP",t2:"LOINC 1834-1",k:"hpo"}
+    };
+    function oedge(a,b,ay,by,lab,acc){
+      var d="M"+a.x+" "+ay+" L "+b.x+" "+by;
+      var pp=E("path",{d:d,pathLength:1,"stroke-dasharray":"1 1.2","stroke-dashoffset":1,
+        "marker-end":acc?"url(#ahA)":"url(#ahM)",
+        style:"fill:none;stroke:"+(acc?"var(--accent)":"var(--muted)")+";stroke-width:1.1;opacity:.85"},og);
+      var lx=(a.x+b.x)/2, ly=(ay+by)/2;
+      var l=txt(lx,ly-3,lab,6.8,COL.mut,"middle",null,og); l.setAttribute("opacity",0);
+      return {p:pp,l:l};
+    }
+    var oEdges=[
+      oedge(oN.dis,oN.mondo,oN.dis.y-18,oN.mondo.y+16,"is_a",1),
+      oedge(oN.dis,oN.ordo, oN.dis.y-18,oN.ordo.y+16,"is_a",1),
+      oedge(oN.dis,oN.h1,oN.dis.y+18,oN.h1.y-20,"has_phenotype",0),
+      oedge(oN.dis,oN.h2,oN.dis.y+18,oN.h2.y-20,"",0),
+      oedge(oN.dis,oN.h3,oN.dis.y+18,oN.h3.y-20,"",0)
+    ];
+    function drawNode(n){
+      var g=E("g",{},og), col= n.k==="dis"?"var(--accent)":"var(--ink)";
+      if(n.r){
+        E("ellipse",{cx:n.x,cy:n.y,rx:n.r+13,ry:n.r,style:"fill:none;stroke:var(--ink);stroke-width:1.2"},g);
+        txt(n.x,n.y+1,n.t1,7.6,COL.ink,"middle",null,g);
+        txt(n.x,n.y+12,n.t2,6.4,COL.mut,"middle",null,g);
+      } else {
+        E("rect",{x:n.x-n.w/2,y:n.y-n.h/2,width:n.w,height:n.h,rx:5,
+          style:"fill:none;stroke:"+col+";stroke-width:"+(n.k==="dis"?1.6:1.2)},g);
+        txt(n.x,n.y-1,n.t1,n.k==="dis"?8.6:8,col,"middle",null,g);
+        txt(n.x,n.y+11,n.t2,6.2,COL.mut,"middle",null,g);
+      }
+    }
+    drawNode(oN.mondo);drawNode(oN.ordo);drawNode(oN.dis);drawNode(oN.h1);drawNode(oN.h2);drawNode(oN.h3);
+    txt(298,294,"MONDO/ORDO classes → HPO phenotypes",6.8,COL.mut,"start",null,og);
+
+    var gg=E("g",{});
+    function ground(sx,sy,ex,ey){
+      var d="M"+sx+" "+sy+" C "+(sx+70)+" "+(sy+6)+" "+(ex-70)+" "+(ey-26)+" "+ex+" "+ey;
+      return E("path",{d:d,pathLength:1,"stroke-dasharray":"1 1.2","stroke-dashoffset":1,
+        "marker-end":"url(#ahA)",
+        style:"fill:none;stroke:var(--accent);stroke-width:1.2;opacity:.9"},gg);
+    }
+    var gArcs=[ ground(113,TY+14,oN.h1.x-24,oN.h1.y-8), ground(228,TY+14,oN.h2.x-24,oN.h2.y-8) ];
+    var gLbl=txt(252,234,"GROUND",8,COL.acc,"middle","lbl",gg); gLbl.setAttribute("opacity",0);
+
+    var vg=E("g",{});
+    var gx=[44,100,156,212,256], gy=[262,322,386,448];
+    for(var ci=0;ci<gx.length;ci++)for(var cj=0;cj<gy.length;cj++){
+      E("path",{d:"M"+(gx[ci]-3)+" "+gy[cj]+" h6 M"+gx[ci]+" "+(gy[cj]-3)+" v6",
+        style:"fill:none;stroke:var(--line);stroke-width:1"},vg);
+    }
+    for(ci=0;ci<gx.length;ci++)E("line",{x1:gx[ci],y1:255,x2:gx[ci],y2:455,style:"stroke:var(--line);stroke-width:.5",opacity:.4},vg);
+    for(cj=0;cj<gy.length;cj++)E("line",{x1:38,y1:gy[cj],x2:262,y2:gy[cj],style:"stroke:var(--line);stroke-width:.5",opacity:.4},vg);
+    txt(52,252,"eₖ",6.5,COL.mut,"middle",null,vg);
+    var vqPts=[
+      {tx:100,ty:322,sx:74,sy:340},
+      {tx:212,ty:262,sx:232,sy:284},
+      {tx:156,ty:386,sx:138,sy:362},
+      {tx:256,ty:322,sx:234,sy:306},
+      {tx:100,ty:448,sx:124,sy:428},
+      {tx:212,ty:448,sx:192,sy:464},
+      {tx:156,ty:262,sx:172,sy:282}
+    ];
+    var vqEl=[];
+    for(i=0;i<vqPts.length;i++){
+      var conn=E("line",{style:"stroke:var(--accent);stroke-width:.8;stroke-dasharray:2 2",opacity:0},vg);
+      var dot=E("circle",{r:3.4,style:"fill:var(--accent)",filter:"url(#glow)"},vg);
+      dot.setAttribute("cx",vqPts[i].sx);dot.setAttribute("cy",vqPts[i].sy);
+      vqEl.push({conn:conn,dot:dot});
+    }
+    txt(150,244,"z_e(x) → e_k  (nearest)",7.6,COL.mut,"middle",null,vg);
+
+    var rg=E("g",{});
+    var cx0=362,cy0=400,rr=42;
+    var rips=[];
+    for(i=0;i<6;i++){var ang=-Math.PI/2+i*(Math.PI*2/6);rips.push({x:cx0+rr*Math.cos(ang),y:cy0+rr*Math.sin(ang)});}
+    var ripFill=E("polygon",{points:rips.map(function(p){return p.x+","+p.y;}).join(" "),
+      style:"fill:var(--clay)",opacity:0},rg);
+    var ripEdges=[];
+    function redge(a,b,at){
+      var e=E("line",{x1:rips[a].x,y1:rips[a].y,x2:rips[b].x,y2:rips[b].y,
+        style:"stroke:var(--ink);stroke-width:1.2",opacity:0},rg);
+      ripEdges.push({e:e,at:at});
+    }
+    for(i=0;i<6;i++)redge(i,(i+1)%6,0.20);
+    redge(0,3,0.48);redge(1,4,0.56);
+    var ripBall=[];
+    for(i=0;i<6;i++){
+      ripBall.push(E("circle",{cx:rips[i].x,cy:rips[i].y,r:0,style:"fill:var(--accent)",opacity:.10},rg));
+      E("circle",{cx:rips[i].x,cy:rips[i].y,r:2.8,style:"fill:var(--ink)"},rg);
+    }
+    txt(362,470,"ε-ball filtration",7,COL.mut,"middle",null,rg);
+    var bx0=436,bw=116;
+    E("line",{x1:bx0,y1:332,x2:bx0,y2:462,style:"stroke:var(--line);stroke-width:1"},rg);
+    E("line",{x1:bx0,y1:462,x2:bx0+bw+6,y2:462,style:"stroke:var(--line);stroke-width:1"},rg);
+    txt(bx0+bw+8,464,"ε",8,COL.mut,"start",null,rg);
+    txt(bx0+2,344,"H0",7.5,COL.acc,"start","lbl",rg);
+    txt(bx0+2,434,"H1",7.5,COL.ac2,"start","lbl",rg);
+    var bars=[
+      {y:352,birth:0,death:0.16,c:"var(--accent)"},
+      {y:363,birth:0,death:0.27,c:"var(--accent)"},
+      {y:374,birth:0,death:0.39,c:"var(--accent)"},
+      {y:385,birth:0,death:0.52,c:"var(--accent)"},
+      {y:396,birth:0,death:0.63,c:"var(--accent)"},
+      {y:407,birth:0,death:1.0, c:"var(--accent)"},
+      {y:424,birth:0.55,death:0.93,c:"var(--clay)"}
+    ];
+    var barEl=[];
+    for(i=0;i<bars.length;i++){
+      barEl.push(E("line",{x1:bx0+bw*bars[i].birth,y1:bars[i].y,x2:bx0+bw*bars[i].birth,y2:bars[i].y,
+        style:"stroke:"+bars[i].c+";stroke-width:3;stroke-linecap:round",opacity:0},rg));
+    }
+    var sweep=E("line",{x1:bx0,y1:332,x2:bx0,y2:462,style:"stroke:var(--ink);stroke-width:.8;stroke-dasharray:2 3",opacity:0},rg);
+
+    var dg=E("g",{});
+    var dRoot={x:682,y:84,w:158,h:32};
+    E("rect",{x:dRoot.x-dRoot.w/2,y:dRoot.y-dRoot.h/2,width:dRoot.w,height:dRoot.h,rx:5,
+      style:"fill:none;stroke:var(--ink);stroke-width:1.2"},dg);
+    txt(dRoot.x,dRoot.y-1,"cerebellar ataxia",8.4,COL.ink,"middle",null,dg);
+    txt(dRoot.x,dRoot.y+11,"P(disease | obs)",6.2,COL.mut,"middle",null,dg);
+    var cand=[
+      {x:622,y:188,name:"Friedreich",code:"MONDO:0010787",post:0.13,top:0},
+      {x:692,y:188,name:"A-T",code:"MONDO:0008840",post:0.71,top:1},
+      {x:758,y:188,name:"SCA1",code:"MONDO:0007117",post:0.09,top:0}
+    ];
+    var leaf={x:692,y:300,name:"ATM biallelic",code:"variant"};
+    function dedge(ax,ay,bx,by,top){
+      return E("path",{d:"M"+ax+" "+ay+" L "+bx+" "+by,pathLength:1,"stroke-dasharray":"1 1.2","stroke-dashoffset":1,
+        "marker-end":top?"url(#ahA)":"url(#ahM)",
+        style:"fill:none;stroke:"+(top?"var(--accent)":"var(--muted)")+";stroke-width:"+(top?1.6:1)},dg);
+    }
+    var dEdge=[];
+    for(i=0;i<cand.length;i++)dEdge.push(dedge(dRoot.x,dRoot.y+16,cand[i].x,cand[i].y-17,cand[i].top));
+    var leafEdge=dedge(cand[1].x,cand[1].y+17,leaf.x,leaf.y-14,1);
+    var candEl=[];
+    for(i=0;i<cand.length;i++){
+      var c=cand[i], col=c.top?"var(--accent)":"var(--ink)";
+      var g=E("g",{},dg);
+      E("rect",{x:c.x-32,y:c.y-17,width:64,height:34,rx:5,
+        style:"fill:none;stroke:"+col+";stroke-width:"+(c.top?1.7:1)},g);
+      txt(c.x,c.y-3,c.name,8.2,col,"middle",null,g);
+      txt(c.x,c.y+9,c.code,5.6,COL.mut,"middle",null,g);
+      E("rect",{x:c.x-27,y:c.y+21,width:54,height:5,rx:2.5,style:"fill:none;stroke:var(--line);stroke-width:.8"},g);
+      var bar=E("rect",{x:c.x-27,y:c.y+21,width:0,height:5,rx:2.5,style:"fill:"+(c.top?"var(--accent)":"var(--muted)")},g);
+      var pct=txt(c.x,c.y+38,"0%",7,c.top?COL.acc:COL.mut,"middle",null,g);
+      candEl.push({bar:bar,pct:pct});
+    }
+    var leafG=E("g",{opacity:0},dg);
+    E("rect",{x:leaf.x-50,y:leaf.y-15,width:100,height:30,rx:5,style:"fill:none;stroke:var(--accent);stroke-width:1.4"},leafG);
+    txt(leaf.x,leaf.y-1,leaf.name,8,COL.acc,"middle",null,leafG);
+    txt(leaf.x,leaf.y+10,leaf.code,6,COL.mut,"middle",null,leafG);
+    var resEdge=dedge(leaf.x,leaf.y+15,682,404,1);
+    var resG=E("g",{opacity:0},dg);
+    E("rect",{x:582,y:418,width:200,height:46,rx:6,style:"fill:none;stroke:var(--accent);stroke-width:1.6"},resG);
+    txt(590,434,"TOP-1 DIFFERENTIAL",7.5,COL.mut,"start","lbl",resG);
+    txt(590,452,"Ataxia-telangiectasia",10.5,COL.acc,"start",null,resG);
+    var resP=txt(774,452,"P=0.71",9.5,COL.ink,"end",null,resG);
+    resP.setAttribute("filter","url(#glow)");
+
+    /* -------- scroll-driven render --------
+       The scaffold (frames, tokens, nodes, grids, boxes) is always visible.
+       `A` is the arrow phase, occupying the second screen of scroll. */
+    function render(p){
+      scene.setAttribute("opacity",1);
+      for(var i=0;i<entBoxes.length;i++) entBoxes[i].setAttribute("opacity",0.9);
+
+      var A=ph(p,0.42,0.97);
+      var pParse=ph(A,0.0,0.16), pGround=ph(A,0.13,0.28), pOnto=ph(A,0.22,0.42),
+          pVq=ph(A,0.34,0.56), pRips=ph(A,0.52,0.78), pDdx=ph(A,0.74,0.95);
+
+      var act = A<=0?-1 : A<0.13?0 : A<0.28?1 : A<0.42?2 : A<0.56?3 : A<0.78?4 : 5;
+      for(i=0;i<6;i++){
+        chipEl[i].setAttribute("style","fill:"+(i===act?"var(--accent)":"var(--muted)"));
+        chipUnd[i].setAttribute("opacity", i===act?1:0);
+      }
+
+      for(i=0;i<arcs.length;i++){
+        var pp=eIO(cl((pParse-i*0.12)/0.5,0,1));
+        setDash(arcs[i].p,pp); arcs[i].l.setAttribute("opacity",pp);
+      }
+      for(i=0;i<gArcs.length;i++) setDash(gArcs[i], eIO(cl((pGround-i*0.18)/0.6,0,1)));
+      gLbl.setAttribute("opacity",pGround);
+
+      for(i=0;i<oEdges.length;i++){
+        var op=eIO(cl((pOnto-i*0.06)/0.5,0,1));
+        setDash(oEdges[i].p,op); oEdges[i].l.setAttribute("opacity",op*0.9);
+      }
+
+      for(i=0;i<vqEl.length;i++){
+        var q=cl((pVq-i*0.06)/0.55,0,1), e=eBack(q), P=vqPts[i];
+        var x=lerp(P.sx,P.tx,e), y=lerp(P.sy,P.ty,e);
+        vqEl[i].dot.setAttribute("cx",x); vqEl[i].dot.setAttribute("cy",y);
+        var cc=vqEl[i].conn;
+        cc.setAttribute("x1",P.sx);cc.setAttribute("y1",P.sy);cc.setAttribute("x2",x);cc.setAttribute("y2",y);
+        cc.setAttribute("opacity", (q>0.02&&q<0.97)?0.7*(1-q):0 );
+      }
+
+      var s=eOut(pRips), eps=s;
+      for(i=0;i<6;i++) ripBall[i].setAttribute("r",44*s);
+      for(i=0;i<ripEdges.length;i++) ripEdges[i].e.setAttribute("opacity", cl((s-ripEdges[i].at)/0.05,0,1));
+      ripFill.setAttribute("opacity", 0.22*cl((s-0.64)/0.2,0,1));
+      for(i=0;i<bars.length;i++){
+        var b=bars[i];
+        if(eps<=b.birth){ barEl[i].setAttribute("opacity",0); continue; }
+        barEl[i].setAttribute("opacity",1);
+        barEl[i].setAttribute("x1", bx0+bw*b.birth);
+        barEl[i].setAttribute("x2", bx0+bw*Math.min(eps,b.death));
+      }
+      sweep.setAttribute("opacity", (pRips>0.01&&pRips<0.99)?0.8:0);
+      sweep.setAttribute("x1", bx0+bw*eps); sweep.setAttribute("x2", bx0+bw*eps);
+
+      for(i=0;i<dEdge.length;i++) setDash(dEdge[i], eIO(cl((pDdx-i*0.05)/0.4,0,1)));
+      var dd=eOut(pDdx);
+      for(i=0;i<cand.length;i++){
+        candEl[i].bar.setAttribute("width", (54*cand[i].post*dd).toFixed(1));
+        candEl[i].pct.textContent = Math.round(cand[i].post*100*dd)+"%";
+      }
+      var lp=eIO(ph(A,0.82,0.9));
+      setDash(leafEdge,lp); leafG.setAttribute("opacity",lp);
+      var rp=eIO(ph(A,0.88,0.96));
+      setDash(resEdge,rp); resG.setAttribute("opacity",rp);
+    }
+
+    var section=document.getElementById("cris-section");
+    var panels=[].slice.call(section.querySelectorAll(".tts-panel"));
+    section.setAttribute("data-tts-ready","true");
+    var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduce){ render(1); return; }
+
+    var raf=0, last=-1;
+    function measure(){
+      raf=0;
+      var r=section.getBoundingClientRect();
+      var vh=window.innerHeight||document.documentElement.clientHeight;
+      var scrollable=r.height-vh;
+      var p=scrollable>0?cl(-r.top/scrollable,0,1):0;
+      if(Math.abs(p-last)<0.0005)return;
+      last=p;
+      render(p);
+      var active=p<0.4?0:1;
+      for(var i=0;i<panels.length;i++)panels[i].setAttribute("data-active",String(i===active));
+    }
+    function schedule(){ if(!raf) raf=requestAnimationFrame(measure); }
+    window.addEventListener("scroll",schedule,{passive:true});
+    window.addEventListener("resize",schedule,{passive:true});
+    measure();
+  })();
+  </script>
+
   <!-- Privacy-friendly page-view counting (GoatCounter). No cookies, no
        personal data; counts only become visible once the boneshwar-vk site
        code is claimed at goatcounter.com. -->
