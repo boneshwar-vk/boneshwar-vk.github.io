@@ -6,12 +6,34 @@
   <meta name="theme-color" content="#0f3a37" />
   <script>try{var t=localStorage.getItem('theme')||'teal';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','teal')}</script>
   <title>Boneshwar V K · Computer Vision Intern, Homeground App</title>
-  <meta name="description" content="MobileNet-V2 sports analytics: keypoints, tracking, shot classification, Computer Vision Intern at Homeground App, Nov 2022 to Jan 2023." />
+  <meta name="description" content="Computer Vision Intern at Homeground App. MobileNet-V2 sports analytics, with an interactive walkthrough from backbone features through pose and Kalman ball tracking to shot classification." />
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/site.css" />
+  <link rel="stylesheet" href="../assets/scenes/tts.css?v=8" />
+  <style>
+    /* The diagram fills the pinned viewport, kept clear of the caption column. */
+    .hg-stage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9svh 3vw 7svh clamp(0px, 24vw, 480px);
+    }
+    .hg-stage svg {
+      width: 100%;
+      height: 100%;
+      max-height: 84svh;
+    }
+    .hg-stage svg text { font-family: var(--sans, Inter, system-ui, sans-serif); letter-spacing: 0.2px; }
+    .hg-stage .lbl { text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px; }
+    @media (max-width: 900px) {
+      .hg-stage { padding: 12svh 3vw 26svh 3vw; }
+    }
+  </style>
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -46,21 +68,81 @@
     </a>
     <p class="eyebrow reveal"><span class="spark" aria-hidden="true">✦</span> Homeground App · Nov 2022 &ndash; Jan 2023</p>
     <h1 class="reveal">Computer Vision Intern</h1>
-    <p class="lead reveal">MobileNet-V2 sports analytics: keypoints, tracking, shot classification</p>
+    <p class="lead reveal">A lightweight MobileNet-V2 keypoint pipeline detecting human joints and cricket bats
+      at about 81% accuracy and 0.73 F1, with shot classification, ball tracking and Kalman-filtered analytics
+      for coaching insights. The visualisation below follows one delivery from frame to classified shot.</p>
   </header>
 
-  <main class="container">
-    <section class="role-body reveal">
-      <figure class="media media--anim">
-        <iframe class="anim" data-anim data-src="../assets/anim/homeground.html" src="../assets/anim/homeground.html?theme=teal" loading="lazy" title="Animation: MobileNet-V2 sports analytics: keypoints, tracking, shot classification"></iframe>
-      </figure>
-      <p class="role-lead">Designed a lightweight keypoint-detection pipeline (MobileNet-V2) to detect human joints and cricket bats, reaching about 81% accuracy and 0.73 F1. Added shot classification, ball tracking, player positioning, and physics-aware (Kalman) analytics for coaching insights.</p>
-      <ul class="tl-tags"><li>Computer Vision</li><li>Pose Estimation</li><li>0.73 F1</li></ul>
+  <!-- ===== Scroll-driven sports CV pipeline ===== -->
+  <section class="tts-section" id="hg-section" aria-labelledby="hg-heading">
+    <h2 id="hg-heading" class="sr-only">MobileNet-V2 sports analytics pipeline</h2>
 
-      <div class="role-stub">
-        <p>A fuller write-up of this role is still to come, covering what the problem was, what I tried, and
-          what held up.</p>
+    <div class="tts-sticky">
+      <div class="hg-stage" aria-hidden="true">
+        <svg id="hg-svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="0.7" style="fill:var(--line)"/>
+            </pattern>
+            <radialGradient id="heatGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" style="stop-color:var(--accent);stop-opacity:0.9"/>
+              <stop offset="55%" style="stop-color:var(--accent);stop-opacity:0.25"/>
+              <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+            </radialGradient>
+            <linearGradient id="tilegrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" style="stop-color:var(--accent);stop-opacity:0.1"/>
+              <stop offset="100%" style="stop-color:var(--clay);stop-opacity:0.3"/>
+            </linearGradient>
+            <marker id="arw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" style="fill:var(--muted)"/>
+            </marker>
+            <marker id="arwA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" style="fill:var(--accent)"/>
+            </marker>
+          </defs>
+          <rect x="0" y="0" width="800" height="500" fill="url(#dots)" opacity="0.4"/>
+          <g id="hg-scene"></g>
+        </svg>
       </div>
+    </div>
+
+    <div class="tts-panels">
+
+      <article class="tts-panel" data-stage="0" data-active="true">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">01</span> The scaffold</p>
+          <h3>Frame, backbone, canvases</h3>
+          <p>A video frame beside the MobileNet-V2 backbone's shrinking feature maps, a detection canvas with
+            the joints barely showing, a Kalman panel with its predict and update legend, and an empty shot
+            card. The pipeline is laid out end to end before anything runs.</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="1">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">02</span> One delivery</p>
+          <h3>Pose, track, classify</h3>
+          <p>The frame is scanned, feature maps light up, keypoint heatmaps bloom and the skeleton draws on
+            joint by joint with the bat boxed at 0.94. The ball rides its projectile arc while the covariance
+            ellipse tightens with each measurement, and the shot card lands on cover drive at 0.91
+            confidence.</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ===== Notes ===== -->
+  <main class="container">
+    <section class="tts-notes">
+      <h2>About this visualisation</h2>
+      <p>The pipeline drawn above: a MobileNet-V2 backbone with depthwise-separable convolutions downsampling
+        224×224 input through 112², 56² and 28² feature maps, keypoint heatmaps decoded into a 17-joint
+        skeleton with a cricket-bat bounding box, and a Kalman filter tracking the ball, alternating the
+        predict step x̂⁻&nbsp;=&nbsp;Fx̂ with measurement updates that shrink the covariance ellipse along the
+        projectile arc. A softmax over 12 shot classes reads the sequence and lands on cover drive.</p>
+      <p>The first scroll lays out the scaffold. The second animates the inference on one delivery, the same
+        pass the app ran in real time at roughly 60 frames per second.</p>
     </section>
   </main>
 
@@ -90,6 +172,227 @@
   </footer>
 
   <script src="../assets/site.js"></script>
+  <script>
+  /* The same scene as assets/anim/homeground.html, scaled up and re-driven.
+     Scroll 1 shows the pipeline at rest; scroll 2 replays the inference on
+     one delivery, with scroll position as the only animation parameter. */
+  (function(){
+    "use strict";
+    var NS="http://www.w3.org/2000/svg";
+    var scene=document.getElementById("hg-scene");
+    if(!scene)return;
+    /* Labels sized up ~35% over the original card version. */
+    function F(s){return Math.round(s*13.5)/10;}
+    function E(tag,a,p){var e=document.createElementNS(NS,tag);if(a)for(var k in a)e.setAttribute(k,a[k]);(p||scene).appendChild(e);return e;}
+    function txt(x,y,s,fs,fill,anchor,cls,p){
+      var t=E("text",{x:x,y:y,"font-size":F(fs),"text-anchor":anchor||"start",style:"fill:"+fill},p);
+      if(cls)t.setAttribute("class",cls); t.textContent=s; return t;
+    }
+    function cl(v,a,b){return v<a?a:v>b?b:v;}
+    function ph(t,a,b){return cl((t-a)/(b-a),0,1);}
+    function eIO(x){return x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;}
+    function eOut(x){return 1-Math.pow(1-cl(x,0,1),3);}
+    function lerp(a,b,t){return a+(b-a)*t;}
+    function setDash(o,p){
+      o.setAttribute("stroke-dashoffset",1-p);
+      if(o.__baseOp===undefined) o.__baseOp=o.style.opacity||"1";
+      o.style.opacity = p<=0.015 ? "0" : o.__baseOp;
+    }
+    var MUT="var(--muted)",INK="var(--ink)",ACC="var(--accent)",AC2="var(--clay)";
+    var i;
+
+    /* ---------- stage headers ---------- */
+    txt(40,40,"1 · BACKBONE",10.5,ACC,"start","lbl");
+    txt(318,40,"2 · POSE + TRACK",10.5,ACC,"start","lbl");
+    txt(600,40,"3 · CLASSIFY",10.5,ACC,"start","lbl");
+    E("line",{x1:40,y1:50,x2:760,y2:50,style:"stroke:var(--line);stroke-width:1",opacity:0.5});
+
+    /* ---------- 1: backbone ---------- */
+    var gB=E("g",{transform:"translate(40,86)"});
+    E("rect",{width:92,height:86,rx:3,style:"fill:none;stroke:var(--ink);stroke-width:1.4"},gB);
+    E("rect",{x:3,y:3,width:86,height:80,rx:2,style:"fill:var(--line)",opacity:0.35},gB);
+    E("line",{x1:6,y1:64,x2:86,y2:64,style:"stroke:var(--line);stroke-width:1"},gB);
+    E("circle",{cx:30,cy:44,r:7,style:"fill:none;stroke:var(--ink);stroke-width:1.2"},gB);
+    E("path",{d:"M30,51 L30,66 M30,56 L22,62 M30,56 L40,60 M30,66 L24,76 M30,66 L37,76",
+      style:"fill:none;stroke:var(--ink);stroke-width:1.2"},gB);
+    E("circle",{cx:58,cy:40,r:3,style:"fill:var(--accent)"},gB);
+    var scanline=E("line",{x1:3,y1:3,x2:89,y2:3,style:"stroke:var(--accent);stroke-width:1.4",opacity:0},gB);
+    txt(0,-8,"VIDEO FRAME",8.5,INK,"start","lbl",gB);
+    txt(0,102,"224×224×3",8,MUT,"start",null,gB);
+
+    var gT=E("g",{transform:"translate(150,88)"});
+    var tiles=[];
+    var t1=E("g",{opacity:0.35},gT);
+    E("rect",{x:0,y:6,width:60,height:60,rx:2,fill:"url(#tilegrad)",style:"stroke:var(--clay);stroke-width:1"},t1);
+    E("path",{d:"M6,18 H54 M6,30 H54 M6,42 H54 M6,54 H54 M18,12 V60 M30,12 V60 M42,12 V60",
+      style:"stroke:var(--line);stroke-width:0.5",fill:"none",opacity:0.6},t1);
+    var t2=E("g",{opacity:0.35,transform:"translate(70,12)"},gT);
+    E("rect",{x:0,y:6,width:44,height:44,rx:2,fill:"url(#tilegrad)",style:"stroke:var(--clay);stroke-width:1"},t2);
+    E("path",{d:"M5,17 H39 M5,28 H39 M5,39 H39 M16,11 V50 M27,11 V50 M38,11 V50",
+      style:"stroke:var(--line);stroke-width:0.5",fill:"none",opacity:0.6},t2);
+    var t3=E("g",{opacity:0.35,transform:"translate(124,22)"},gT);
+    E("rect",{x:0,y:6,width:30,height:30,rx:2,fill:"url(#tilegrad)",style:"stroke:var(--clay);stroke-width:1"},t3);
+    E("path",{d:"M4,16 H26 M4,26 H26 M14,8 V36 M24,8 V36",style:"stroke:var(--line);stroke-width:0.5",fill:"none",opacity:0.6},t3);
+    tiles=[t1,t2,t3];
+    E("line",{x1:60,y1:36,x2:70,y2:34,style:"stroke:var(--line);stroke-width:1.2","stroke-dasharray":"4 5","marker-end":"url(#arw)"},gT);
+    E("line",{x1:114,y1:34,x2:124,y2:38,style:"stroke:var(--line);stroke-width:1.2","stroke-dasharray":"4 5","marker-end":"url(#arw)"},gT);
+    txt(0,-4,"MobileNetV2",8.5,INK,"start","lbl",gT);
+    txt(0,86,"112² → 56² → 28² · DW-SEP CONV",7.5,MUT,"start",null,gT);
+    E("line",{x1:290,y1:128,x2:318,y2:128,style:"stroke:var(--accent);stroke-width:1.6","stroke-dasharray":"4 5","marker-end":"url(#arwA)"});
+
+    /* ---------- 2: pose ---------- */
+    var gP=E("g",{transform:"translate(320,70)"});
+    E("rect",{width:150,height:190,rx:4,style:"fill:none;stroke:var(--line);stroke-width:1"},gP);
+    var heatSpec=[[75,34,13],[56,74,12],[94,74,12],[48,112,11],[102,112,11],[64,150,11],[90,150,11]];
+    var heats=heatSpec.map(function(h){
+      return E("circle",{cx:h[0],cy:h[1],r:h[2],fill:"url(#heatGlow)",opacity:0},gP);
+    });
+    var limbSpec=["M75,34 L65,72","M65,72 L85,72","M65,72 L52,108","M85,72 L98,108",
+      "M65,72 L72,112","M85,72 L88,112","M72,112 L64,150","M88,112 L90,150"];
+    var limbs=limbSpec.map(function(d){
+      var pth=E("path",{d:d,style:"fill:none;stroke:var(--ink);stroke-width:2.2","stroke-linecap":"round",
+        "stroke-dasharray":60,"stroke-dashoffset":60},gP);
+      return pth;
+    });
+    var jointSpec=[[75,34],[65,72],[85,72],[52,108],[98,108],[72,112],[88,112],[64,150],[90,150]];
+    var joints=jointSpec.map(function(j){
+      return E("circle",{cx:j[0],cy:j[1],r:3,style:"fill:var(--accent);stroke:var(--ink);stroke-width:0.8",opacity:0.35},gP);
+    });
+    var bbox=E("rect",{x:96,y:96,width:40,height:74,style:"fill:none;stroke:var(--clay);stroke-width:1.8",
+      "stroke-dasharray":"7 4",opacity:0.15},gP);
+    var batLine=E("line",{x1:116,y1:104,x2:116,y2:160,style:"stroke:var(--clay);stroke-width:3","stroke-linecap":"round",opacity:0.15},gP);
+    var batChip=E("g",{opacity:0},gP);
+    E("rect",{x:96,y:80,width:64,height:15,rx:2,style:"fill:var(--clay)"},batChip);
+    txt(100,91,"BAT 0.94",7.5,INK,"start",null,batChip);
+    txt(0,-14,"HEATMAP · KEYPOINTS",8.5,INK,"start","lbl",gP);
+    txt(0,-1,"17-JOINT SKELETON · BBOX",7.5,MUT,"start","lbl",gP);
+
+    /* ---------- 2b: Kalman track ---------- */
+    var gK=E("g",{transform:"translate(490,70)"});
+    txt(0,0,"KALMAN · BALL TRACKING",8.5,INK,"start","lbl",gK);
+    E("line",{x1:0,y1:170,x2:270,y2:170,style:"stroke:var(--line);stroke-width:1",opacity:0.6},gK);
+    var trajPath=E("path",{d:"M70,230 C110,140 170,100 230,135",style:"fill:none;stroke:var(--accent);stroke-width:2",opacity:0.9},gK);
+    var trajLen=trajPath.getTotalLength();
+    trajPath.style.strokeDasharray=trajLen;
+    trajPath.style.strokeDashoffset=trajLen;
+    E("path",{d:"M230,135 C250,150 262,162 270,180",style:"fill:none;stroke:var(--line);stroke-width:1.4",
+      "stroke-dasharray":"3 4",opacity:0.7},gK);
+    txt(120,92,"TRAJECTORY ŷ = f(x,v,g)",8,MUT,"start","lbl",gK);
+    var measSpec=[[103,172],[150,142],[196,138]];
+    var crosses=measSpec.map(function(m){
+      var g=E("g",{opacity:0},gK);
+      E("line",{x1:m[0],y1:m[1],x2:m[0]+10,y2:m[1]+10,style:"stroke:var(--clay);stroke-width:1.6"},g);
+      E("line",{x1:m[0]+10,y1:m[1],x2:m[0],y2:m[1]+10,style:"stroke:var(--clay);stroke-width:1.6"},g);
+      return g;
+    });
+    var cov=E("ellipse",{cx:160,cy:118,rx:26,ry:18,style:"fill:var(--accent);stroke:var(--accent);stroke-width:1.4",
+      "fill-opacity":0.12,opacity:0},gK);
+    var ball=E("circle",{r:5,style:"fill:var(--accent);stroke:var(--ink);stroke-width:0.8",opacity:0},gK);
+    var gL=E("g",{transform:"translate(0,196)"},gK);
+    E("line",{x1:0,y1:0,x2:16,y2:0,style:"stroke:var(--accent);stroke-width:2","stroke-dasharray":"3 3"},gL);
+    txt(20,3,"PREDICT x̂⁻ = Fx̂",7.5,MUT,"start","lbl",gL);
+    E("line",{x1:130,y1:0,x2:146,y2:0,style:"stroke:var(--clay);stroke-width:2"},gL);
+    txt(150,3,"UPDATE +K(z−Hx̂)",7.5,MUT,"start","lbl",gL);
+
+    /* ---------- 3: classify ---------- */
+    var connector=E("path",{d:"M620,265 C620,310 640,330 660,358",pathLength:1,"stroke-dasharray":"1 1.2","stroke-dashoffset":1,
+      style:"fill:none;stroke:var(--accent);stroke-width:1.4","marker-end":"url(#arwA)",opacity:0.8});
+    var shotcard=E("g",{transform:"translate(560,360)",opacity:0});
+    E("rect",{width:210,height:92,rx:6,style:"fill:var(--line)",opacity:0.3},shotcard);
+    E("rect",{width:210,height:92,rx:6,style:"fill:none;stroke:var(--accent);stroke-width:1.4"},shotcard);
+    txt(14,22,"SHOT CLASSIFICATION",7.5,MUT,"start","lbl",shotcard);
+    var shotName=txt(14,50,"COVER DRIVE",14.5,ACC,"start","lbl",shotcard);
+    shotName.setAttribute("font-weight",700);
+    txt(14,72,"CONF",7.5,MUT,"start","lbl",shotcard);
+    E("rect",{x:52,y:64,width:64,height:8,rx:4,style:"fill:var(--line)",opacity:0.6},shotcard);
+    var confFill=E("rect",{x:52,y:64,width:0,height:8,rx:4,style:"fill:var(--accent)"},shotcard);
+    txt(122,72,"0.91",7.5,INK,"start",null,shotcard);
+    txt(152,72,"F1 0.88",7.5,MUT,"start",null,shotcard);
+    txt(14,86,"SOFTMAX · 12 CLASSES",7,MUT,"start","lbl",shotcard);
+
+    txt(40,486,"REAL-TIME SPORTS CV · MobileNetV2 BACKBONE · POSE + KALMAN · ~60 FPS",7.5,MUT,"start",null);
+
+    /* -------- scroll-driven render --------
+       The scaffold is always visible. `A` is the motion phase, occupying
+       the second screen of scroll. */
+    function render(p){
+      var A=ph(p,0.42,0.97);
+
+      /* backbone: scan sweep + feature maps light up */
+      var pB=ph(A,0,0.18);
+      var sy=lerp(3,83,eIO(pB));
+      scanline.setAttribute("y1",sy.toFixed(1));scanline.setAttribute("y2",sy.toFixed(1));
+      scanline.setAttribute("opacity",(pB>0.005&&pB<0.995)?0.8:0);
+      for(var q=0;q<tiles.length;q++)
+        tiles[q].setAttribute("opacity",(0.35+0.65*eOut(ph(A,0.05+q*0.04,0.16+q*0.04))).toFixed(2));
+
+      /* pose: heatmaps bloom, skeleton draws, bat boxed */
+      for(q=0;q<heats.length;q++)
+        heats[q].setAttribute("opacity",(0.95*eOut(ph(A,0.12+q*0.015,0.24+q*0.015))).toFixed(2));
+      for(q=0;q<limbs.length;q++){
+        var li=eOut(ph(A,0.18+q*0.03,0.3+q*0.03));
+        limbs[q].setAttribute("stroke-dashoffset",(60*(1-li)).toFixed(1));
+      }
+      for(q=0;q<joints.length;q++){
+        var ji=eOut(ph(A,0.18+q*0.025,0.3+q*0.025));
+        joints[q].setAttribute("opacity",(0.35+0.65*ji).toFixed(2));
+        joints[q].setAttribute("r",(3+1.2*ji).toFixed(2));
+      }
+      var bb=eOut(ph(A,0.34,0.42));
+      bbox.setAttribute("opacity",(0.15+0.85*bb).toFixed(2));
+      batLine.setAttribute("opacity",(0.15+0.7*bb).toFixed(2));
+      batChip.setAttribute("opacity",bb.toFixed(2));
+
+      /* Kalman: arc draws, ball rides it, covariance tightens on updates */
+      var tr=eOut(ph(A,0.44,0.58));
+      trajPath.style.strokeDashoffset=(trajLen*(1-tr)).toFixed(1);
+      for(q=0;q<crosses.length;q++)
+        crosses[q].setAttribute("opacity",ph(A,0.5+q*0.05,0.56+q*0.05).toFixed(2));
+      var u=eIO(ph(A,0.5,0.72));
+      var bp=trajPath.getPointAtLength(u*trajLen);
+      ball.setAttribute("cx",bp.x.toFixed(1));ball.setAttribute("cy",bp.y.toFixed(1));
+      ball.setAttribute("opacity",ph(A,0.5,0.54).toFixed(2));
+      var shrink=eOut(ph(A,0.52,0.7));
+      cov.setAttribute("cx",bp.x.toFixed(1));cov.setAttribute("cy",bp.y.toFixed(1));
+      cov.setAttribute("rx",lerp(26,8,shrink).toFixed(1));
+      cov.setAttribute("ry",lerp(18,5,shrink).toFixed(1));
+      cov.setAttribute("transform","rotate(-28 "+bp.x.toFixed(1)+" "+bp.y.toFixed(1)+")");
+      cov.setAttribute("opacity",ph(A,0.5,0.56).toFixed(2));
+
+      /* classify: connector draws, card lands, confidence fills */
+      setDash(connector,eIO(ph(A,0.68,0.78)));
+      var sc=eOut(ph(A,0.74,0.84));
+      shotcard.setAttribute("opacity",(0.22+0.78*sc).toFixed(2));
+      shotcard.setAttribute("transform","translate(560,"+(360+6*(1-sc)).toFixed(1)+")");
+      confFill.setAttribute("width",(64*eOut(ph(A,0.8,0.92))).toFixed(1));
+    }
+
+    var section=document.getElementById("hg-section");
+    var panels=[].slice.call(section.querySelectorAll(".tts-panel"));
+    section.setAttribute("data-tts-ready","true");
+    var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduce){ render(1); return; }
+
+    var raf=0,last=-1;
+    function measure(){
+      raf=0;
+      var r=section.getBoundingClientRect();
+      var vh=window.innerHeight||document.documentElement.clientHeight;
+      var scrollable=r.height-vh;
+      var p=scrollable>0?cl(-r.top/scrollable,0,1):0;
+      if(Math.abs(p-last)<0.0005)return;
+      last=p;
+      render(p);
+      var active=p<0.4?0:1;
+      for(var ix=0;ix<panels.length;ix++)panels[ix].setAttribute("data-active",String(ix===active));
+    }
+    function schedule(){ if(!raf) raf=requestAnimationFrame(measure); }
+    window.addEventListener("scroll",schedule,{passive:true});
+    window.addEventListener("resize",schedule,{passive:true});
+    measure();
+  })();
+  </script>
+
   <!-- Privacy-friendly page-view counting (GoatCounter). No cookies, no
        personal data; counts only become visible once the boneshwar-vk site
        code is claimed at goatcounter.com. -->

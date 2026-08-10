@@ -6,12 +6,34 @@
   <meta name="theme-color" content="#0f3a37" />
   <script>try{var t=localStorage.getItem('theme')||'teal';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','teal')}</script>
   <title>Boneshwar V K · AI Researcher, Sarvam AI</title>
-  <meta name="description" content="CSV-agent QA, multilingual OCR, and RAG over FAISS/Pinecone, AI Researcher at Sarvam AI, Nov 2023 to Jan 2024." />
+  <meta name="description" content="AI Researcher at Sarvam AI. CSV-agent QA, multilingual OCR and RAG over FAISS/Pinecone, with an interactive walkthrough from document scan through ANN retrieval and ReAct to RAGAS evaluation." />
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/site.css" />
+  <link rel="stylesheet" href="../assets/scenes/tts.css?v=8" />
+  <style>
+    /* The diagram fills the pinned viewport, kept clear of the caption column. */
+    .sar-stage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9svh 3vw 7svh clamp(0px, 24vw, 480px);
+    }
+    .sar-stage svg {
+      width: 100%;
+      height: 100%;
+      max-height: 84svh;
+    }
+    .sar-stage svg text { font-family: var(--sans, Inter, system-ui, sans-serif); letter-spacing: 0.2px; }
+    .sar-stage .lbl { text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px; }
+    @media (max-width: 900px) {
+      .sar-stage { padding: 12svh 3vw 26svh 3vw; }
+    }
+  </style>
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -46,21 +68,75 @@
     </a>
     <p class="eyebrow reveal"><span class="spark" aria-hidden="true">✦</span> Sarvam AI · Nov 2023 &ndash; Jan 2024</p>
     <h1 class="reveal">AI Researcher</h1>
-    <p class="lead reveal">CSV-agent QA, multilingual OCR, and RAG over FAISS/Pinecone</p>
+    <p class="lead reveal">An end-to-end CSV QA agent benchmarked across GPT-3.5/4, Llama and Mistral, a
+      multilingual OCR pipeline for non-UTF-8 Indic PDFs, and RAG over FAISS and Pinecone with RAGAS-based
+      evaluation. The visualisation below follows one query from document scan to scored answer.</p>
   </header>
 
-  <main class="container">
-    <section class="role-body reveal">
-      <figure class="media media--anim">
-        <iframe class="anim" data-anim data-src="../assets/anim/sarvam.html" src="../assets/anim/sarvam.html?theme=teal" loading="lazy" title="Animation: CSV-agent QA, multilingual OCR, and RAG over FAISS/Pinecone"></iframe>
-      </figure>
-      <p class="role-lead">Shipped an end-to-end CSV QA agent benchmarked across GPT-3.5/4, Llama, and Mistral, achieving state-of-the-art results on internal large-CSV tasks. Built a multilingual OCR pipeline for non-UTF-8 Indic PDFs (Hindi, Tamil, Telugu, Malayalam, Kannada) with competitive CER/WER and layout accuracy, and wired RAG over FAISS/Pinecone with RAGAS-based evaluation.</p>
-      <ul class="tl-tags"><li>LLM Agents</li><li>RAG</li><li>OCR</li><li>Multilingual</li></ul>
+  <!-- ===== Scroll-driven RAG pipeline ===== -->
+  <section class="tts-section" id="sar-section" aria-labelledby="sar-heading">
+    <h2 id="sar-heading" class="sr-only">Retrieval-augmented multilingual agent pipeline</h2>
 
-      <div class="role-stub">
-        <p>A fuller write-up of this role is still to come, covering what the problem was, what I tried, and
-          what held up.</p>
+    <div class="tts-sticky">
+      <div class="sar-stage" aria-hidden="true">
+        <svg id="sar-svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="0.7" style="fill:var(--line)"/>
+            </pattern>
+            <linearGradient id="barGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" style="stop-color:var(--clay)"/>
+              <stop offset="100%" style="stop-color:var(--accent)"/>
+            </linearGradient>
+            <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.2" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <rect x="0" y="0" width="800" height="500" fill="url(#dots)" opacity="0.4"/>
+          <g id="sar-scene"></g>
+        </svg>
       </div>
+    </div>
+
+    <div class="tts-panels">
+
+      <article class="tts-panel" data-stage="0" data-active="true">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">01</span> The scaffold</p>
+          <h3>Four stages, side by side</h3>
+          <p>A document holding Devanagari, Tamil and Telugu text sits beside a vector space of embedded
+            chunks with one query vector, an LLM running a ReAct loop of Thought, Action and Observation, and a
+            RAGAS gauge at zero. Everything is laid out; nothing has run yet.</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="1">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">02</span> The run</p>
+          <h3>Scan, retrieve, reason, score</h3>
+          <p>The OCR scan sweeps the page and latches a bounding box onto each script. The query's top-k
+            neighbours light up with their cosine ranking, the retrieved context drives the ReAct loop around to
+            an answer for the CSV question, and the RAGAS gauge ticks up through faithfulness and answer
+            relevance.</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ===== Notes ===== -->
+  <main class="container">
+    <section class="tts-notes">
+      <h2>About this visualisation</h2>
+      <p>The pipeline drawn above: OCR with bounding boxes over non-UTF-8 Indic scripts, chunks embedded into a
+        vector store, and approximate nearest neighbour search in FAISS or Pinecone returning the top-k context
+        by cosine similarity. The context is injected into an LLM running a ReAct loop, alternating Thought,
+        Action and Observation until it answers the CSV aggregation question, and the output is scored with
+        RAGAS on faithfulness and answer relevance.</p>
+      <p>The first scroll lays out the scaffold. The second animates the run: the scan line, the retrieval, the
+        reasoning loop and the evaluation, each a step you can point to when the agent's answer needs to be
+        trusted.</p>
     </section>
   </main>
 
@@ -90,6 +166,299 @@
   </footer>
 
   <script src="../assets/site.js"></script>
+  <script>
+  /* The same scene as assets/anim/sarvam.html, scaled up and re-driven.
+     Scroll 1 shows the four stages at rest; scroll 2 replays the scan,
+     retrieval, ReAct and RAGAS choreography, with scroll position as the
+     only animation parameter. */
+  (function(){
+    "use strict";
+    var NS="http://www.w3.org/2000/svg";
+    var scene=document.getElementById("sar-scene");
+    if(!scene)return;
+    /* Labels sized up ~35% over the original card version. */
+    function F(s){return Math.round(s*13.5)/10;}
+    function E(tag,a,p){var e=document.createElementNS(NS,tag);if(a)for(var k in a)e.setAttribute(k,a[k]);(p||scene).appendChild(e);return e;}
+    function txt(x,y,s,fs,fill,anchor,cls,p){
+      var t=E("text",{x:x,y:y,"font-size":F(fs),"text-anchor":anchor||"start",style:"fill:"+fill},p);
+      if(cls)t.setAttribute("class",cls); t.textContent=s; return t;
+    }
+    function cl(v,a,b){return v<a?a:v>b?b:v;}
+    function ph(t,a,b){return cl((t-a)/(b-a),0,1);}
+    function eIO(x){return x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;}
+    function eOut(x){return 1-Math.pow(1-cl(x,0,1),3);}
+    function lerp(a,b,t){return a+(b-a)*t;}
+    var MUT="var(--muted)",INK="var(--ink)",ACC="var(--accent)",AC2="var(--clay)";
+    var i,k;
+
+    txt(400,30,"RETRIEVAL-AUGMENTED MULTILINGUAL AGENT",10.5,INK,"middle","lbl");
+
+    /* connectors between stages */
+    var connSpec=["M190 196 L246 184","M452 188 L484 192","M638 196 L676 198"];
+    connSpec.forEach(function(d){
+      E("path",{d:d,style:"fill:none;stroke:var(--line);stroke-width:1.4","stroke-dasharray":"2 5","stroke-linecap":"round",opacity:0.85});
+    });
+
+    /* ---------- stage 1: OCR ---------- */
+    var g1=E("g",{});
+    txt(38,80,"OCR · BBOX",9.5,MUT,"start","lbl",g1);
+    E("rect",{x:34,y:92,width:156,height:216,rx:9,style:"fill:none;stroke:var(--ink);stroke-width:1.5"},g1);
+    E("rect",{x:34,y:92,width:156,height:22,rx:9,style:"fill:var(--accent)",opacity:0.1},g1);
+    E("line",{x1:34,y1:114,x2:190,y2:114,style:"stroke:var(--line);stroke-width:1"},g1);
+    txt(44,107,"CSV · DOC",7.5,MUT,"start","lbl",g1);
+    E("circle",{cx:178,cy:103,r:3,style:"fill:var(--accent)",opacity:0.8},g1);
+    /* stylised scripts */
+    function devanagari(ox,oy){
+      var d="M"+ox+" "+oy+" h120 ";
+      return d+[
+        " M"+(ox+8)+" "+oy+" v16 q0 7 7 7",
+        " M"+(ox+26)+" "+oy+" v18",
+        " M"+(ox+40)+" "+oy+" c0 14 12 16 12 4 q0 -8 -6 -8",
+        " M"+(ox+62)+" "+oy+" v16 q0 8 8 6",
+        " M"+(ox+80)+" "+oy+" v17",
+        " M"+(ox+94)+" "+oy+" c0 14 12 15 12 3",
+        " M"+(ox+114)+" "+oy+" v16"
+      ].join("");
+    }
+    function tamil(ox,oy){
+      return "M"+ox+" "+oy+" q8 -12 16 0 q8 12 16 0 "
+        +"M"+(ox+38)+" "+(oy-7)+" a7 7 0 1 0 0.1 0 "
+        +"M"+(ox+54)+" "+(oy-9)+" q10 16 0 18 q-6 1 -6 -6 "
+        +"M"+(ox+72)+" "+(oy-8)+" q11 4 4 14 q-3 4 -9 1 "
+        +"M"+(ox+92)+" "+(oy-9)+" v18 q0 6 8 5 "
+        +"M"+(ox+108)+" "+(oy-9)+" q8 9 0 18";
+    }
+    function telugu(ox,oy){
+      var s="",xs=[0,22,44,66,88,108];
+      for(var q=0;q<xs.length;q++){
+        var x=ox+xs[q];
+        s+="M"+x+" "+oy+" a7 7 0 1 0 0.1 0 ";
+        s+="M"+x+" "+(oy-7)+" v-5 ";
+        if(q%2===0)s+="M"+(x+6)+" "+(oy+7)+" q4 5 0 9 ";
+      }
+      return s;
+    }
+    var rows=[
+      {name:"DEVANAGARI",path:devanagari(50,140),bx:46,by:126,bw:130,bh:28},
+      {name:"TAMIL",path:tamil(52,188),bx:46,by:170,bw:124,bh:30},
+      {name:"TELUGU",path:telugu(50,226),bx:46,by:212,bw:128,bh:28}
+    ];
+    var glyphNodes=[],bboxNodes=[];
+    for(i=0;i<rows.length;i++){
+      glyphNodes.push(E("path",{d:rows[i].path,style:"fill:none;stroke:var(--ink);stroke-width:1.8",
+        "stroke-linecap":"round","stroke-linejoin":"round",opacity:0.92},g1));
+      var bb=E("rect",{x:rows[i].bx,y:rows[i].by,width:rows[i].bw,height:rows[i].bh,rx:3,
+        style:"fill:none;stroke:var(--clay);stroke-width:1.4","stroke-dasharray":"4 3",opacity:0.2},g1);
+      var lab=txt(rows[i].bx+rows[i].bw-2,rows[i].by-3,rows[i].name,7,AC2,"end",null,g1);
+      lab.setAttribute("opacity",0); lab.setAttribute("font-weight",700);
+      bboxNodes.push({box:bb,lab:lab,mid:rows[i].by+rows[i].bh/2,glyph:glyphNodes[i]});
+    }
+    /* CSV grid rows at the bottom */
+    var gridSpec=[[46,262,178,262],[46,278,178,278],[46,294,178,294],[92,252,92,304],[138,252,138,304]];
+    gridSpec.forEach(function(g){
+      E("line",{x1:g[0],y1:g[1],x2:g[2],y2:g[3],style:"stroke:var(--line);stroke-width:1",opacity:0.55},g1);
+    });
+    var scanline=E("rect",{x:34,y:120,width:156,height:3,style:"fill:var(--accent)",opacity:0},g1);
+    var scanglow=E("rect",{x:34,y:110,width:156,height:22,style:"fill:var(--accent)",opacity:0},g1);
+    txt(112,486,"1 · OCR",8,ACC,"middle","lbl",g1);
+
+    /* ---------- stage 2: embed + ANN top-k ---------- */
+    var g2=E("g",{});
+    txt(250,80,"EMBED · ANN TOP-k",9.5,MUT,"start","lbl",g2);
+    txt(452,100,"FAISS · PINECONE",7.5,MUT,"end","lbl",g2);
+    E("rect",{x:246,y:106,width:206,height:150,rx:8,style:"fill:none;stroke:var(--ink);stroke-width:1.4"},g2);
+    E("line",{x1:260,y1:240,x2:438,y2:240,style:"stroke:var(--line);stroke-width:1",opacity:0.5},g2);
+    E("line",{x1:262,y1:120,x2:262,y2:240,style:"stroke:var(--line);stroke-width:1",opacity:0.5},g2);
+    var QX=352,QY=178;
+    var ptCoords=[
+      [276,142],[306,128],[336,150],[362,136],[396,150],[426,160],
+      [268,182],[316,176],[378,176],[412,200],[436,186],
+      [292,216],[348,224],[404,228],[430,214]
+    ];
+    var pts=[];
+    for(i=0;i<ptCoords.length;i++){
+      var c=E("circle",{cx:ptCoords[i][0],cy:ptCoords[i][1],r:2.8,style:"fill:var(--muted)",opacity:0.75},g2);
+      var dx=ptCoords[i][0]-QX,dy=ptCoords[i][1]-QY;
+      pts.push({node:c,x:ptCoords[i][0],y:ptCoords[i][1],dist:Math.sqrt(dx*dx+dy*dy)});
+    }
+    var K=4;
+    var order=pts.slice().sort(function(a,b){return a.dist-b.dist;});
+    var topk=order.slice(0,K);
+    var cosVals=[0.94,0.91,0.88,0.85];
+    var linkNodes=[],ringNodes=[];
+    for(k=0;k<K;k++){
+      linkNodes.push(E("line",{x1:QX,y1:QY,x2:topk[k].x,y2:topk[k].y,
+        style:"stroke:var(--accent);stroke-width:1.2","stroke-dasharray":"3 3",opacity:0},g2));
+      ringNodes.push(E("circle",{cx:topk[k].x,cy:topk[k].y,r:7,style:"fill:none;stroke:var(--accent);stroke-width:1.5",opacity:0},g2));
+    }
+    E("circle",{cx:QX,cy:QY,r:9,style:"fill:var(--clay)",opacity:0.18},g2);
+    E("rect",{x:QX-4,y:QY-4,width:8,height:8,style:"fill:var(--clay)",transform:"rotate(45 "+QX+" "+QY+")"},g2);
+    txt(250,282,"COSINE · TOP-k",7.5,MUT,"start","lbl",g2);
+    var rankBars=[],rankNums=[];
+    var RLX=250,RW=132;
+    for(k=0;k<K;k++){
+      var y=292+k*17;
+      txt(RLX,y+8,"#"+(k+1),7.5,MUT,"start",null,g2);
+      E("rect",{x:RLX+22,y:y,width:RW,height:7,rx:3.5,style:"fill:var(--line)",opacity:0.5},g2);
+      rankBars.push(E("rect",{x:RLX+22,y:y,width:0,height:7,rx:3.5,fill:"url(#barGrad)"},g2));
+      var nt=txt(RLX+22+RW+6,y+8,"0.00",8,INK,"start",null,g2);
+      rankNums.push(nt);
+    }
+    txt(349,486,"2 · EMBED + ANN",8,ACC,"middle","lbl",g2);
+
+    /* ---------- stage 3: RAG + ReAct ---------- */
+    var g3=E("g",{});
+    txt(486,80,"RAG · ReAct",9.5,MUT,"start","lbl",g3);
+    E("rect",{x:484,y:92,width:154,height:170,rx:10,style:"fill:none;stroke:var(--ink);stroke-width:1.5"},g3);
+    txt(561,110,"LLM",9.5,INK,"middle","lbl",g3);
+    E("line",{x1:496,y1:118,x2:626,y2:118,style:"stroke:var(--line);stroke-width:1"},g3);
+    var RCX=561,RCY=180,RR=40;
+    var rnodes=[
+      {key:"T",label:"THOUGHT",a:-Math.PI/2},
+      {key:"A",label:"ACTION",a:-Math.PI/2+2*Math.PI/3},
+      {key:"O",label:"OBSERVATION",a:-Math.PI/2+4*Math.PI/3}
+    ];
+    rnodes.forEach(function(n){n.x=RCX+Math.cos(n.a)*RR;n.y=RCY+Math.sin(n.a)*RR;});
+    var arcNodes=[];
+    for(i=0;i<3;i++){
+      var f=rnodes[i],t2=rnodes[(i+1)%3];
+      var mx=(f.x+t2.x)/2-(RCX-(f.x+t2.x)/2)*0.45;
+      var my=(f.y+t2.y)/2-(RCY-(f.y+t2.y)/2)*0.45;
+      arcNodes.push(E("path",{d:"M"+f.x.toFixed(1)+" "+f.y.toFixed(1)+" Q"+mx.toFixed(1)+" "+my.toFixed(1)+" "+t2.x.toFixed(1)+" "+t2.y.toFixed(1),
+        style:"fill:none;stroke:var(--line);stroke-width:1.4","stroke-dasharray":"4 4","stroke-linecap":"round",opacity:0.6},g3));
+    }
+    txt(496,131,"CONTEXT",7,MUT,"start","lbl",g3);
+    var nodeNodes=[];
+    for(i=0;i<3;i++){
+      var circ=E("circle",{cx:rnodes[i].x,cy:rnodes[i].y,r:14,style:"fill:var(--accent);stroke:var(--ink);stroke-width:1.4","fill-opacity":0.08},g3);
+      var key=txt(rnodes[i].x,rnodes[i].y+4,rnodes[i].key,9.5,INK,"middle",null,g3);
+      key.setAttribute("font-weight",700);
+      nodeNodes.push({circ:circ,key:key});
+    }
+    var stepLabel=txt(RCX,RCY+4,"",7,ACC,"middle","lbl",g3);
+    E("rect",{x:496,y:222,width:130,height:15,rx:3,style:"fill:none;stroke:var(--line);stroke-width:1"},g3);
+    txt(502,233,"Q: CSV AGG ?",7,MUT,"start","lbl",g3);
+    var ansChip=E("rect",{x:496,y:242,width:0,height:15,rx:3,style:"fill:var(--accent)",opacity:0},g3);
+    var ansTxt=txt(502,253,"A: 0.94",7,INK,"start","lbl",g3);
+    ansTxt.setAttribute("opacity",0);
+    txt(561,486,"3 · RAG · ReAct",8,ACC,"middle","lbl",g3);
+
+    /* ---------- stage 4: RAGAS gauge ---------- */
+    var g4=E("g",{});
+    txt(676,80,"RAGAS",9.5,MUT,"start","lbl",g4);
+    E("rect",{x:664,y:92,width:124,height:170,rx:10,style:"fill:none;stroke:var(--ink);stroke-width:1.4"},g4);
+    var GCX=726,GCY=188,GR=42;
+    E("path",{d:"M684 188 A42 42 0 0 1 768 188",style:"fill:none;stroke:var(--line);stroke-width:6","stroke-linecap":"round"},g4);
+    var gaugeFill=E("path",{d:"",style:"fill:none;stroke-width:6",stroke:"url(#barGrad)","stroke-linecap":"round"},g4);
+    var needle=E("line",{x1:GCX,y1:GCY,x2:GCX-GR+6,y2:GCY,style:"stroke:var(--ink);stroke-width:2","stroke-linecap":"round"},g4);
+    E("circle",{cx:GCX,cy:GCY,r:4,style:"fill:var(--ink)"},g4);
+    var gaugeNum=txt(GCX,176,"0.00",10.5,INK,"middle",null,g4);
+    txt(676,216,"FAITHFULNESS",7,MUT,"start","lbl",g4);
+    E("rect",{x:676,y:220,width:100,height:6,rx:3,style:"fill:var(--line)",opacity:0.6},g4);
+    var mFaith=E("rect",{x:676,y:220,width:0,height:6,rx:3,fill:"url(#barGrad)"},g4);
+    txt(676,243,"ANSWER REL.",7,MUT,"start","lbl",g4);
+    E("rect",{x:676,y:247,width:100,height:6,rx:3,style:"fill:var(--line)",opacity:0.6},g4);
+    var mRel=E("rect",{x:676,y:247,width:0,height:6,rx:3,fill:"url(#barGrad)"},g4);
+    txt(726,486,"4 · RAGAS",8,ACC,"middle","lbl",g4);
+    function gaugeArc(frac){
+      var a0=Math.PI,a1=Math.PI*(1-cl(frac,0,1));
+      var x0=GCX+Math.cos(a0)*GR,y0=GCY+Math.sin(a0)*-GR;
+      var x1=GCX+Math.cos(a1)*GR,y1=GCY+Math.sin(a1)*-GR;
+      return "M"+x0.toFixed(1)+" "+y0.toFixed(1)+" A"+GR+" "+GR+" 0 0 1 "+x1.toFixed(1)+" "+y1.toFixed(1);
+    }
+
+    /* -------- scroll-driven render --------
+       The scaffold is always visible. `A` is the motion phase, occupying
+       the second screen of scroll. */
+    function render(p){
+      var A=ph(p,0.42,0.97);
+
+      /* OCR scan: one sweep down the page, boxes latch as it passes */
+      var pOcr=ph(A,0,0.26);
+      var sy=lerp(116,300,eIO(pOcr));
+      scanline.setAttribute("y",sy.toFixed(1));
+      scanglow.setAttribute("y",(sy-10).toFixed(1));
+      var scanOn=(pOcr>0.005&&pOcr<0.995);
+      scanline.setAttribute("opacity",scanOn?0.85:0);
+      scanglow.setAttribute("opacity",scanOn?0.12:0);
+      for(var b=0;b<bboxNodes.length;b++){
+        var bn=bboxNodes[b];
+        var hitFrac=(bn.mid-116)/(300-116);
+        var lit=cl((eIO(pOcr)-hitFrac+0.05)/0.08,0,1);
+        bn.box.setAttribute("opacity",(0.2+0.75*lit).toFixed(2));
+        bn.box.setAttribute("style","fill:none;stroke:"+(lit>0.5?"var(--accent)":"var(--clay)")+";stroke-width:1.4");
+        bn.lab.setAttribute("opacity",(0.95*lit).toFixed(2));
+        bn.glyph.setAttribute("style","fill:none;stroke:"+(lit>0.5?"var(--accent)":"var(--ink)")+";stroke-width:1.8");
+      }
+
+      /* ANN: rings, links and ranking fill in */
+      var pAnn=ph(A,0.2,0.48);
+      for(var q=0;q<K;q++){
+        var on=eIO(cl((pAnn-q*0.08)/0.35,0,1));
+        ringNodes[q].setAttribute("opacity",(0.95*on).toFixed(2));
+        linkNodes[q].setAttribute("opacity",(0.8*on).toFixed(2));
+        topk[q].node.setAttribute("style","fill:"+(on>0.4?"var(--accent)":"var(--muted)"));
+        rankBars[q].setAttribute("width",(RW*cosVals[q]*on).toFixed(1));
+        rankNums[q].textContent=(cosVals[q]*on).toFixed(2);
+      }
+
+      /* ReAct: two laps of T -> A -> O, then the answer chip */
+      var pReact=ph(A,0.42,0.72);
+      var active=(pReact<=0||pReact>=1)?-1:Math.floor(pReact*6)%3;
+      for(var n=0;n<3;n++){
+        var isOn=n===active;
+        nodeNodes[n].circ.setAttribute("fill-opacity",isOn?0.85:0.08);
+        nodeNodes[n].circ.setAttribute("style","fill:var(--accent);stroke:"+(isOn?"var(--accent)":"var(--ink)")+";stroke-width:1.4");
+        nodeNodes[n].key.setAttribute("style","fill:"+(isOn?"var(--paper,#0f3a37)":"var(--ink)"));
+      }
+      stepLabel.textContent=active>=0?rnodes[active].label:"";
+      for(var a2=0;a2<3;a2++){
+        arcNodes[a2].setAttribute("style","fill:none;stroke:"+(a2===active?"var(--accent)":"var(--line)")+";stroke-width:1.4");
+        arcNodes[a2].setAttribute("opacity",a2===active?0.9:0.45);
+      }
+      var ansOn=eOut(ph(A,0.68,0.8));
+      ansChip.setAttribute("opacity",(0.18*ansOn).toFixed(2));
+      ansChip.setAttribute("width",(130*ansOn).toFixed(1));
+      ansTxt.setAttribute("opacity",ansOn.toFixed(2));
+
+      /* RAGAS: gauge and sub-metrics tick up */
+      var gv=eOut(ph(A,0.7,0.97));
+      var score=0.92*gv;
+      gaugeFill.setAttribute("d",gaugeArc(score));
+      var ang=Math.PI*(1-score);
+      needle.setAttribute("x2",(GCX+Math.cos(ang)*(GR-6)).toFixed(1));
+      needle.setAttribute("y2",(GCY-Math.sin(ang)*(GR-6)).toFixed(1));
+      gaugeNum.textContent=score.toFixed(2);
+      mFaith.setAttribute("width",(100*0.94*gv).toFixed(1));
+      mRel.setAttribute("width",(100*0.89*gv).toFixed(1));
+    }
+
+    var section=document.getElementById("sar-section");
+    var panels=[].slice.call(section.querySelectorAll(".tts-panel"));
+    section.setAttribute("data-tts-ready","true");
+    var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduce){ render(1); return; }
+
+    var raf=0,last=-1;
+    function measure(){
+      raf=0;
+      var r=section.getBoundingClientRect();
+      var vh=window.innerHeight||document.documentElement.clientHeight;
+      var scrollable=r.height-vh;
+      var p=scrollable>0?cl(-r.top/scrollable,0,1):0;
+      if(Math.abs(p-last)<0.0005)return;
+      last=p;
+      render(p);
+      var active=p<0.4?0:1;
+      for(var ix=0;ix<panels.length;ix++)panels[ix].setAttribute("data-active",String(ix===active));
+    }
+    function schedule(){ if(!raf) raf=requestAnimationFrame(measure); }
+    window.addEventListener("scroll",schedule,{passive:true});
+    window.addEventListener("resize",schedule,{passive:true});
+    measure();
+  })();
+  </script>
+
   <!-- Privacy-friendly page-view counting (GoatCounter). No cookies, no
        personal data; counts only become visible once the boneshwar-vk site
        code is claimed at goatcounter.com. -->

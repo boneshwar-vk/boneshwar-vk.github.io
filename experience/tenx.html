@@ -6,12 +6,34 @@
   <meta name="theme-color" content="#0f3a37" />
   <script>try{var t=localStorage.getItem('theme')||'teal';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','teal')}</script>
   <title>Boneshwar V K · Autonomous Systems Engineer, 10X, IITM Research Park</title>
-  <meta name="description" content="Wheelchair SLAM (IMU/LiDAR) and a 5-language chatbot, Autonomous Systems Engineer at 10X, IITM Research Park, May 2023 to Jul 2023." />
+  <meta name="description" content="Autonomous Systems Engineer at 10X, IITM Research Park. Wheelchair SLAM with IMU and LiDAR, with an interactive walkthrough from range scan through occupancy mapping and loop closure to path planning." />
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/site.css" />
+  <link rel="stylesheet" href="../assets/scenes/tts.css?v=8" />
+  <style>
+    /* The diagram fills the pinned viewport, kept clear of the caption column. */
+    .tnx-stage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9svh 3vw 7svh clamp(0px, 24vw, 480px);
+    }
+    .tnx-stage svg {
+      width: 100%;
+      height: 100%;
+      max-height: 84svh;
+    }
+    .tnx-stage svg text { font-family: var(--sans, Inter, system-ui, sans-serif); letter-spacing: 0.2px; }
+    .tnx-stage .lbl { text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px; }
+    @media (max-width: 900px) {
+      .tnx-stage { padding: 12svh 3vw 26svh 3vw; }
+    }
+  </style>
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -46,21 +68,72 @@
     </a>
     <p class="eyebrow reveal"><span class="spark" aria-hidden="true">✦</span> 10X · IITM Research Park · May 2023 &ndash; Jul 2023</p>
     <h1 class="reveal">Autonomous Systems Engineer</h1>
-    <p class="lead reveal">Wheelchair SLAM (IMU/LiDAR) and a 5-language chatbot</p>
+    <p class="lead reveal">An autonomous wheelchair built on IMU, encoders and 2D LiDAR with ROS, running Hector
+      and Cartographer SLAM, alongside a multilingual RASA chatbot. Demonstrated to Google India's CEO and the
+      Chief Justice of India. The visualisation below follows one full mapping run.</p>
   </header>
 
-  <main class="container">
-    <section class="role-body reveal">
-      <figure class="media media--anim">
-        <iframe class="anim" data-anim data-src="../assets/anim/tenx.html" src="../assets/anim/tenx.html?theme=teal" loading="lazy" title="Animation: Wheelchair SLAM (IMU/LiDAR) and a 5-language chatbot"></iframe>
-      </figure>
-      <p class="role-lead">Built an autonomous wheelchair with IMU/encoder/LiDAR and ROS (Hector and Cartographer SLAM) plus a multilingual RASA chatbot. Demonstrated the system to Google India's CEO and the Chief Justice of India; featured for its real-time autonomous navigation impact.</p>
-      <ul class="tl-tags"><li>Robotics</li><li>SLAM</li><li>ROS</li></ul>
+  <!-- ===== Scroll-driven SLAM run ===== -->
+  <section class="tts-section" id="tnx-section" aria-labelledby="tnx-heading">
+    <h2 id="tnx-heading" class="sr-only">2D LiDAR SLAM pipeline from range scan to path plan</h2>
 
-      <div class="role-stub">
-        <p>A fuller write-up of this role is still to come, covering what the problem was, what I tried, and
-          what held up.</p>
+    <div class="tts-sticky">
+      <div class="tnx-stage" aria-hidden="true">
+        <svg id="tnx-svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="0.7" style="fill:var(--line)"/>
+            </pattern>
+            <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.4" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="sweepFade" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" style="stop-color:var(--accent);stop-opacity:0.18"/>
+              <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+            </radialGradient>
+          </defs>
+          <rect x="0" y="0" width="800" height="500" fill="url(#dots)" opacity="0.4"/>
+          <g id="tnx-scene"></g>
+        </svg>
       </div>
+    </div>
+
+    <div class="tts-panels">
+
+      <article class="tts-panel" data-stage="0" data-active="true">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">01</span> The floor plan</p>
+          <h3>A map not yet mapped</h3>
+          <p>The walls of the space, the loop the wheelchair will drive, and the robot at its start with the
+            LiDAR wedge glowing. The occupancy grid is empty; the legend of free, occupied and unknown cells
+            waits at the corner.</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="1">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">02</span> The mapping run</p>
+          <h3>Drive, match, close the loop</h3>
+          <p>Rays sweep and strike walls into a point cloud, ICP registers each scan, and the occupancy grid
+            fills behind the robot. The pose graph accumulates drift until the loop-closure constraint snaps
+            the trajectory straight, and an A* path is planned to the goal.</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ===== Notes ===== -->
+  <main class="container">
+    <section class="tts-notes">
+      <h2>About this visualisation</h2>
+      <p>The run drawn above: a 2D LiDAR ray-cast against the floor plan, ICP scan matching registering each
+        sweep, and a log-odds occupancy grid of free, occupied and unknown cells filling as the robot drives.
+        A Cartographer-style pose graph of submap nodes and odometry edges accumulates drift, a loop-closure
+        constraint pulls the graph consistent, and A* plans a path through the corridor to the goal.</p>
+      <p>The first scroll holds the floor plan at rest. The second replays the run: everything the wheelchair's
+        navigation stack did in real time, laid out step by step.</p>
     </section>
   </main>
 
@@ -90,6 +163,303 @@
   </footer>
 
   <script src="../assets/site.js"></script>
+  <script>
+  /* The same scene as assets/anim/tenx.html, scaled up and re-driven.
+     Scroll 1 shows the floor plan at rest; scroll 2 replays the mapping run,
+     with scroll position as the only animation parameter. */
+  (function(){
+    "use strict";
+    var NS="http://www.w3.org/2000/svg";
+    var scene=document.getElementById("tnx-scene");
+    if(!scene)return;
+    /* Labels sized up ~35% over the original card version. */
+    function F(s){return Math.round(s*13.5)/10;}
+    function E(tag,a,p){var e=document.createElementNS(NS,tag);if(a)for(var k in a)e.setAttribute(k,a[k]);(p||scene).appendChild(e);return e;}
+    function txt(x,y,s,fs,fill,anchor,cls,p){
+      var t=E("text",{x:x,y:y,"font-size":F(fs),"text-anchor":anchor||"start",style:"fill:"+fill},p);
+      if(cls)t.setAttribute("class",cls); t.textContent=s; return t;
+    }
+    function cl(v,a,b){return v<a?a:v>b?b:v;}
+    function ph(t,a,b){return cl((t-a)/(b-a),0,1);}
+    function lerp(a,b,t){return a+(b-a)*t;}
+    var seed=20230501;
+    function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}
+    var MUT="var(--muted)",INK="var(--ink)",ACC="var(--accent)",AC2="var(--clay)";
+    var i,k;
+
+    txt(40,34,"AUTONOMOUS SLAM · 2D LIDAR",10.5,INK,"start","lbl");
+    txt(40,52,"CARTOGRAPHER / HECTOR · OCCUPANCY GRID",8,MUT,"start","lbl");
+
+    /* layer order matches the source: grid under walls under rays etc. */
+    var gGrid=E("g",{}),gWalls=E("g",{}),gSweep=E("g",{}),gRays=E("g",{}),gCloud=E("g",{}),
+        gTraj=E("g",{}),gPlan=E("g",{}),gEdges=E("g",{}),gLoop=E("g",{}),gNodes=E("g",{}),
+        gGoal=E("g",{}),gRobot=E("g",{});
+
+    /* ---------- geometry: floor plan ---------- */
+    var WALLS=[
+      [160,100,640,100],[640,100,640,400],[640,400,160,400],[160,400,160,100],
+      [320,200,480,200],[480,200,480,300],[480,300,320,300],[320,300,320,200],
+      [160,250,212,250],[588,250,640,250]
+    ];
+    var BOX={x0:160,y0:100,x1:640,y1:400};
+    var BLK={x0:320,y0:200,x1:480,y1:300};
+
+    /* ---------- trajectory ---------- */
+    var WP=[[270,350],[270,150],[530,150],[530,350],[270,350]];
+    var TS=[],TLEN=0;
+    (function(){
+      var N=300,segLen=[],tot=0;
+      for(var q=0;q<WP.length-1;q++){var dx=WP[q+1][0]-WP[q][0],dy=WP[q+1][1]-WP[q][1];var l=Math.hypot(dx,dy);segLen.push(l);tot+=l;}
+      TLEN=tot;
+      for(var kk=0;kk<=N;kk++){
+        var d=tot*kk/N,acc=0,seg=0;
+        while(seg<segLen.length-1&&acc+segLen[seg]<d){acc+=segLen[seg];seg++;}
+        var t=(d-acc)/segLen[seg];
+        TS.push({x:lerp(WP[seg][0],WP[seg+1][0],t),y:lerp(WP[seg][1],WP[seg+1][1],t),s:kk/N});
+      }
+    })();
+    function trajAt(s){s=((s%1)+1)%1;var ix=cl(Math.round(s*(TS.length-1)),0,TS.length-1);return TS[ix];}
+    function trajHeading(s){var a=trajAt(s-0.01),b=trajAt(s+0.01);return Math.atan2(b.y-a.y,b.x-a.x);}
+
+    function distSeg(px,py,x1,y1,x2,y2){
+      var dx=x2-x1,dy=y2-y1,l2=dx*dx+dy*dy;
+      var t=l2?cl(((px-x1)*dx+(py-y1)*dy)/l2,0,1):0;
+      return Math.hypot(px-(x1+t*dx),py-(y1+t*dy));
+    }
+    function minWallDist(px,py){var m=1e9;for(var q=0;q<WALLS.length;q++){var w=WALLS[q];var d=distSeg(px,py,w[0],w[1],w[2],w[3]);if(d<m)m=d;}return m;}
+    function nearestParam(px,py){var m=1e9,s=0;for(var q=0;q<TS.length;q+=2){var d=(TS[q].x-px)*(TS[q].x-px)+(TS[q].y-py)*(TS[q].y-py);if(d<m){m=d;s=TS[q].s;}}return {s:s,d:Math.sqrt(m)};}
+
+    function castRay(px,py,ang,maxR){
+      var dx=Math.cos(ang),dy=Math.sin(ang),best=maxR;
+      for(var q=0;q<WALLS.length;q++){
+        var w=WALLS[q],x1=w[0],y1=w[1],x2=w[2],y2=w[3];
+        var sx=x2-x1,sy=y2-y1;
+        var den=dx*sy-dy*sx; if(Math.abs(den)<1e-6)continue;
+        var t=((x1-px)*sy-(y1-py)*sx)/den;
+        var u=((x1-px)*dy-(y1-py)*dx)/den;
+        if(t>0&&t<best&&u>=0&&u<=1)best=t;
+      }
+      return {x:px+dx*best,y:py+dy*best,r:best,hit:best<maxR};
+    }
+
+    /* ---------- occupancy grid ---------- */
+    var SENSOR=170,CELL=24,cells=[];
+    for(var gx=BOX.x0;gx<BOX.x1;gx+=CELL){
+      for(var gy=BOX.y0;gy<BOX.y1;gy+=CELL){
+        var ccx=gx+CELL/2,ccy=gy+CELL/2;
+        var wd=minWallDist(ccx,ccy);
+        var inBlk=ccx>BLK.x0&&ccx<BLK.x1&&ccy>BLK.y0&&ccy<BLK.y1;
+        var np=nearestParam(ccx,ccy);
+        var occ=wd<11;
+        var free=!occ&&!inBlk&&np.d<SENSOR;
+        if(!occ&&!free)continue;
+        var r=E("rect",{x:gx+1,y:gy+1,width:CELL-2,height:CELL-2,
+          style:"fill:"+(occ?"var(--clay)":"var(--accent)"),"fill-opacity":0},gGrid);
+        cells.push({el:r,occ:occ,s:np.s});
+      }
+    }
+
+    /* ---------- walls ---------- */
+    WALLS.forEach(function(w){
+      E("line",{x1:w[0],y1:w[1],x2:w[2],y2:w[3],style:"stroke:var(--line);stroke-width:3","stroke-linecap":"round"},gWalls);
+    });
+
+    /* ---------- true trajectory ---------- */
+    E("path",{d:"M"+WP.map(function(p){return p[0]+" "+p[1];}).join(" L "),
+      style:"fill:none;stroke:var(--accent);stroke-width:1.4","stroke-dasharray":"1 5","stroke-linecap":"round","stroke-opacity":0.55},gTraj);
+
+    /* ---------- wall point cloud ---------- */
+    var cloudPts=[];
+    WALLS.forEach(function(w){
+      var len=Math.hypot(w[2]-w[0],w[3]-w[1]),n=Math.max(2,Math.round(len/9));
+      for(var q=0;q<=n;q++){
+        var t=q/n,bx=lerp(w[0],w[2],t),by=lerp(w[1],w[3],t);
+        var np=nearestParam(bx,by);
+        if(np.d>SENSOR)return;
+        var c=E("circle",{cx:bx+(rnd()-0.5)*2.4,cy:by+(rnd()-0.5)*2.4,r:1.5,style:"fill:var(--ink)","fill-opacity":0},gCloud);
+        cloudPts.push({el:c,s:np.s});
+      }
+    });
+
+    /* ---------- LiDAR ray pool ---------- */
+    var NR=96,MAXR=190,rayEls=[];
+    for(i=0;i<NR;i++){
+      var ln=E("line",{x1:0,y1:0,x2:0,y2:0,style:"stroke:var(--accent);stroke-width:1","stroke-opacity":0},gRays);
+      var dt=E("circle",{cx:0,cy:0,r:1.7,style:"fill:var(--clay)","fill-opacity":0},gRays);
+      rayEls.push({ln:ln,dt:dt});
+    }
+    var sweepWedge=E("path",{d:"",fill:"url(#sweepFade)"},gSweep);
+
+    /* ---------- pose graph ---------- */
+    var NODE_S=[0,0.16,0.33,0.5,0.66,0.83];
+    function driftOf(s){
+      var kk=Math.pow(s,1.45);
+      return {dx:kk*30*Math.cos(0.6+s*1.1),dy:-kk*22+kk*14*Math.sin(s*1.4)};
+    }
+    var nodeEls=[],edgeEls=[];
+    for(i=0;i<NODE_S.length;i++){
+      nodeEls.push(E("circle",{r:4.2,style:"fill:var(--ink);stroke:var(--accent);stroke-width:1.2","fill-opacity":0},gNodes));
+      if(i>0)edgeEls.push(E("line",{style:"stroke:var(--ink);stroke-width:1.6","stroke-opacity":0},gEdges));
+    }
+    var loopEdge=E("line",{style:"stroke:var(--accent);stroke-width:1.8","stroke-dasharray":"5 4","stroke-opacity":0,filter:"url(#glow)"},gLoop);
+    var loopRing=E("circle",{r:13,style:"fill:none;stroke:var(--accent);stroke-width:1.6","stroke-opacity":0},gLoop);
+
+    /* ---------- goal + A* plan ---------- */
+    var GOAL=[404,150];
+    var goalG=E("g",{transform:"translate("+GOAL[0]+","+GOAL[1]+")",opacity:0},gGoal);
+    E("circle",{r:7,style:"fill:none;stroke:var(--accent);stroke-width:1.4"},goalG);
+    E("path",{d:"M0,-6 1.6,-1.8 6,-1.8 2.4,1 3.7,5.6 0,2.8 -3.7,5.6 -2.4,1 -6,-1.8 -1.6,-1.8Z",
+      style:"fill:var(--accent)","fill-opacity":0.9,transform:"scale(0.8)"},goalG);
+    var PLAN_PTS=[[270,350],[270,250],[270,150],[404,150]];
+    var planLen=0;
+    for(i=0;i<PLAN_PTS.length-1;i++)planLen+=Math.hypot(PLAN_PTS[i+1][0]-PLAN_PTS[i][0],PLAN_PTS[i+1][1]-PLAN_PTS[i][1]);
+    var planPath=E("path",{d:"M"+PLAN_PTS.map(function(p){return p[0]+" "+p[1];}).join(" L "),
+      style:"fill:none;stroke:var(--accent);stroke-width:2.4","stroke-linecap":"round","stroke-linejoin":"round",
+      "stroke-dasharray":planLen+" "+planLen,"stroke-dashoffset":planLen,"stroke-opacity":0,filter:"url(#glow)"},gPlan);
+
+    /* ---------- robot ---------- */
+    var robot=E("g",{},gRobot);
+    E("circle",{r:9,style:"fill:none;stroke:var(--accent);stroke-width:1","stroke-opacity":0.5},robot);
+    E("circle",{r:5.2,style:"fill:var(--accent)",filter:"url(#glow)"},robot);
+    E("path",{d:"M0,0 L13,0",style:"stroke:var(--ink);stroke-width:1.6"},robot);
+
+    /* ---------- HUD, step label, legend ---------- */
+    var odomEl=txt(760,36,"ODOM +0.00 m",8,MUT,"end",null);
+    var imuEl=txt(760,52,"IMU ω +0.00 rad/s",8,MUT,"end",null);
+    var matchEl=txt(760,68,"ICP e=0.000",8,MUT,"end",null);
+    var stepBox=E("rect",{x:40,y:446,width:0,height:26,rx:3,style:"fill:none;stroke:var(--accent)","stroke-opacity":0.55,"stroke-width":1});
+    var stepTxt=txt(50,464,"",8.5,ACC,"start","lbl");
+    var legend=E("g",{transform:"translate(586,440)"});
+    E("rect",{x:0,y:6,width:10,height:10,style:"fill:var(--accent);stroke:var(--line)","fill-opacity":0.12},legend);
+    txt(15,15,"free",8,MUT,"start",null,legend);
+    E("rect",{x:64,y:6,width:10,height:10,style:"fill:var(--clay)","fill-opacity":0.9},legend);
+    txt(79,15,"occ",8,MUT,"start",null,legend);
+    E("rect",{x:126,y:6,width:10,height:10,style:"fill:none;stroke:var(--line)","stroke-dasharray":"2 2"},legend);
+    txt(141,15,"unk",8,MUT,"start",null,legend);
+
+    var STEPS=[
+      [0,0.27,"LiDAR · range scan"],
+      [0.27,0.46,"ICP scan-match"],
+      [0.46,0.66,"Occupancy grid"],
+      [0.66,0.82,"Pose graph"],
+      [0.82,0.9,"Loop closure"],
+      [0.9,1.01,"A* plan"]
+    ];
+
+    /* -------- the run, driven by progress -------- */
+    function run(p,sweepAng){
+      var pose=trajAt(p),hd=trajHeading(p);
+      robot.setAttribute("transform","translate("+pose.x.toFixed(2)+","+pose.y.toFixed(2)+") rotate("+(hd*180/Math.PI).toFixed(1)+")");
+
+      for(var q=0;q<NR;q++){
+        var a=q/NR*Math.PI*2;
+        var hit=castRay(pose.x,pose.y,a,MAXR);
+        var trail=((sweepAng-a)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
+        var w=trail<1.5?(1-trail/1.5):0;
+        var r=rayEls[q];
+        r.ln.setAttribute("x1",pose.x);r.ln.setAttribute("y1",pose.y);
+        r.ln.setAttribute("x2",hit.x.toFixed(2));r.ln.setAttribute("y2",hit.y.toFixed(2));
+        r.ln.setAttribute("stroke-opacity",(0.34*w).toFixed(3));
+        r.dt.setAttribute("cx",hit.x.toFixed(2));r.dt.setAttribute("cy",hit.y.toFixed(2));
+        r.dt.setAttribute("fill-opacity",hit.hit?(0.9*w).toFixed(3):0);
+      }
+      var a0=sweepAng-1.5,a1=sweepAng;
+      sweepWedge.setAttribute("d","M"+pose.x+","+pose.y+" L"+(pose.x+Math.cos(a0)*MAXR)+","+(pose.y+Math.sin(a0)*MAXR)+
+        " A"+MAXR+","+MAXR+" 0 0 1 "+(pose.x+Math.cos(a1)*MAXR)+","+(pose.y+Math.sin(a1)*MAXR)+" Z");
+
+      var front=cl(p/0.62,0,1);
+      for(q=0;q<cloudPts.length;q++)
+        cloudPts[q].el.setAttribute("fill-opacity",cloudPts[q].s<=front?0.85:0);
+      for(q=0;q<cells.length;q++){
+        var c=cells[q];
+        c.el.setAttribute("fill-opacity",c.s<=front?(c.occ?0.88:0.12):0);
+      }
+
+      var cc=cl((p-0.82)/0.06,0,1);
+      var positions=[];
+      for(q=0;q<NODE_S.length;q++){
+        var s=NODE_S[q],tp=trajAt(s),dr=driftOf(s);
+        var appear=cl((p-(0.4+s*0.4))/0.05,0,1);
+        var x=lerp(tp.x+dr.dx,tp.x,cc),y=lerp(tp.y+dr.dy,tp.y,cc);
+        positions.push({x:x,y:y,a:appear});
+        nodeEls[q].setAttribute("cx",x.toFixed(2));nodeEls[q].setAttribute("cy",y.toFixed(2));
+        nodeEls[q].setAttribute("fill-opacity",(0.95*appear).toFixed(3));
+      }
+      for(q=0;q<edgeEls.length;q++){
+        var A2=positions[q],B=positions[q+1],o=Math.min(A2.a,B.a)*0.7;
+        edgeEls[q].setAttribute("x1",A2.x);edgeEls[q].setAttribute("y1",A2.y);
+        edgeEls[q].setAttribute("x2",B.x);edgeEls[q].setAttribute("y2",B.y);
+        edgeEls[q].setAttribute("stroke-opacity",o.toFixed(3));
+      }
+      var L=positions[positions.length-1],Fst=positions[0];
+      var loopOn=cl((p-0.8)/0.03,0,1)*(1-cl((p-0.94)/0.05,0,1));
+      loopEdge.setAttribute("x1",L.x);loopEdge.setAttribute("y1",L.y);
+      loopEdge.setAttribute("x2",Fst.x);loopEdge.setAttribute("y2",Fst.y);
+      loopEdge.setAttribute("stroke-opacity",(0.9*loopOn).toFixed(3));
+      var ringPulse=cl((p-0.81)/0.02,0,1)*(1-cl((p-0.9)/0.04,0,1));
+      loopRing.setAttribute("cx",Fst.x);loopRing.setAttribute("cy",Fst.y);
+      loopRing.setAttribute("r",(8+ringPulse*10).toFixed(1));
+      loopRing.setAttribute("stroke-opacity",(0.8*(1-Math.abs(0.5-ringPulse)*2)).toFixed(3));
+
+      var planShow=cl((p-0.9)/0.04,0,1);
+      var planDraw=cl((p-0.9)/0.07,0,1);
+      goalG.setAttribute("opacity",(0.4+0.6*planShow).toFixed(3));
+      planPath.setAttribute("stroke-opacity",planShow.toFixed(3));
+      planPath.setAttribute("stroke-dashoffset",(planLen*(1-planDraw)).toFixed(1));
+
+      odomEl.textContent="ODOM +"+(p*TLEN/100).toFixed(2)+" m";
+      imuEl.textContent="IMU ω "+(Math.sin(p*Math.PI*6)*0.3).toFixed(2)+" rad/s";
+      var err=Math.max(0.002,0.06*(1-front)+(cc>0?0.04*(1-cc):0));
+      matchEl.textContent="ICP e="+err.toFixed(3);
+
+      for(q=0;q<STEPS.length;q++){
+        if(p>=STEPS[q][0]&&p<STEPS[q][1]){
+          if(stepTxt.getAttribute("data-i")!==String(q)){
+            stepTxt.setAttribute("data-i",String(q));
+            stepTxt.textContent=STEPS[q][2];
+            var w2=stepTxt.getComputedTextLength?stepTxt.getComputedTextLength():140;
+            stepBox.setAttribute("width",(w2+22).toFixed(0));
+          }
+          break;
+        }
+      }
+      var stepOn=p>0.002;
+      stepBox.setAttribute("stroke-opacity",stepOn?0.55:0);
+      stepTxt.setAttribute("opacity",stepOn?1:0);
+    }
+
+    /* scroll maps the second screen onto the whole run */
+    function render(p){
+      var A=ph(p,0.42,0.97);
+      run(A,2.1+A*26);
+    }
+
+    var section=document.getElementById("tnx-section");
+    var panels=[].slice.call(section.querySelectorAll(".tts-panel"));
+    section.setAttribute("data-tts-ready","true");
+    var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduce){ run(0.96,2.1); return; }
+
+    var raf=0,last=-1;
+    function measure(){
+      raf=0;
+      var r=section.getBoundingClientRect();
+      var vh=window.innerHeight||document.documentElement.clientHeight;
+      var scrollable=r.height-vh;
+      var p=scrollable>0?cl(-r.top/scrollable,0,1):0;
+      if(Math.abs(p-last)<0.0005)return;
+      last=p;
+      render(p);
+      var active=p<0.4?0:1;
+      for(var ix=0;ix<panels.length;ix++)panels[ix].setAttribute("data-active",String(ix===active));
+    }
+    function schedule(){ if(!raf) raf=requestAnimationFrame(measure); }
+    window.addEventListener("scroll",schedule,{passive:true});
+    window.addEventListener("resize",schedule,{passive:true});
+    measure();
+  })();
+  </script>
+
   <!-- Privacy-friendly page-view counting (GoatCounter). No cookies, no
        personal data; counts only become visible once the boneshwar-vk site
        code is claimed at goatcounter.com. -->

@@ -6,12 +6,34 @@
   <meta name="theme-color" content="#0f3a37" />
   <script>try{var t=localStorage.getItem('theme')||'teal';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','teal')}</script>
   <title>Boneshwar V K · Research Associate, HILCPS Lab, IIT Madras</title>
-  <meta name="description" content="Inductive graph-transformer frameworks for scRNA-seq trajectory recovery, Research Associate at HILCPS Lab, IIT Madras, Dec 2023 to May 2025." />
+  <meta name="description" content="Research Associate at HILCPS Lab, IIT Madras. Inductive graph-transformer frameworks for scRNA-seq trajectory recovery, with an interactive walkthrough from kNN cell graph through attention to a pseudotime lineage." />
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/site.css" />
+  <link rel="stylesheet" href="../assets/scenes/tts.css?v=8" />
+  <style>
+    /* The diagram fills the pinned viewport, kept clear of the caption column. */
+    .hil-stage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9svh 3vw 7svh clamp(0px, 24vw, 480px);
+    }
+    .hil-stage svg {
+      width: 100%;
+      height: 100%;
+      max-height: 84svh;
+    }
+    .hil-stage svg text { font-family: var(--sans, Inter, system-ui, sans-serif); letter-spacing: 0.2px; }
+    .hil-stage .lbl { text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px; }
+    @media (max-width: 900px) {
+      .hil-stage { padding: 12svh 3vw 26svh 3vw; }
+    }
+  </style>
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -46,21 +68,81 @@
     </a>
     <p class="eyebrow reveal"><span class="spark" aria-hidden="true">✦</span> HILCPS Lab · IIT Madras · Dec 2023 &ndash; May 2025</p>
     <h1 class="reveal">Research Associate</h1>
-    <p class="lead reveal">Inductive graph-transformer frameworks for scRNA-seq trajectory recovery</p>
+    <p class="lead reveal">Inductive graph-transformer frameworks for scRNA-seq that recover cell trajectories in
+      gliomas, with position and structure encodings and multiscale embeddings that preserve lineage and
+      cell-to-cell communication. The visualisation below follows one sampled cell neighbourhood from graph to
+      lineage.</p>
   </header>
 
-  <main class="container">
-    <section class="role-body reveal">
-      <figure class="media media--anim">
-        <iframe class="anim" data-anim data-src="../assets/anim/hilcps.html" src="../assets/anim/hilcps.html?theme=teal" loading="lazy" title="Animation: Inductive graph-transformer frameworks for scRNA-seq trajectory recovery"></iframe>
-      </figure>
-      <p class="role-lead">Built inductive graph-transformer frameworks for scRNA-seq to recover cell trajectories in gliomas. Designed position and structure encodings and multiscale embeddings that preserved lineage and cell-to-cell communication, improving cell-type annotation and neoplastic versus non-neoplastic separation across sparse atlases. Unified multi-omics profiles of the glioma microenvironment to enable early, pre-clinical risk stratification.</p>
-      <ul class="tl-tags"><li>Graph Transformers</li><li>scRNA-seq</li><li>Multi-omics</li></ul>
+  <!-- ===== Scroll-driven trajectory pipeline ===== -->
+  <section class="tts-section" id="hil-section" aria-labelledby="hil-heading">
+    <h2 id="hil-heading" class="sr-only">Inductive graph-transformer pipeline for scRNA-seq trajectory recovery</h2>
 
-      <div class="role-stub">
-        <p>A fuller write-up of this role is still to come, covering what the problem was, what I tried, and
-          what held up.</p>
+    <div class="tts-sticky">
+      <div class="hil-stage" aria-hidden="true">
+        <svg id="hil-svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="0.7" style="fill:var(--line)"/>
+            </pattern>
+            <linearGradient id="ptime" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" style="stop-color:var(--muted)"/>
+              <stop offset="55%" style="stop-color:var(--accent)"/>
+              <stop offset="100%" style="stop-color:var(--clay)"/>
+            </linearGradient>
+            <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.2" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" style="fill:var(--muted)"/>
+            </marker>
+          </defs>
+          <rect x="0" y="0" width="800" height="500" fill="url(#dots)" opacity="0.4"/>
+          <g id="hil-scene"></g>
+        </svg>
       </div>
+    </div>
+
+    <div class="tts-panels">
+
+      <article class="tts-panel" data-stage="0" data-active="true">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">01</span> The scaffold</p>
+          <h3>Cells as a graph</h3>
+          <p>Every cell is a node in a kNN graph built over expression space. In the middle sits one attention
+            head of the graph transformer: a query cell surrounded by its sampled neighbourhood, each neighbour
+            carrying a positional or structural encoding. On the right, an empty UMAP panel waits with its
+            pseudotime scale.</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="1">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">02</span> Inference</p>
+          <h3>Attention to lineage</h3>
+          <p>An inductive sampler rings the query cell, softmax attention weighs each neighbour, and the learned
+            embeddings scatter onto the UMAP manifold ordered by pseudotime. A principal curve threads the
+            cells and forks at a branch point, separating the neoplastic lineage from the non-neoplastic
+            one.</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ===== Notes ===== -->
+  <main class="container">
+    <section class="tts-notes">
+      <h2>About this visualisation</h2>
+      <p>The pipeline drawn above: a kNN cell graph over scRNA-seq profiles, inductive neighbourhood sampling
+        around a query cell, and a graph-transformer attention head with softmax-weighted edges,
+        α&nbsp;=&nbsp;softmax(qᵀk/√d), augmented with Laplacian positional encodings and structural encodings.
+        The learned multiscale embeddings project to a UMAP manifold, and a branching principal curve recovers
+        pseudotime, splitting a neoplastic from a non-neoplastic lineage.</p>
+      <p>The first scroll lays out the scaffold. The second animates the inference: the sampled subgraph, the
+        attention weights, and the trajectory threading the manifold, which is what preserving lineage structure
+        across sparse atlases looks like in practice.</p>
     </section>
   </main>
 
@@ -90,6 +172,204 @@
   </footer>
 
   <script src="../assets/site.js"></script>
+  <script>
+  /* The same scene as assets/anim/hilcps.html, scaled up and re-driven.
+     Scroll 1 shows the full scaffold at rest; scroll 2 replays the sampling,
+     attention and lineage choreography, with scroll position as the only
+     animation parameter. */
+  (function(){
+    "use strict";
+    var NS="http://www.w3.org/2000/svg";
+    var scene=document.getElementById("hil-scene");
+    if(!scene)return;
+    /* Labels sized up ~35% over the original card version. */
+    function F(s){return Math.round(s*13.5)/10;}
+    function E(tag,a,p){var e=document.createElementNS(NS,tag);if(a)for(var k in a)e.setAttribute(k,a[k]);(p||scene).appendChild(e);return e;}
+    function txt(x,y,s,fs,fill,anchor,cls,p){
+      var t=E("text",{x:x,y:y,"font-size":F(fs),"text-anchor":anchor||"start",style:"fill:"+fill},p);
+      if(cls)t.setAttribute("class",cls); t.textContent=s; return t;
+    }
+    function cl(v,a,b){return v<a?a:v>b?b:v;}
+    function ph(t,a,b){return cl((t-a)/(b-a),0,1);}
+    function eIO(x){return x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;}
+    function eOut(x){return 1-Math.pow(1-cl(x,0,1),3);}
+    function lerp(a,b,t){return a+(b-a)*t;}
+    var seed=7;
+    function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}
+    var MUT="var(--muted)",INK="var(--ink)",ACC="var(--accent)",AC2="var(--clay)";
+    var i,j,k;
+
+    /* ---------- stage titles + flow arrows ---------- */
+    txt(40,32,"kNN GRAPH",10.5,MUT,"start","lbl");
+    txt(300,32,"ATTENTION · SOFTMAX",10.5,MUT,"start","lbl");
+    txt(560,32,"UMAP · PSEUDOTIME",10.5,MUT,"start","lbl");
+    E("path",{d:"M250 250 L292 250",style:"fill:none;stroke:var(--muted);stroke-width:1.4","marker-end":"url(#arw)",opacity:0.8});
+    E("path",{d:"M512 250 L554 250",style:"fill:none;stroke:var(--muted);stroke-width:1.4","marker-end":"url(#arw)",opacity:0.8});
+
+    /* ---------- stage 1: kNN cell graph ---------- */
+    var g1=E("g",{});
+    var N1=22,box1={x:40,y:64,w:200,h:360},cells1=[];
+    for(i=0;i<N1;i++)cells1.push({x:box1.x+14+rnd()*(box1.w-28),y:box1.y+14+rnd()*(box1.h-28)});
+    var edges1=[];
+    for(var a=0;a<N1;a++){
+      var d=[];
+      for(var b=0;b<N1;b++)if(a!==b)d.push({b:b,dist:Math.hypot(cells1[a].x-cells1[b].x,cells1[a].y-cells1[b].y)});
+      d.sort(function(u,v){return u.dist-v.dist;});
+      for(k=0;k<3;k++){
+        var bb=d[k].b;
+        if(a<bb)edges1.push({a:a,b:bb});
+        else if(!edges1.some(function(e){return e.a===bb&&e.b===a;}))edges1.push({a:bb,b:a});
+      }
+    }
+    edges1.forEach(function(e){
+      E("line",{x1:cells1[e.a].x,y1:cells1[e.a].y,x2:cells1[e.b].x,y2:cells1[e.b].y,
+        style:"stroke:var(--line);stroke-width:1.1","stroke-linecap":"round"},g1);
+    });
+    var target1=10;
+    cells1.forEach(function(c,ix){
+      var isT=ix===target1;
+      var nd=E("circle",{cx:c.x,cy:c.y,r:isT?5.6:3.4,style:"fill:"+(isT?ACC:INK),"fill-opacity":isT?1:0.82},g1);
+      if(isT)nd.setAttribute("filter","url(#glow)");
+    });
+    var ring1=E("circle",{cx:cells1[target1].x,cy:cells1[target1].y,r:8,style:"fill:none;stroke:var(--accent);stroke-width:1.4","stroke-dasharray":"3 4",opacity:0},g1);
+    txt(40,470,"NODES = CELLS · EDGES = kNN",8,MUT,"start","lbl",g1);
+
+    /* ---------- stage 2: graph-transformer head ---------- */
+    var g2=E("g",{});
+    var cx2=380,cy2=250,Nn=6,nbr=[];
+    for(j=0;j<Nn;j++){
+      var ang=-Math.PI/2+j*(2*Math.PI/Nn);
+      nbr.push({x:cx2+Math.cos(ang)*78,y:cy2+Math.sin(ang)*78,w:0.05+rnd()*0.95});
+    }
+    var sme=nbr.map(function(n){return Math.exp(n.w*2.4);});
+    var Z=sme.reduce(function(u,v){return u+v;},0);
+    nbr.forEach(function(n,ix){n.alpha=sme[ix]/Z;});
+    var attEls=[];
+    nbr.forEach(function(n){
+      attEls.push(E("line",{x1:cx2,y1:cy2,x2:n.x,y2:n.y,style:"stroke:var(--accent)","stroke-linecap":"round","stroke-width":1,opacity:0.15},g2));
+    });
+    var chipEls=[];
+    nbr.forEach(function(n,ix){
+      E("circle",{cx:n.x,cy:n.y,r:5.4,style:"fill:var(--ink)","fill-opacity":0.85},g2);
+      var tag=ix%2===0?"+PE":"+SE", col=ix%2===0?ACC:AC2;
+      var t=txt(n.x+(n.x>cx2?11:-11),n.y+(n.y<cy2?-10:16),tag,8.4,col,n.x>cx2?"start":"end",null,g2);
+      t.setAttribute("opacity",0); t.setAttribute("font-weight",700);
+      chipEls.push(t);
+    });
+    var qNode=E("circle",{cx:cx2,cy:cy2,r:7,style:"fill:var(--accent)",filter:"url(#glow)"},g2);
+    var qHalo=E("circle",{cx:cx2,cy:cy2,r:7,style:"fill:none;stroke:var(--accent);stroke-width:1.4",opacity:0},g2);
+    txt(300,416,"α = softmax(qᵀk/√d)",8.4,MUT,"start",null,g2);
+    var smBars=[];
+    for(j=0;j<Nn;j++){
+      smBars.push(E("rect",{x:300+j*23,y:398,width:15,height:2,rx:1.5,
+        style:"fill:"+(j%2===0?ACC:AC2),"fill-opacity":0.9},g2));
+    }
+    txt(300,470,"INDUCTIVE SUBGRAPH · +PE / +SE",8,MUT,"start","lbl",g2);
+
+    /* ---------- stage 3: UMAP manifold + pseudotime lineage ---------- */
+    var g3=E("g",{});
+    var trunk="M650,420 C640,360 660,330 668,300";
+    var brA="M668,300 C676,262 720,242 736,200 C746,170 740,130 726,96";
+    var brB="M668,300 C660,262 612,250 596,212 C582,178 588,140 600,104";
+    var anchors=[];
+    [[650,420],[645,392],[648,360],[658,332],[666,306]].forEach(function(pt,ix){anchors.push({x:pt[0],y:pt[1],pt:ix/12,br:0});});
+    [[676,278],[700,250],[722,220],[734,186],[730,150],[724,110]].forEach(function(pt,ix){anchors.push({x:pt[0],y:pt[1],pt:0.45+ix/11,br:1});});
+    [[656,278],[632,252],[608,224],[596,188],[598,150],[604,112]].forEach(function(pt,ix){anchors.push({x:pt[0],y:pt[1],pt:0.45+ix/11,br:2});});
+    var dots3=[];
+    anchors.forEach(function(an){
+      for(var s=0;s<3;s++){
+        var dx=(rnd()-0.5)*22,dy=(rnd()-0.5)*22;
+        var t=cl(an.pt+(rnd()-0.5)*0.08,0,1);
+        var fill=an.br===1?AC2:an.br===2?MUT:ACC;
+        dots3.push({x:an.x+dx,y:an.y+dy,t:t,fill:fill});
+      }
+    });
+    var dotEls3=dots3.map(function(dd){
+      return E("circle",{cx:dd.x,cy:dd.y,r:2.6,style:"fill:"+dd.fill,"fill-opacity":0.12},g3);
+    });
+    var trunkP=E("path",{d:trunk,style:"fill:none;stroke:url(#ptime);stroke-width:3.4","stroke-linecap":"round",opacity:0.9},g3);
+    var brAP=E("path",{d:brA,style:"fill:none;stroke:var(--accent);stroke-width:3","stroke-linecap":"round",opacity:0.9},g3);
+    var brBP=E("path",{d:brB,style:"fill:none;stroke:var(--muted);stroke-width:3","stroke-linecap":"round",opacity:0.9},g3);
+    var bpNode=E("circle",{cx:668,cy:300,r:4,style:"fill:var(--ink);stroke:var(--accent);stroke-width:1.4",opacity:0},g3);
+    var labNeo=txt(734,80,"NEOPLASTIC",8.5,AC2,"middle","lbl",g3); labNeo.setAttribute("opacity",0);
+    var labNon=txt(596,92,"NON-NEOPLASTIC",8.5,MUT,"middle","lbl",g3); labNon.setAttribute("opacity",0);
+    var labLin=txt(660,444,"LINEAGE",8.5,MUT,"middle","lbl",g3); labLin.setAttribute("opacity",0);
+    [trunkP,brAP,brBP].forEach(function(pth){
+      var L=pth.getTotalLength();
+      pth.style.strokeDasharray=L; pth.style.strokeDashoffset=L; pth.__L=L;
+    });
+    var barG=E("g",{transform:"translate(566,466)"});
+    txt(0,-8,"PSEUDOTIME",8.5,MUT,"start","lbl",barG);
+    E("rect",{x:0,y:0,width:170,height:7,rx:3.5,fill:"url(#ptime)"},barG);
+    txt(0,22,"0",8,MUT,"start","lbl",barG);
+    txt(163,22,"1",8,MUT,"start","lbl",barG);
+
+    /* -------- scroll-driven render --------
+       The scaffold (graph, attention head, panels, colorbar) is always
+       visible. `A` is the motion phase, occupying the second screen. */
+    function render(p){
+      var A=ph(p,0.42,0.97);
+      var p1=ph(A,0,0.18);
+      ring1.setAttribute("r",(8+eIO(p1)*26).toFixed(1));
+      ring1.setAttribute("opacity",(0.7*Math.sin(cl(p1,0,1)*Math.PI)).toFixed(2));
+
+      for(var ix=0;ix<attEls.length;ix++){
+        var pa=eIO(cl((A-0.12-ix*0.02)/0.3,0,1));
+        attEls[ix].setAttribute("stroke-width",(0.8+nbr[ix].alpha*9*pa).toFixed(2));
+        attEls[ix].setAttribute("opacity",(0.15+(0.25+nbr[ix].alpha*0.7-0.15)*pa).toFixed(2));
+      }
+      for(ix=0;ix<chipEls.length;ix++)
+        chipEls[ix].setAttribute("opacity",ph(A,0.18+ix*0.02,0.32+ix*0.02).toFixed(2));
+      qHalo.setAttribute("r",(7+eIO(ph(A,0.12,0.35))*4).toFixed(1));
+      qHalo.setAttribute("opacity",(0.5*eIO(ph(A,0.12,0.35))).toFixed(2));
+      for(ix=0;ix<smBars.length;ix++){
+        var pb=cl((A-0.18-ix*0.015)/0.2,0,1);
+        var h=Math.max(nbr[ix].alpha*150*eOut(pb),2);
+        smBars[ix].setAttribute("height",h.toFixed(1));
+        smBars[ix].setAttribute("y",(398-h).toFixed(1));
+      }
+
+      for(ix=0;ix<dotEls3.length;ix++){
+        var ps=eOut(cl((A-0.38-dots3[ix].t*0.15)/0.18,0,1));
+        dotEls3[ix].setAttribute("fill-opacity",(0.12+0.78*ps).toFixed(2));
+        dotEls3[ix].setAttribute("r",(2.4+0.6*ps).toFixed(2));
+      }
+      trunkP.style.strokeDashoffset=trunkP.__L*(1-eOut(ph(A,0.58,0.74)));
+      var pab=eOut(ph(A,0.7,0.88));
+      brAP.style.strokeDashoffset=brAP.__L*(1-pab);
+      brBP.style.strokeDashoffset=brBP.__L*(1-pab);
+      bpNode.setAttribute("opacity",ph(A,0.66,0.74).toFixed(2));
+      labLin.setAttribute("opacity",ph(A,0.62,0.72).toFixed(2));
+      labNeo.setAttribute("opacity",ph(A,0.84,0.94).toFixed(2));
+      labNon.setAttribute("opacity",ph(A,0.84,0.94).toFixed(2));
+    }
+
+    var section=document.getElementById("hil-section");
+    var panels=[].slice.call(section.querySelectorAll(".tts-panel"));
+    section.setAttribute("data-tts-ready","true");
+    var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduce){ render(1); return; }
+
+    var raf=0,last=-1;
+    function measure(){
+      raf=0;
+      var r=section.getBoundingClientRect();
+      var vh=window.innerHeight||document.documentElement.clientHeight;
+      var scrollable=r.height-vh;
+      var p=scrollable>0?cl(-r.top/scrollable,0,1):0;
+      if(Math.abs(p-last)<0.0005)return;
+      last=p;
+      render(p);
+      var active=p<0.4?0:1;
+      for(var ix=0;ix<panels.length;ix++)panels[ix].setAttribute("data-active",String(ix===active));
+    }
+    function schedule(){ if(!raf) raf=requestAnimationFrame(measure); }
+    window.addEventListener("scroll",schedule,{passive:true});
+    window.addEventListener("resize",schedule,{passive:true});
+    measure();
+  })();
+  </script>
+
   <!-- Privacy-friendly page-view counting (GoatCounter). No cookies, no
        personal data; counts only become visible once the boneshwar-vk site
        code is claimed at goatcounter.com. -->
