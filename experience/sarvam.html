@@ -30,6 +30,9 @@
     }
     .sar-stage svg text { font-family: var(--sans, Inter, system-ui, sans-serif); letter-spacing: 0.2px; }
     .sar-stage .lbl { text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px; }
+    /* Indic lines: any letter-spacing breaks conjunct shaping in Safari, and the
+       webfont stack lacks these scripts, so hand them straight to system fonts. */
+    .sar-stage svg text.indic { letter-spacing: normal; font-family: system-ui, -apple-system, "Noto Sans", sans-serif; }
     @media (max-width: 900px) {
       .sar-stage { padding: 12svh 3vw 26svh 3vw; }
     }
@@ -215,7 +218,7 @@
     ];
     var glyphNodes=[],bboxNodes=[];
     for(i=0;i<rows.length;i++){
-      var gt=txt(52,rows[i].ty,rows[i].str,11,INK,"start",null,g1);
+      var gt=txt(50,rows[i].ty,rows[i].str,11,INK,"start","indic",g1);
       gt.setAttribute("opacity",0.92);
       glyphNodes.push(gt);
       var bb=E("rect",{x:rows[i].bx,y:rows[i].by,width:rows[i].bw,height:rows[i].bh,rx:3,
