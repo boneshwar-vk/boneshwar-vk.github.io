@@ -255,9 +255,9 @@
       mondo:{x:356,y:88,w:92,h:32,t1:"MONDO",t2:"0008840",k:"cls"},
       ordo :{x:488,y:88,w:88,h:32,t1:"ORDO",t2:"100 · ataxia",k:"cls"},
       dis  :{x:426,y:168,w:150,h:36,t1:"Ataxia-telangiectasia",t2:"ICD-11 LD90 · SNOMED",k:"dis"},
-      h1   :{x:336,y:256,r:20,t1:"Cerebellar ataxia",t2:"HP:0001251",k:"hpo"},
+      h1   :{x:342,y:256,r:20,t1:"Cerebellar ataxia",t2:"HP:0001251",k:"hpo"},
       h2   :{x:452,y:268,r:20,t1:"Telangiectasia",t2:"HP:0001009",k:"hpo"},
-      h3   :{x:518,y:236,r:20,t1:"↑ AFP",t2:"LOINC 1834-1",k:"hpo"}
+      h3   :{x:514,y:236,r:20,t1:"↑ AFP",t2:"LOINC 1834-1",k:"hpo"}
     };
     function oedge(a,b,ay,by,lab,acc){
       var d="M"+a.x+" "+ay+" L "+b.x+" "+by;
@@ -278,9 +278,9 @@
     function drawNode(n){
       var g=E("g",{},og), col= n.k==="dis"?"var(--accent)":"var(--ink)";
       if(n.r){
-        E("ellipse",{cx:n.x,cy:n.y,rx:n.r+27,ry:n.r,style:"fill:none;stroke:var(--ink);stroke-width:1.2"},g);
-        txt(n.x,n.y+1,n.t1,7.6,COL.ink,"middle",null,g);
-        txt(n.x,n.y+12,n.t2,6.4,COL.mut,"middle",null,g);
+        E("ellipse",{cx:n.x,cy:n.y,rx:n.r+31,ry:n.r,style:"fill:none;stroke:var(--ink);stroke-width:1.2"},g);
+        txt(n.x,n.y+1,n.t1,7.2,COL.ink,"middle",null,g);
+        txt(n.x,n.y+11,n.t2,5.8,COL.mut,"middle",null,g);
       } else {
         E("rect",{x:n.x-n.w/2,y:n.y-n.h/2,width:n.w,height:n.h,rx:5,
           style:"fill:none;stroke:"+col+";stroke-width:"+(n.k==="dis"?1.6:1.2)},g);
@@ -377,9 +377,9 @@
     txt(dRoot.x,dRoot.y-1,"cerebellar ataxia",8.4,COL.ink,"middle",null,dg);
     txt(dRoot.x,dRoot.y+11,"P(disease | obs)",6.2,COL.mut,"middle",null,dg);
     var cand=[
-      {x:614,y:188,name:"Friedreich",code:"0010787",post:0.13,top:0},
+      {x:612,y:188,name:"Friedreich",code:"0010787",post:0.13,top:0},
       {x:684,y:188,name:"A-T",code:"0008840",post:0.71,top:1},
-      {x:752,y:188,name:"SCA1",code:"0007117",post:0.09,top:0}
+      {x:754,y:188,name:"SCA1",code:"0007117",post:0.09,top:0}
     ];
     var leaf={x:692,y:300,name:"ATM biallelic",code:"variant"};
     function dedge(ax,ay,bx,by,top){
@@ -396,8 +396,8 @@
       var g=E("g",{},dg);
       E("rect",{x:c.x-33,y:c.y-17,width:66,height:34,rx:5,
         style:"fill:none;stroke:"+col+";stroke-width:"+(c.top?1.7:1)},g);
-      txt(c.x,c.y-3,c.name,8.2,col,"middle",null,g);
-      txt(c.x,c.y+9,"MONDO "+c.code,5.2,COL.mut,"middle",null,g);
+      txt(c.x,c.y-3,c.name,7.8,col,"middle",null,g);
+      txt(c.x,c.y+9,"MONDO "+c.code,4.8,COL.mut,"middle",null,g);
       E("rect",{x:c.x-27,y:c.y+21,width:54,height:5,rx:2.5,style:"fill:none;stroke:var(--line);stroke-width:.8"},g);
       var bar=E("rect",{x:c.x-27,y:c.y+21,width:0,height:5,rx:2.5,style:"fill:"+(c.top?"var(--accent)":"var(--muted)")},g);
       var pct=txt(c.x,c.y+38,"0%",7,c.top?COL.acc:COL.mut,"middle",null,g);
