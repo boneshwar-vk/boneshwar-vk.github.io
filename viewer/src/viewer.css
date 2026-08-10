@@ -128,12 +128,12 @@
 .pmhc-panel {
   min-height: max(100svh, 420px);
   display: flex;
-  align-items: center;
+  /* Top-anchored high in each screen rather than centred: the card reads
+     just under the nav. Layout only; panel and section heights are
+     unchanged, so the scroll-to-beat mapping is untouched. */
+  align-items: flex-start;
   padding: clamp(24px, 5vw, 64px);
-  /* Extra bottom padding lifts the centred card about 9svh. Layout only: the
-     section and panel heights are untouched, so the scroll-to-beat mapping
-     that drives the 3D stays exactly as it was. */
-  padding-bottom: calc(clamp(24px, 5vw, 64px) + 18svh);
+  padding-top: calc(var(--nav-h, 68px) + 7svh);
   max-width: min(46ch, 42vw);
 }
 

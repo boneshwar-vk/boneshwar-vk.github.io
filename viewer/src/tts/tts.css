@@ -105,11 +105,12 @@
 .tts-panel {
   min-height: max(100svh, 420px);
   display: flex;
-  align-items: center;
+  /* Top-anchored high in each screen rather than centred: the card reads
+     just under the nav. Layout only; panel and section heights are
+     unchanged, so the scroll-to-animation mapping is untouched. */
+  align-items: flex-start;
   padding: clamp(20px, 3.5vw, 48px);
-  /* Extra bottom padding shifts the centred card up by roughly 9svh, so it
-     reads nearer the hero copy instead of hanging low in the viewport. */
-  padding-bottom: calc(clamp(20px, 3.5vw, 48px) + 18svh);
+  padding-top: calc(var(--nav-h, 68px) + 7svh);
   max-width: min(34ch, 29vw);
 }
 
