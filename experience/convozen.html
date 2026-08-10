@@ -72,45 +72,38 @@
 
       <article class="tts-panel" data-stage="0" data-active="true">
         <div class="tts-panel-inner">
-          <p class="tts-step"><span class="num">01</span> Text to vectors</p>
-          <h3>Words become numbers</h3>
-          <p>The sentence is split into tokens, and each token becomes a compact block of numbers the model
-            can work with. The word stays printed on its block so you can follow it through the rest of the
-            pipeline.</p>
-          <p class="tts-caveat">Four values are shown per token. A real representation has several hundred, so
-            these are illustrative.</p>
+          <p class="tts-step"><span class="num">01</span> Text to speech models</p>
+          <h3>TTS models, end to end</h3>
+          <p>Worked on text to speech models across the stack, from data preprocessing to pipelines that
+            automate training. This included instant voice cloning and the data generation pipelines behind
+            it.</p>
         </div>
       </article>
 
       <article class="tts-panel" data-stage="1">
         <div class="tts-panel-inner">
-          <p class="tts-step"><span class="num">02</span> Speaker conditioning</p>
-          <h3>What is said, and how it sounds</h3>
-          <p>Text alone does not decide a voice. A speaker representation carrying pitch, timbre, energy and
-            speaking style joins the text, and the two merge into a single conditioned input.</p>
-          <p class="tts-caveat">These four features are illustrative. They are not a complete speaker
-            embedding.</p>
+          <p class="tts-step"><span class="num">02</span> Production voicebots</p>
+          <h3>Voicebots at campaign scale</h3>
+          <p>Deployed voicebots and ran campaigns at large scale, keeping the pipeline low latency and the
+            output quality consistent, with particular attention to the text to speech stage.</p>
         </div>
       </article>
 
       <article class="tts-panel" data-stage="2">
         <div class="tts-panel-inner">
-          <p class="tts-step"><span class="num">03</span> Autoregressive generation</p>
-          <h3>Generate one step, then feed it back</h3>
-          <p>The conditioned input passes through the transformer layers and produces a single new token. That
-            token travels back to the input and joins the sequence, which is now one token longer, and the model
-            runs again.</p>
-          <p>Four steps are shown here. A real utterance takes hundreds, and every one of them sees everything
-            generated before it.</p>
+          <p class="tts-step"><span class="num">03</span> Architectures</p>
+          <h3>Designing TTS architectures</h3>
+          <p>Built architectures for text to speech models, the family of designs this visualisation walks
+            through.</p>
         </div>
       </article>
 
       <article class="tts-panel" data-stage="3">
         <div class="tts-panel-inner">
-          <p class="tts-step"><span class="num">04</span> Acoustics to audio</p>
-          <h3>The sequence becomes sound</h3>
-          <p>The finished sequence is an acoustic representation, which a vocoder turns into pressure over time.
-            That is the waveform below, and it is the signal the play button uses.</p>
+          <p class="tts-step"><span class="num">04</span> Publications</p>
+          <h3>Two publications</h3>
+          <p>Worked on two publications: an open sourced industrial benchmark dataset with ablations of recent
+            TTS models, and a new architecture that addresses end of speech issues in text to speech.</p>
         </div>
       </article>
 
