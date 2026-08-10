@@ -6,12 +6,34 @@
   <meta name="theme-color" content="#0f3a37" />
   <script>try{var t=localStorage.getItem('theme')||'teal';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','teal')}</script>
   <title>Boneshwar V K · Research Intern, CPSWin Lab, Kansas State University</title>
-  <meta name="description" content="VAE + LTMG framework for glioblastoma imputation and clustering, Research Intern at CPSWin Lab, Kansas State University, May 2024 to Jul 2024." />
+  <meta name="description" content="Research Intern at CPSWin Lab, Kansas State University. An inductive GNN framework for scRNA-seq imputation and clustering, with an interactive walkthrough from dropout imputation and LTMG through VGAE and MST ensembles to clustering metrics." />
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/site.css" />
+  <link rel="stylesheet" href="../assets/scenes/tts.css?v=8" />
+  <style>
+    /* The diagram fills the pinned viewport, kept clear of the caption column. */
+    .cps-stage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9svh 3vw 7svh clamp(0px, 24vw, 480px);
+    }
+    .cps-stage svg {
+      width: 100%;
+      height: 100%;
+      max-height: 84svh;
+    }
+    .cps-stage svg text { font-family: var(--sans, Inter, system-ui, sans-serif); letter-spacing: 0.2px; }
+    .cps-stage .lbl { text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px; }
+    @media (max-width: 900px) {
+      .cps-stage { padding: 12svh 3vw 26svh 3vw; }
+    }
+  </style>
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -46,21 +68,86 @@
     </a>
     <p class="eyebrow reveal"><span class="spark" aria-hidden="true">✦</span> CPSWin Lab · Kansas State University · May 2024 &ndash; Jul 2024</p>
     <h1 class="reveal">Research Intern</h1>
-    <p class="lead reveal">VAE + LTMG framework for glioblastoma imputation and clustering</p>
+    <p class="lead reveal">An inductive GNN framework for single-cell RNA-seq imputation and clustering on
+      glioblastoma data. The visualisation below follows the pipeline from sparse counts to clustering metrics.</p>
   </header>
 
-  <main class="container">
-    <section class="role-body reveal">
-      <figure class="media media--anim">
-        <iframe class="anim" data-anim data-src="../assets/anim/cpswin.html" src="../assets/anim/cpswin.html?theme=teal" loading="lazy" title="Animation: VAE + LTMG framework for glioblastoma imputation and clustering"></iframe>
-      </figure>
-      <p class="role-lead">Created an inductive GNN framework for scRNA-seq imputation and clustering that retains cellular manifold structure and boosts downstream metrics (+60% Silhouette, +14.9% ARI) while cutting runtime. Extended the pipeline for GBM-specific analysis with VGAE + LTMG preprocessing and MST-based ensemble embeddings, improving heterogeneity analysis accuracy on test data.</p>
-      <ul class="tl-tags"><li>GNNs</li><li>VGAE</li><li>+60% Silhouette</li></ul>
+    <!-- ===== Scroll-driven scRNA-seq pipeline ===== -->
+  <section class="tts-section" id="cps-section" aria-labelledby="cps-heading">
+    <h2 id="cps-heading" class="sr-only">Inductive GNN pipeline for scRNA-seq imputation and clustering</h2>
 
-      <div class="role-stub">
-        <p>A fuller write-up of this role is still to come, covering what the problem was, what I tried, and
-          what held up.</p>
+    <div class="tts-sticky">
+      <div class="cps-stage" aria-hidden="true">
+        <svg id="cps-svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="2.2" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" style="fill:var(--muted)"/>
+            </marker>
+          </defs>
+          <g id="cps-scene"></g>
+        </svg>
       </div>
+    </div>
+
+    <div class="tts-panels">
+
+      <article class="tts-panel" data-stage="0" data-active="true">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">01</span> Imputation and LTMG</p>
+          <h3>Sparse counts, recovered</h3>
+          <p>Created an inductive GNN framework for scRNA-seq imputation and clustering that recovers dropout
+            zeros while retaining cellular manifold structure. LTMG fits each gene a left-truncated mixture of
+            Gaussians over its regulatory states, and the result is assembled into tensors for the model.</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="1">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">02</span> VGAE</p>
+          <h3>Encoding the cell graph</h3>
+          <p>Extended the pipeline with VGAE preprocessing for GBM-specific analysis: a GCN encoder maps the
+            cell graph to a latent Gaussian, sampling by reparameterisation with z&nbsp;=&nbsp;μ&nbsp;+&nbsp;σε,
+            and an inner-product decoder reconstructs the adjacency as Â&nbsp;=&nbsp;σ(ZZᵀ).</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="2">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">03</span> MST ensembles</p>
+          <h3>Latent samples, clustered</h3>
+          <p>Latent samples drawn from μ and σ are combined through MST-based ensemble embeddings: a minimum
+            spanning tree over the embedding links cells into clusters that respect the manifold rather than
+            imposing spherical groups.</p>
+        </div>
+      </article>
+
+      <article class="tts-panel" data-stage="3">
+        <div class="tts-panel-inner">
+          <p class="tts-step"><span class="num">04</span> Metrics</p>
+          <h3>+60% Silhouette, +14.9% ARI</h3>
+          <p>The framework improves downstream clustering while cutting runtime: +60% Silhouette and +14.9%
+            adjusted Rand index, with better heterogeneity analysis accuracy on glioblastoma test data.</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ===== Notes ===== -->
+  <main class="container">
+    <section class="tts-notes">
+      <h2>About this visualisation</h2>
+      <p>The pipeline drawn above: a gene by cell count matrix with dropout zeros imputed by an inductive GNN,
+        LTMG fitting a left-truncated mixture of Gaussians per gene, a VGAE whose GCN encoder yields μ and σ
+        with reparameterised sampling and an inner-product adjacency decoder, MST-based ensemble embeddings
+        forming clusters, and unsupervised metrics, Silhouette and adjusted Rand index, scoring the result.</p>
+      <p>Each scroll hands its output to the next stage: the matrix and mixture become tensors, the tensors
+        enter the VGAE, the latent samples become the clustered points, and the clusters are what the metrics
+        measure.</p>
     </section>
   </main>
 
@@ -90,6 +177,325 @@
   </footer>
 
   <script src="../assets/site.js"></script>
+  <script>
+  /* The CPSWin scene: four stages driven by scroll, idle life driven by time.
+     Stage transitions are eased crossfades with directional slide; the objects
+     that carry between stages (tensors, latent samples) physically travel. */
+  (function(){
+    "use strict";
+    var NS="http://www.w3.org/2000/svg";
+    var scene=document.getElementById("cps-scene");
+    if(!scene)return;
+    function F(s){return Math.round(s*13.5)/10;}
+    function E(tag,a,p){var e=document.createElementNS(NS,tag);if(a)for(var k in a)e.setAttribute(k,a[k]);(p||scene).appendChild(e);return e;}
+    function txt(x,y,s,fs,fill,anchor,cls,p){
+      var t=E("text",{x:x,y:y,"font-size":F(fs),"text-anchor":anchor||"start",style:"fill:"+fill},p);
+      if(cls)t.setAttribute("class",cls); t.textContent=s; return t;
+    }
+    function cl(v,a,b){return v<a?a:v>b?b:v;}
+    function ph(t,a,b){return cl((t-a)/(b-a),0,1);}
+    function sm(t){t=cl(t,0,1);return t*t*(3-2*t);}
+    function eOut(x){return 1-Math.pow(1-cl(x,0,1),2);}
+    function lerp(a,b,t){return a+(b-a)*t;}
+    var seed=20260615;
+    function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}
+    var i,r,c;
+    var MUT="var(--muted)",INK="var(--ink)",ACC="var(--accent)",AC2="var(--clay)",LN="var(--line)";
+
+    /* Stage groups. Each fades and slides as a unit. */
+    var g1=E("g",{}),gT=E("g",{}),g2=E("g",{}),g3=E("g",{}),g4=E("g",{});
+
+    /* ---------- STAGE 1: heatmap + LTMG ---------- */
+    txt(60,52,"GENE × CELL",10.5,MUT,"start","lbl",g1);
+    var sparkTxt=txt(392,52,"",9,ACC,"end",null,g1);
+    var Acols=12,Arows=7,cw=28,chh=21,Ax=60,Ay=66;
+    var cells=[];
+    for(r=0;r<Arows;r++)for(c=0;c<Acols;c++){
+      var rect=E("rect",{x:Ax+c*cw+1,y:Ay+r*chh+1,width:cw-2,height:chh-2,rx:2,style:"fill:var(--accent)"},g1);
+      cells.push({el:rect,v:0.25+0.75*rnd(),drop:rnd()<0.55,th:0.08+rnd()*0.82,ph:rnd()*6.28});
+    }
+    E("rect",{x:Ax,y:Ay,width:Acols*cw,height:Arows*chh,rx:3,style:"fill:none;stroke:var(--line);stroke-width:1"},g1);
+    txt(Ax+Acols*cw/2,Ay+Arows*chh+20,"Cells →",8.5,MUT,"middle",null,g1);
+
+    txt(60,290,"LTMG · LEFT-TRUNCATED MoG",10.5,MUT,"start","lbl",g1);
+    var Bx0=60,Bx1=396,Bbase=452,Btop=306,Bw=Bx1-Bx0;
+    E("line",{x1:Bx0,y1:Bbase,x2:Bx1,y2:Bbase,style:"stroke:var(--line);stroke-width:1"},g1);
+    E("line",{x1:Bx0,y1:Bbase,x2:Bx0,y2:Btop,style:"stroke:var(--line);stroke-width:1"},g1);
+    txt((Bx0+Bx1)/2,Bbase+20,"Expression",8.5,MUT,"middle",null,g1);
+    var comps=[{m:0.12,s:0.065,w:0.52},{m:0.46,s:0.085,w:0.30},{m:0.79,s:0.075,w:0.22}];
+    function pdf1(x,c){return c.w*Math.exp(-(x-c.m)*(x-c.m)/(2*c.s*c.s))/(c.s*2.5066);}
+    function pdf(x){var s=0;for(var i=0;i<comps.length;i++)s+=pdf1(x,comps[i]);return s;}
+    var pmax=0;for(var x=0.04;x<=1;x+=0.005){var p=pdf(x);if(p>pmax)pmax=p;}
+    var hsc=(Bbase-Btop)/pmax*0.95;
+    function ypx(p){return Bbase-p*hsc;}
+    function xpx(x){return Bx0+x*Bw;}
+    var nb=24,bwv=Bw/nb;
+    for(var b=0;b<nb;b++){
+      var xc=(b+0.5)/nb;if(xc<0.035)continue;
+      var h=cl(pdf(xc)*(0.82+0.36*rnd()),0,pmax);
+      E("rect",{x:xpx(b/nb)+1,y:ypx(h),width:bwv-2,height:Bbase-ypx(h),style:"fill:var(--muted)",opacity:0.28},g1);
+    }
+    E("line",{x1:xpx(0.04),y1:Btop,x2:xpx(0.04),y2:Bbase,"stroke-dasharray":"2 3",style:"stroke:var(--line);stroke-width:1"},g1);
+    var compPaths=[];
+    for(i=0;i<comps.length;i++){
+      compPaths.push({c:comps[i],el:E("path",{fill:"none","stroke-width":1.8,filter:"url(#glow)",
+        style:"stroke:"+(i===1?AC2:ACC)},g1),delay:i*0.14});
+    }
+    function drawComp(cp,amp){
+      var c=cp.c,d="";
+      for(var x=Math.max(0.04,c.m-3.2*c.s);x<=Math.min(1,c.m+3.2*c.s);x+=0.012){
+        d+=(d?"L":"M")+xpx(x).toFixed(1)+" "+ypx(pdf1(x,c)*amp).toFixed(1)+" ";
+      }
+      cp.el.setAttribute("d",d);
+    }
+    /* arrow: data leaves the two panels toward the tensor stack */
+    var outArrow=E("path",{d:"M 412 250 L 470 250",pathLength:1,"stroke-dasharray":"1 1.2","stroke-dashoffset":1,
+      "marker-end":"url(#arrow)",style:"fill:none;stroke:var(--muted);stroke-width:1.4"},g1);
+
+    /* ---------- TENSORS (persist stage 1 -> 2) ---------- */
+    var slabs=[],SL=3;
+    for(i=0;i<SL;i++){
+      var sg=E("g",{opacity:0},gT);
+      E("path",{d:"M0 0 L96 0 L120 -20 L24 -20 Z",style:"fill:var(--paper-2,#15433f);stroke:var(--accent);stroke-width:1.2"},sg);
+      E("path",{d:"M0 0 L96 0 L96 14 L0 14 Z",style:"fill:none;stroke:var(--accent);stroke-width:1.2"},sg);
+      E("path",{d:"M96 0 L120 -20 L120 -6 L96 14 Z",style:"fill:none;stroke:var(--accent);stroke-width:1.2"},sg);
+      slabs.push(sg);
+    }
+    var tLbl=txt(0,0,"tensor · g × c × k",8.5,INK,"middle",null,gT); tLbl.setAttribute("opacity",0);
+
+    /* ---------- STAGE 2: VGAE ---------- */
+    txt(60,52,"VGAE",10.5,MUT,"start","lbl",g2);
+    E("path",{d:"M150 180 L150 330 L300 292 L300 218 Z",style:"fill:none;stroke:var(--ink);stroke-width:1.3"},g2);
+    txt(225,362,"GCN encoder",8.5,MUT,"middle",null,g2);
+    var Lcx=400,Lcy=255;
+    var sigEll=E("ellipse",{cx:Lcx,cy:Lcy,rx:56,ry:38,fill:"none","stroke-width":1.4,style:"stroke:var(--clay)",opacity:0.9},g2);
+    E("ellipse",{cx:Lcx,cy:Lcy,rx:32,ry:22,fill:"none","stroke-width":1,style:"stroke:var(--clay)",opacity:0.4},g2);
+    E("circle",{cx:Lcx,cy:Lcy,r:3.4,style:"fill:var(--ink)"},g2);
+    txt(Lcx,Lcy-52,"μ, σ",10,INK,"middle",null,g2);
+    var zDot=E("circle",{cx:Lcx,cy:Lcy,r:5,style:"fill:var(--accent)",filter:"url(#glow)"},g2);
+    var epsLine=E("line",{x1:Lcx,y1:Lcy,x2:Lcx,y2:Lcy,style:"stroke:var(--accent);stroke-width:1",opacity:0.7},g2);
+    txt(Lcx,Lcy+64,"z = μ + σε",10,ACC,"middle",null,g2);
+    E("path",{d:"M500 218 L500 292 L650 330 L650 180 Z",style:"fill:none;stroke:var(--ink);stroke-width:1.3"},g2);
+    txt(575,362,"Decoder",8.5,MUT,"middle",null,g2);
+    E("line",{x1:308,y1:255,x2:336,y2:255,"marker-end":"url(#arrow)",style:"stroke:var(--muted);stroke-width:1.2"},g2);
+    E("line",{x1:464,y1:255,x2:492,y2:255,"marker-end":"url(#arrow)",style:"stroke:var(--muted);stroke-width:1.2"},g2);
+    var Dn=5,dcw=17,Dx=668,Dy=210,adj=[];
+    for(r=0;r<Dn;r++)for(c=0;c<Dn;c++){
+      var rc=E("rect",{x:Dx+c*dcw,y:Dy+r*dcw,width:dcw-2,height:dcw-2,rx:1.5,style:"fill:var(--accent)"},g2);
+      adj.push({el:rc,base:(r===c?0.95:0.15+rnd()*0.7),ph:rnd()*6.28});
+    }
+    E("rect",{x:Dx-2,y:Dy-2,width:Dn*dcw+2,height:Dn*dcw+2,style:"fill:none;stroke:var(--line);stroke-width:1"},g2);
+    txt(Dx+Dn*dcw/2,Dy+Dn*dcw+20,"Â = σ(ZZᵀ)",8.5,MUT,"middle",null,g2);
+
+    /* ---------- STAGE 3: latent samples -> MST clusters ---------- */
+    txt(60,52,"MST ENSEMBLE CLUSTERS",10.5,MUT,"start","lbl",g3);
+    var ghost=E("ellipse",{cx:150,cy:255,rx:44,ry:30,fill:"none","stroke-width":1.2,style:"stroke:var(--clay)",opacity:0.5},g3);
+    txt(150,255-44,"μ, σ",8.5,MUT,"middle",null,g3);
+    var ctrs=[[350,170],[520,210],[420,370]],CCOL=[ACC,AC2,INK];
+    var NPT=20,pts=[];
+    for(i=0;i<NPT;i++){
+      var k=i%3,a=rnd()*6.28,rad=6+rnd()*26;
+      pts.push({
+        cl:k,
+        tx:ctrs[k][0]+Math.cos(a)*rad*1.15,
+        ty:ctrs[k][1]+Math.sin(a)*rad*0.9,
+        fx:210+rnd()*330, fy:120+rnd()*280,
+        ph:rnd()*6.28
+      });
+    }
+    /* Prim MST over cluster targets */
+    var inT=[0],edges=[],used={0:1};
+    while(inT.length<NPT){
+      var best=null;
+      for(var u2=0;u2<inT.length;u2++){var u=inT[u2];
+        for(var w=0;w<NPT;w++){if(used[w])continue;
+          var dx=pts[u].tx-pts[w].tx,dy=pts[u].ty-pts[w].ty,dd=dx*dx+dy*dy;
+          if(!best||dd<best.d)best={u:u,v:w,d:dd};}}
+      edges.push([best.u,best.v]);used[best.v]=1;inT.push(best.v);
+    }
+    var mstEls=edges.map(function(e,ix){
+      return {e:e,at:ix/edges.length,el:E("line",{style:"stroke:var(--clay);stroke-width:1.1",opacity:0},g3)};
+    });
+    var ptEls=pts.map(function(p){
+      return E("circle",{cx:p.fx,cy:p.fy,r:4.4,style:"fill:"+CCOL[p.cl],filter:"url(#glow)"},g3);
+    });
+
+    /* ---------- STAGE 4: metrics ---------- */
+    txt(470,52,"UNSUPERVISED METRICS",10.5,MUT,"start","lbl",g4);
+    var Gcx=620,Gcy=196,Gr=62;
+    function gpt(sc,rr){var a=(210-240*sc)*Math.PI/180;return [Gcx+rr*Math.cos(a),Gcy-rr*Math.sin(a)];}
+    function arc(s0,s1,rr){var p0=gpt(s0,rr),p1=gpt(s1,rr);var large=Math.abs(s1-s0)>0.5?1:0;
+      return "M"+p0[0].toFixed(1)+" "+p0[1].toFixed(1)+" A"+rr+" "+rr+" 0 "+large+" 1 "+p1[0].toFixed(1)+" "+p1[1].toFixed(1);}
+    E("path",{d:arc(0,1,Gr),fill:"none","stroke-width":6,style:"stroke:var(--line)","stroke-linecap":"round"},g4);
+    var gaugeFill=E("path",{d:arc(0,0.001,Gr),fill:"none","stroke-width":6,style:"stroke:var(--accent)","stroke-linecap":"round",filter:"url(#glow)"},g4);
+    var needle=E("line",{x1:Gcx,y1:Gcy,x2:Gcx,y2:Gcy-Gr+10,style:"stroke:var(--ink);stroke-width:1.8"},g4);
+    E("circle",{cx:Gcx,cy:Gcy,r:3.4,style:"fill:var(--ink)"},g4);
+    var silTxt=txt(Gcx,Gcy-6,"0.00",11,ACC,"middle",null,g4);
+    txt(Gcx,Gcy+26,"Silhouette",8.5,MUT,"middle",null,g4);
+    var mrows=[
+      {y:300,label:"Silhouette",target:0.60,text:"+60%"},
+      {y:346,label:"ARI",target:0.149*2.5,text:"+14.9%"},
+      {y:392,label:"Runtime",target:0.42,text:"lower",down:1}
+    ];
+    var mEls=[];
+    for(i=0;i<mrows.length;i++){
+      var m=mrows[i];
+      txt(470,m.y-8,m.label,8.5,MUT,"start","lbl",g4);
+      E("rect",{x:470,y:m.y,width:240,height:7,rx:3.5,style:"fill:none;stroke:var(--line);stroke-width:0.8"},g4);
+      var fill=E("rect",{x:470,y:m.y,width:0,height:7,rx:3.5,style:"fill:"+(m.down?MUT:ACC)},g4);
+      var vt=txt(722,m.y+7,"",9,m.down?MUT:ACC,"start",null,g4);
+      mEls.push({fill:fill,vt:vt,m:m});
+    }
+
+    /* ---------- composition ---------- */
+    function setStage(g,vis,dy){
+      g.setAttribute("opacity",vis.toFixed(3));
+      g.setAttribute("transform","translate(0,"+(dy*(1-vis)).toFixed(1)+")");
+      g.setAttribute("display",vis<0.004?"none":"");
+    }
+    function win(p,a,b,f){return sm(ph(p,a,a+f))*(1-sm(ph(p,b-f,b)));}
+
+    function render(p,t){
+      var v1=win(p,-1,0.29,0.05);
+      var v2=win(p,0.23,0.54,0.05);
+      var v3=win(p,0.48,2,0.05);          /* clusters stay through stage 4 */
+      var v4=sm(ph(p,0.73,0.8));
+      setStage(g1,v1,20);
+      setStage(g2,v2,24);
+      setStage(g3,p<0.73?v3:cl(v3,0,1)*(1-0.5*sm(ph(p,0.73,0.8))),24);
+      setStage(g4,v4,24);
+
+      /* stage 1: imputation waves + spot changes; gaussians breathe */
+      if(v1>0.004){
+        var imp=sm(ph(p,0.03,0.2));
+        var zeros=0;
+        for(var i=0;i<cells.length;i++){var cc=cells[i];
+          var flick=0.85+0.15*Math.sin(t*1.7+cc.ph);
+          var op;
+          if(!cc.drop){op=(0.30+0.70*cc.v)*flick;}
+          else{
+            var rev=sm((imp-cc.th*0.85)/0.18);
+            op=0.06+rev*(0.30+0.70*cc.v-0.06)*flick;
+            if(rev<0.5)zeros++;
+          }
+          cc.el.setAttribute("opacity",op.toFixed(3));
+        }
+        sparkTxt.textContent="sparsity "+Math.round(100*zeros/cells.length)+"%";
+        var dprg=sm(ph(p,0.05,0.16));
+        for(i=0;i<compPaths.length;i++){
+          var cp=compPaths[i];
+          var amp=(0.25+0.75*sm((dprg-cp.delay)/0.5))*(1+0.05*Math.sin(t*1.3+i*2.1));
+          drawComp(cp,amp);
+          cp.el.setAttribute("opacity",(0.25+0.75*sm((dprg-cp.delay)/0.5)).toFixed(2));
+        }
+        var oa=sm(ph(p,0.12,0.18));
+        outArrow.setAttribute("stroke-dashoffset",1-oa);
+        outArrow.style.opacity=oa<=0.02?"0":"1";
+      }
+
+      /* tensors: assemble at right of stage 1, travel into the encoder */
+      var build=sm(ph(p,0.13,0.21));
+      var travel=sm(ph(p,0.25,0.33));
+      var gone=sm(ph(p,0.33,0.37));
+      var tx0=520,ty0=280,tx1=140,ty1=286;
+      var tvis=cl(build*(1-gone),0,1);
+      for(i=0;i<SL;i++){
+        var si=sm(ph(build,i*0.22,i*0.22+0.5));
+        var sx=lerp(tx0,tx1,travel),sy=lerp(ty0,ty1,travel)-i*26*si;
+        slabs[i].setAttribute("opacity",(si*tvis).toFixed(3));
+        slabs[i].setAttribute("transform","translate("+sx.toFixed(1)+","+sy.toFixed(1)+")");
+      }
+      tLbl.setAttribute("opacity",(build*(1-travel)).toFixed(3));
+      tLbl.setAttribute("x",(lerp(tx0,tx1,travel)+60).toFixed(1));
+      tLbl.setAttribute("y",(lerp(ty0,ty1,travel)+44).toFixed(1));
+
+      /* stage 2: latent jitter + decoder shimmer */
+      if(v2>0.004){
+        sigEll.setAttribute("rx",(56+2.5*Math.sin(t*2)).toFixed(1));
+        sigEll.setAttribute("ry",(38+1.8*Math.sin(t*2+1)).toFixed(1));
+        if(!render.es||t-render.es>0.3){render.es=t;
+          var a1=Math.sin(t*7.3)*0.9,a2=Math.cos(t*5.1)*0.9;
+          render.zx=Lcx+a1*38;render.zy=Lcy+a2*24;
+        }
+        zDot.setAttribute("cx",render.zx.toFixed(1));zDot.setAttribute("cy",render.zy.toFixed(1));
+        epsLine.setAttribute("x2",render.zx.toFixed(1));epsLine.setAttribute("y2",render.zy.toFixed(1));
+        var rec=sm(ph(p,0.3,0.45));
+        for(i=0;i<adj.length;i++){var ad=adj[i];
+          ad.el.setAttribute("opacity",(0.1+rec*ad.base*(0.72+0.28*Math.sin(t*2.5+ad.ph))*0.85).toFixed(3));
+        }
+      }
+
+      /* stage 3: spheres float, then cluster; MST draws in insertion order */
+      if(v3>0.004){
+        var scat=sm(ph(p,0.5,0.55));
+        var clus=sm(ph(p,0.56,0.7));
+        for(i=0;i<NPT;i++){var q=pts[i];
+          var bx=lerp(150,q.fx,scat),by=lerp(255,q.fy,scat);
+          var jx=Math.sin(t*1.6+q.ph)*5*(1-clus),jy=Math.cos(t*1.4+q.ph)*4*(1-clus);
+          q.cx=lerp(bx,q.tx,clus)+jx;q.cy=lerp(by,q.ty,clus)+jy;
+          ptEls[i].setAttribute("cx",q.cx.toFixed(1));
+          ptEls[i].setAttribute("cy",q.cy.toFixed(1));
+          ptEls[i].setAttribute("opacity",(0.25+0.75*scat).toFixed(2));
+        }
+        ghost.setAttribute("opacity",(0.5*(1-clus*0.7)).toFixed(2));
+        var mstp=sm(ph(p,0.66,0.75));
+        for(i=0;i<mstEls.length;i++){var me=mstEls[i];
+          var a=pts[me.e[0]],b2=pts[me.e[1]];
+          me.el.setAttribute("x1",a.cx.toFixed(1));me.el.setAttribute("y1",a.cy.toFixed(1));
+          me.el.setAttribute("x2",b2.cx.toFixed(1));me.el.setAttribute("y2",b2.cy.toFixed(1));
+          me.el.setAttribute("opacity",(sm((mstp-me.at)/0.14)*0.8).toFixed(2));
+        }
+      }
+
+      /* stage 4: gauge sweep + metric bars */
+      if(v4>0.004){
+        var mp=sm(ph(p,0.76,0.92));
+        var sil=0.69*mp;
+        gaugeFill.setAttribute("d",arc(0,Math.max(0.001,sil),Gr));
+        var np=gpt(sil,Gr-9);
+        needle.setAttribute("x2",np[0].toFixed(1));needle.setAttribute("y2",np[1].toFixed(1));
+        silTxt.textContent=sil.toFixed(2);
+        for(i=0;i<mEls.length;i++){var mm=mEls[i];
+          var bp=sm(ph(mp,i*0.12,i*0.12+0.6));
+          mm.fill.setAttribute("width",(240*mm.m.target*bp).toFixed(1));
+          mm.vt.textContent=bp>0.35?mm.m.text:"";
+        }
+      }
+    }
+
+    var section=document.getElementById("cps-section");
+    var panels=[].slice.call(section.querySelectorAll(".tts-panel"));
+    section.setAttribute("data-tts-ready","true");
+    var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    var prog=0;
+    function measure(){
+      var r=section.getBoundingClientRect();
+      var vh=window.innerHeight||document.documentElement.clientHeight;
+      var scrollable=r.height-vh;
+      prog=scrollable>0?cl(-r.top/scrollable,0,1):0;
+      var active=prog<0.24?0:prog<0.5?1:prog<0.74?2:3;
+      for(var i=0;i<panels.length;i++)panels[i].setAttribute("data-active",String(i===active));
+      return r;
+    }
+    if(reduce){
+      measure();render(prog,1.2);
+      window.addEventListener("scroll",function(){measure();render(prog,1.2);},{passive:true});
+      return;
+    }
+    var running=false,t0=null;
+    function loop(ts){
+      if(t0===null)t0=ts;
+      var r=measure();
+      var vh=window.innerHeight||document.documentElement.clientHeight;
+      var near=r.top<vh*1.5&&r.bottom>-vh*0.5;
+      if(near)render(prog,(ts-t0)/1000);
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  })();
+  </script>
+
   <!-- Privacy-friendly page-view counting (GoatCounter). No cookies, no
        personal data; counts only become visible once the boneshwar-vk site
        code is claimed at goatcounter.com. -->
